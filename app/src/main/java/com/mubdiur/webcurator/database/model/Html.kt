@@ -1,4 +1,4 @@
-package com.philstar.webcurator.database
+package com.mubdiur.webcurator.database.model
 
 import androidx.room.ColumnInfo
 import androidx.room.Entity
