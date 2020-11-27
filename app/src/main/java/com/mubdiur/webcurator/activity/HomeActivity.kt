@@ -6,11 +6,10 @@ import android.os.Bundle
 import android.view.inputmethod.EditorInfo
 import android.view.inputmethod.InputMethodManager
 import androidx.appcompat.app.AppCompatActivity
-import com.mubdiur.webcurator.R
 import com.mubdiur.webcurator.client.DatabaseClient
 import com.mubdiur.webcurator.client.MainWebViewClient
 import com.mubdiur.webcurator.client.WebJsClient
-import kotlinx.android.synthetic.main.activity_home.*
+import com.mubdiur.webcurator.databinding.ActivityHomeBinding
 
 
 class HomeActivity : AppCompatActivity() {
@@ -21,6 +20,8 @@ class HomeActivity : AppCompatActivity() {
         var LOAD = true
     }
 
+    private lateinit var binding: ActivityHomeBinding
+
     private lateinit var dbClient: DatabaseClient
 
 
@@ -28,30 +29,32 @@ class HomeActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
 
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_home)
+        binding = ActivityHomeBinding.inflate(layoutInflater)
+        val view = binding.root
+        setContentView(view)
 
         supportActionBar?.hide()
 
         dbClient = DatabaseClient.getClient(this)
 
-        webView.settings.javaScriptEnabled = true
-        webView.addJavascriptInterface(WebJsClient(dbClient), "WebJsClient")
-        webView.webViewClient = MainWebViewClient(urlText)
+        binding.webView.settings.javaScriptEnabled = true
+        binding.webView.addJavascriptInterface(WebJsClient(dbClient), "WebJsClient")
+        binding.webView.webViewClient = MainWebViewClient(binding.urlText)
 
 
 
-        urlText.setOnEditorActionListener { v, actionId, _ ->
+        binding.urlText.setOnEditorActionListener { v, actionId, _ ->
             if (actionId == EditorInfo.IME_ACTION_GO) {
                 closeKeyBoard()
                 v.clearFocus()
-                webView.loadUrl(v.text.toString())
+                binding.webView.loadUrl(v.text.toString())
                 true
             } else {
                 false
             }
         }
 
-        homeNextButton.setOnClickListener {
+        binding.homeNextButton.setOnClickListener {
         } // button.setOnClickListener
 
 
