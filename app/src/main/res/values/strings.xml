@@ -12,4 +12,9 @@
     <string name="feeds">Feeds</string>
     <string name="sources">Sources</string>
     <string name="browser">Browser</string>
+    <string name="add_button">add button</string>
+    <string name="title">Title</string>
+    <string name="enter_the_title_of_the_feed">Enter the title of the feed…</string>
+    <string name="site_url">Site URL</string>
+    <string name="enter_url_or_a_search_term">Enter URL or a search term…</string>
 </resources>
