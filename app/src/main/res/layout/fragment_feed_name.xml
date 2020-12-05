@@ -1,7 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:layout_width="match_parent" android:layout_height="match_parent">
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/feedNameFragment"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/white">
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
@@ -13,13 +17,14 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginStart="32dp"
+            android:layout_marginTop="32dp"
             android:text="@string/title"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintHorizontal_bias="0.0"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintVertical_bias="0.26999998" />
+            app:layout_constraintVertical_bias="0.060000002" />
 
         <EditText
             android:id="@+id/feedTitleEdit"
@@ -29,21 +34,21 @@
             android:layout_marginEnd="32dp"
             android:ems="10"
             android:hint="@string/enter_the_title_of_the_feed"
+            android:importantForAutofill="no"
             android:inputType="textPersonName"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintHorizontal_bias="0.0"
             app:layout_constraintStart_toStartOf="@id/feedTitle"
             app:layout_constraintTop_toBottomOf="@id/feedTitle"
-            app:layout_constraintVertical_bias="0.0"
-            android:importantForAutofill="no" />
+            app:layout_constraintVertical_bias="0.0" />
 
         <TextView
-            android:id="@+id/urlLabel"
+            android:id="@+id/descriptionLabel"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="48dp"
-            android:text="@string/site_url"
+            android:text="@string/feed_description_optional"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintHorizontal_bias="0.0"
@@ -52,32 +57,36 @@
             app:layout_constraintVertical_bias="0.0" />
 
         <EditText
-            android:id="@+id/urlEdit"
+            android:id="@+id/descriptionEdit"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_marginTop="16dp"
             android:layout_marginEnd="32dp"
             android:ems="10"
-            android:hint="@string/enter_url_or_a_search_term"
+            android:hint="@string/enter_a_short_description"
             android:importantForAutofill="no"
-            android:inputType="textUri"
+            android:inputType="textShortMessage|textNoSuggestions"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintHorizontal_bias="0.0"
-            app:layout_constraintStart_toStartOf="@id/urlLabel"
-            app:layout_constraintTop_toBottomOf="@id/urlLabel"
+            app:layout_constraintStart_toStartOf="@id/descriptionLabel"
+            app:layout_constraintTop_toBottomOf="@id/descriptionLabel"
             app:layout_constraintVertical_bias="0.0" />
 
         <Button
-            android:id="@+id/urlNextBtn"
+            android:id="@+id/feedNameNext"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_marginEnd="32dp"
+            android:layout_marginBottom="32dp"
             android:text="@string/next"
             android:textAllCaps="false"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="1.0"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/urlEdit" />
+            app:layout_constraintTop_toBottomOf="@+id/descriptionEdit"
+            app:layout_constraintVertical_bias="1.0" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 </FrameLayout>

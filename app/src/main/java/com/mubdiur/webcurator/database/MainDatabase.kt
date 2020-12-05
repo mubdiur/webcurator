@@ -4,12 +4,12 @@ import android.content.Context
 import androidx.room.Database
 import androidx.room.Room
 import androidx.room.RoomDatabase
-import com.mubdiur.webcurator.database.dao.HtmlDao
-import com.mubdiur.webcurator.database.model.Html
+import com.mubdiur.webcurator.database.dao.ValueDao
+import com.mubdiur.webcurator.database.model.Value
 
-@Database(entities = [Html::class], version = 1)
+@Database(entities = [Value::class], version = 1)
 abstract class MainDatabase : RoomDatabase() {
-    abstract fun userDao(): HtmlDao
+    abstract fun valueDao(): ValueDao
 
     companion object{
         private var INSTANCE: MainDatabase? = null

@@ -2,8 +2,7 @@ package com.mubdiur.webcurator.client
 
 import android.content.Context
 import com.mubdiur.webcurator.database.MainDatabase
-import com.mubdiur.webcurator.database.model.Html
-import com.mubdiur.webcurator.database.repository.HtmlRepository
+import com.mubdiur.webcurator.database.repository.ValueRepository
 
 class DatabaseClient(context: Context) {
 
@@ -21,18 +20,23 @@ class DatabaseClient(context: Context) {
         }
     }
 
-    // Html Table ----------------------------------------------------------
+    // Value Table ----------------------------------------------------------
 
-    fun insertHtml(htmlText: String) {
-        HtmlRepository.getInstance(db).insertHtml(Html(0, htmlText))
+    fun setValue(key: String, value: String) {
+        ValueRepository.getInstance(db).setValue(key, value)
     }
 
-    fun getHtml(): Html {
-        return HtmlRepository.getInstance(db).getHtml()
+    fun getValue(key: String): String {
+        return ValueRepository.getInstance(db).getValue(key)
     }
 
-    fun deleteHtml() {
-        HtmlRepository.getInstance(db).deleteHtml()
+    fun deleteValue(key: String) {
+        ValueRepository.getInstance(db).deleteValue(key)
     }
-    // end of Html Table ---------------------------------------------------
+
+    fun deleteValueAll() {
+        ValueRepository.getInstance(db).deleteValueAll()
+    }
+    // end of Value Table ---------------------------------------------------
+
 }

@@ -1,18 +1,24 @@
 package com.mubdiur.webcurator.activity
 
+import android.annotation.SuppressLint
 import android.os.Bundle
 import android.view.View
 import androidx.appcompat.app.AppCompatActivity
+import androidx.fragment.app.commit
+import androidx.fragment.app.replace
 import androidx.viewpager2.widget.ViewPager2
 import com.google.android.material.tabs.TabLayoutMediator
+import com.mubdiur.webcurator.R
 import com.mubdiur.webcurator.adapter.PagerAdapter
 import com.mubdiur.webcurator.databinding.ActivityMainBinding
+import com.mubdiur.webcurator.fragment.FeedNameFragment
 
 class MainActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivityMainBinding
     private val pages = arrayOf("Home", "Feeds", "Browser")
 
+    @SuppressLint("SetTextI18n")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityMainBinding.inflate(layoutInflater)
@@ -70,8 +76,14 @@ class MainActivity : AppCompatActivity() {
 
                         // Show stuff for Feeds
                         binding.titleText.visibility = View.VISIBLE
-                        binding.titleText.text = pages[position]
-                        binding.addButton.visibility = View.VISIBLE
+                        if(supportFragmentManager.backStackEntryCount == 0)
+                            binding.titleText.text = pages[position]
+                        else
+                            binding.titleText.text = "Create Feed"
+
+                        if(supportFragmentManager.backStackEntryCount == 0)
+                            binding.addButton.visibility = View.VISIBLE
+
                     }
                     2 -> {
                         /**
@@ -85,5 +97,24 @@ class MainActivity : AppCompatActivity() {
                 } // end of when
             } // end of on page selected
         }) // end of registerOnPageChangeCallback
+
+
+        supportFragmentManager.addOnBackStackChangedListener {
+            if(supportFragmentManager.backStackEntryCount == 0){
+                binding.addButton.visibility = View.VISIBLE
+                binding.titleText.text = "Feeds"
+            }
+        }
+
+        binding.addButton.setOnClickListener {
+            supportFragmentManager.commit {
+                replace<FeedNameFragment>(R.id.feedsFragment)
+                setReorderingAllowed(true)
+                addToBackStack(null)
+            }
+            binding.titleText.text = "Create Feed"
+            binding.addButton.visibility = View.INVISIBLE
+        }
+
     } // end of onCreate
 }
