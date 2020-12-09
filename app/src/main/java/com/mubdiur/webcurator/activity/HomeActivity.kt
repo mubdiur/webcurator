@@ -17,7 +17,6 @@ class HomeActivity : AppCompatActivity() {
 
     companion object {
         // private const val TAG = "HomeActivity"
-        var LOAD = true
     }
 
     private lateinit var binding: ActivityHomeBinding
