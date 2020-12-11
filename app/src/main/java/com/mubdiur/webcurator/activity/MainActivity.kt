@@ -4,14 +4,17 @@ import android.annotation.SuppressLint
 import android.os.Bundle
 import android.view.View
 import androidx.appcompat.app.AppCompatActivity
+import androidx.fragment.app.Fragment
 import androidx.fragment.app.commit
 import androidx.fragment.app.replace
 import androidx.viewpager2.widget.ViewPager2
 import com.google.android.material.tabs.TabLayoutMediator
+import com.mubdiur.webcurator.OnBackPressed
 import com.mubdiur.webcurator.R
 import com.mubdiur.webcurator.adapter.PagerAdapter
 import com.mubdiur.webcurator.databinding.ActivityMainBinding
 import com.mubdiur.webcurator.fragment.FeedNameFragment
+
 
 class MainActivity : AppCompatActivity() {
 
@@ -31,7 +34,7 @@ class MainActivity : AppCompatActivity() {
         supportActionBar?.hide()
 
         binding.viewPager.adapter = PagerAdapter(this)
-
+        binding.viewPager.isUserInputEnabled = false
         /**
          * Attached Viewpager with tab bar
          * */
@@ -76,12 +79,12 @@ class MainActivity : AppCompatActivity() {
 
                         // Show stuff for Feeds
                         binding.titleText.visibility = View.VISIBLE
-                        if(supportFragmentManager.backStackEntryCount == 0)
+                        if (supportFragmentManager.backStackEntryCount == 0)
                             binding.titleText.text = pages[position]
                         else
                             binding.titleText.text = "Create Feed"
 
-                        if(supportFragmentManager.backStackEntryCount == 0)
+                        if (supportFragmentManager.backStackEntryCount == 0)
                             binding.addButton.visibility = View.VISIBLE
 
                     }
@@ -117,4 +120,11 @@ class MainActivity : AppCompatActivity() {
         }
 
     } // end of onCreate
+
+    override fun onBackPressed() {
+        val fragment: Fragment? = supportFragmentManager.findFragmentByTag("pageFragment")
+        if(fragment !is OnBackPressed || !fragment.onBackPressed() ) {
+            super.onBackPressed()
+        }
+    }
 }

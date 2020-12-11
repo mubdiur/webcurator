@@ -11,6 +11,7 @@ import android.view.inputmethod.InputMethodManager
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.commit
 import androidx.fragment.app.replace
+import com.mubdiur.webcurator.OnBackPressed
 import com.mubdiur.webcurator.R
 import com.mubdiur.webcurator.client.DatabaseClient
 import com.mubdiur.webcurator.client.MainWebViewClient
@@ -21,14 +22,21 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
 
-class PageFragment : Fragment(R.layout.fragment_page){
+class PageFragment : OnBackPressed, Fragment(R.layout.fragment_page) {
     private var _binding: FragmentPageBinding? = null
     private var _db: DatabaseClient? = null
 
+    companion object {
+        @JvmStatic
+        var activated = true
+    }
+    
     @SuppressLint("SetJavaScriptEnabled")
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
+
+        
         val binding = FragmentPageBinding.bind(view)
         _binding = binding
         val db = DatabaseClient(requireContext())
@@ -38,12 +46,13 @@ class PageFragment : Fragment(R.layout.fragment_page){
         binding.webFeedView.addJavascriptInterface(WebJsClient(db), "WebJsClient")
         binding.webFeedView.webViewClient = MainWebViewClient(binding.urlTextFeedWeb)
 
-        // TODO: this did not work >>>
+
         binding.urlTextFeedWeb.setOnEditorActionListener { v, actionId, _ ->
             if (actionId == EditorInfo.IME_ACTION_GO) {
                 val vw = requireActivity().currentFocus
                 if (vw != null) {
-                    val imm = requireActivity().getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
+                    val imm =
+                        activity?.getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
                     imm.hideSoftInputFromWindow(view.windowToken, 0)
                 }
                 v.clearFocus()
@@ -53,10 +62,9 @@ class PageFragment : Fragment(R.layout.fragment_page){
                 false
             }
         }
-        // TODO: remove this when above works >>>
-        binding.goBtn.setOnClickListener {
-            binding.webFeedView.loadUrl(binding.urlTextFeedWeb.text.toString())
-        }
+
+
+
         binding.pageNext.setOnClickListener {
             CoroutineScope(Dispatchers.IO).launch {
                 Log.d(TAG, "onViewCreated: ${db.getValue("html")}")
@@ -67,11 +75,22 @@ class PageFragment : Fragment(R.layout.fragment_page){
                 addToBackStack(null)
             }
         }
+    } //  end of onViewCreated
+
+    override fun onBackPressed(): Boolean {
+        return if (activated && _binding?.webFeedView?.canGoBack() == true) {
+            _binding?.webFeedView?.goBack()
+            true
+        } else {
+            false
+        }
     }
+
 
     override fun onDestroy() {
         _binding = null
         _db = null
         super.onDestroy()
     }
+
 }

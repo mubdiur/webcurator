@@ -26,6 +26,7 @@
     <string name="selection">Selection</string>
     <string name="add">Add</string>
     <string name="feed_description_optional">Feed Description (Optional)</string>
-    <string name="enter_a_short_description">Enter a short description...</string>
+    <string name="enter_a_short_description">Enter a short description…</string>
     <string name="finish">Finish</string>
+    <string name="https_google_com">https://google.com</string>
 </resources>

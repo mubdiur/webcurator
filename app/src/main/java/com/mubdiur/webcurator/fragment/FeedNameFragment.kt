@@ -35,7 +35,7 @@ class FeedNameFragment : Fragment(R.layout.fragment_feed_name) {
                 )
             }
             requireActivity().supportFragmentManager.commit {
-                replace<PageFragment>(R.id.feedNameFragment)
+                replace<PageFragment>(R.id.feedNameFragment,  tag = "pageFragment")
                 setReorderingAllowed(true)
                 addToBackStack(null)
             }

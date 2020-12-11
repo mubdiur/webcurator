@@ -4,8 +4,6 @@ import android.os.Bundle
 import android.view.View
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentManager
-import androidx.fragment.app.commit
-import androidx.fragment.app.replace
 import com.mubdiur.webcurator.R
 import com.mubdiur.webcurator.databinding.FragmentSelectionBinding
 
@@ -15,6 +13,7 @@ class SelectionFragment : Fragment(R.layout.fragment_selection) {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        PageFragment.activated = false
         val binding = FragmentSelectionBinding.bind(view)
         _binding = binding
 
@@ -25,6 +24,7 @@ class SelectionFragment : Fragment(R.layout.fragment_selection) {
 
     override fun onDestroy() {
         _binding = null
+        PageFragment.activated = true
         super.onDestroy()
     }
 }
