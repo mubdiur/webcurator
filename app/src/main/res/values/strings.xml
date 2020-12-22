@@ -1,6 +1,5 @@
 <resources>
     <string name="app_name">WebCurator</string>
-    <string name="textview">TextView</string>
     <string name="proceed">Proceed</string>
     <string name="type_url_here">Type url here…</string>
     <string name="next">Next</string>
@@ -17,8 +16,6 @@
     <string name="enter_the_title_of_the_feed">Enter the title of the feed…</string>
     <string name="site_url">Site URL</string>
     <string name="enter_url_or_a_search_term">Enter URL or a search term…</string>
-    <!-- TODO: Remove or change this placeholder text -->
-    <string name="hello_blank_fragment">Hello blank fragment</string>
     <string name="previous">Previous</string>
     <string name="cancel">Cancel</string>
     <string name="name">Name</string>
@@ -29,4 +26,8 @@
     <string name="enter_a_short_description">Enter a short description…</string>
     <string name="finish">Finish</string>
     <string name="https_google_com">https://google.com</string>
+    <string name="checked_textview">CheckedTextView</string>
+    <string name="todo">TODO</string>
+    <string name="textview">TextView</string>
+    <string name="https_mubdiur_com">https://mubdiur.com</string>
 </resources>

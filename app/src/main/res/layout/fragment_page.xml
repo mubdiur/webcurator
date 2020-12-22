@@ -42,7 +42,7 @@
                 android:inputType="textUri"
                 android:paddingStart="16dp"
                 android:paddingEnd="8dp"
-                android:text="@string/https_google_com"
+                android:text="@string/https_mubdiur_com"
                 android:textSize="16sp"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"

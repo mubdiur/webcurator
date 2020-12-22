@@ -8,6 +8,7 @@ import android.util.Log
 import android.view.View
 import android.view.inputmethod.EditorInfo
 import android.view.inputmethod.InputMethodManager
+import androidx.core.text.set
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.commit
 import androidx.fragment.app.replace
@@ -19,6 +20,7 @@ import com.mubdiur.webcurator.client.WebJsClient
 import com.mubdiur.webcurator.databinding.FragmentPageBinding
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.callbackFlow
 import kotlinx.coroutines.launch
 
 
@@ -30,13 +32,13 @@ class PageFragment : OnBackPressed, Fragment(R.layout.fragment_page) {
         @JvmStatic
         var activated = true
     }
-    
+
     @SuppressLint("SetJavaScriptEnabled")
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
 
-        
+
         val binding = FragmentPageBinding.bind(view)
         _binding = binding
         val db = DatabaseClient(requireContext())
@@ -66,9 +68,10 @@ class PageFragment : OnBackPressed, Fragment(R.layout.fragment_page) {
 
 
         binding.pageNext.setOnClickListener {
-            CoroutineScope(Dispatchers.IO).launch {
-                Log.d(TAG, "onViewCreated: ${db.getValue("html")}")
-            }
+            val url = binding.urlTextFeedWeb.text.toString()
+            binding.webFeedView.loadUrl(url)
+
+            // TODO run the following block only after loadUrl has finished its job
             requireActivity().supportFragmentManager.commit {
                 replace<SelectionFragment>(R.id.pageFragment)
                 setReorderingAllowed(true)
