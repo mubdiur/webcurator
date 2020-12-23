@@ -1,26 +1,23 @@
 package com.mubdiur.webcurator.client
 
+import android.content.ContentValues.TAG
 import android.graphics.Bitmap
+import android.util.Log
 import android.webkit.WebView
 import android.webkit.WebViewClient
 import android.widget.EditText
 import android.widget.TextView
 
-class MainWebViewClient(private val urlEdit: EditText): WebViewClient() {
-    companion object {
-        // private const val TAG = "HomeActivity"
-        var LOAD = true
-    }
+class MainWebViewClient(private val urlEdit: EditText) : WebViewClient() {
+
 
     override fun onPageFinished(view: WebView?, url: String?) {
         super.onPageFinished(view, url)
-        if (LOAD) {
-            view?.loadUrl(
-                "javascript:window.WebJsClient.saveHtml" +
-                        "('<html>'+document.getElementsByTagName('html')[0].innerHTML+'</html>');"
-            )
-        }
-        LOAD = !LOAD
+        view?.loadUrl(
+            "javascript:window.WebJsClient.saveHtml" +
+                    "('<html>'+document.getElementsByTagName('html')[0].innerHTML+'</html>');"
+        )
+        Log.d(TAG, "onPageFinished: called.......from web view")
     }
 
     override fun onPageStarted(view: WebView?, url: String?, favicon: Bitmap?) {
