@@ -1,7 +1,7 @@
-package com.mubdiur.webcurator.database.repository
+package com.mubdiur.webcurator.databases.repositories
 
-import com.mubdiur.webcurator.database.MainDatabase
-import com.mubdiur.webcurator.database.model.Value
+import com.mubdiur.webcurator.databases.MainDatabase
+import com.mubdiur.webcurator.databases.models.Value
 
 class ValueRepository (db: MainDatabase) {
 

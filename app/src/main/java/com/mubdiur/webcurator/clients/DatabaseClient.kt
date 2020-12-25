@@ -1,8 +1,8 @@
-package com.mubdiur.webcurator.client
+package com.mubdiur.webcurator.clients
 
 import android.content.Context
-import com.mubdiur.webcurator.database.MainDatabase
-import com.mubdiur.webcurator.database.repository.ValueRepository
+import com.mubdiur.webcurator.databases.MainDatabase
+import com.mubdiur.webcurator.databases.repositories.ValueRepository
 
 class DatabaseClient(context: Context) {
 

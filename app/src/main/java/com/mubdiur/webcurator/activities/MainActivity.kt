@@ -1,4 +1,4 @@
-package com.mubdiur.webcurator.activity
+package com.mubdiur.webcurator.activities
 
 import android.annotation.SuppressLint
 import android.os.Bundle
@@ -9,11 +9,11 @@ import androidx.fragment.app.commit
 import androidx.fragment.app.replace
 import androidx.viewpager2.widget.ViewPager2
 import com.google.android.material.tabs.TabLayoutMediator
-import com.mubdiur.webcurator.OnBackPressed
+import com.mubdiur.webcurator.interfaces.OnBackPressed
 import com.mubdiur.webcurator.R
-import com.mubdiur.webcurator.adapter.PagerAdapter
+import com.mubdiur.webcurator.adapters.PagerAdapter
 import com.mubdiur.webcurator.databinding.ActivityMainBinding
-import com.mubdiur.webcurator.fragment.FeedNameFragment
+import com.mubdiur.webcurator.fragments.FeedNameFragment
 
 
 class MainActivity : AppCompatActivity() {

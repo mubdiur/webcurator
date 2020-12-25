@@ -1,24 +1,25 @@
-package com.mubdiur.webcurator.fragment
+package com.mubdiur.webcurator.fragments
 
 import android.annotation.SuppressLint
 import android.content.Context
 import android.os.Bundle
+import android.view.KeyEvent
 import android.view.View
-import android.view.inputmethod.EditorInfo
 import android.view.inputmethod.InputMethodManager
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.commit
 import androidx.fragment.app.replace
-import com.mubdiur.webcurator.OnBackPressed
-import com.mubdiur.webcurator.OnPageFinish
+import com.mubdiur.webcurator.interfaces.OnBackPressed
+import com.mubdiur.webcurator.interfaces.OnPageFinish
 import com.mubdiur.webcurator.R
-import com.mubdiur.webcurator.client.DatabaseClient
-import com.mubdiur.webcurator.client.MainWebViewClient
-import com.mubdiur.webcurator.client.WebJsClient
+import com.mubdiur.webcurator.clients.DatabaseClient
+import com.mubdiur.webcurator.clients.MainWebViewClient
+import com.mubdiur.webcurator.clients.WebJsClient
 import com.mubdiur.webcurator.databinding.FragmentPageBinding
 
 
-class PageFragment : OnBackPressed, Fragment(R.layout.fragment_page), OnPageFinish {
+@SuppressLint("ClickableViewAccessibility")
+class PageFragment : Fragment(R.layout.fragment_page), OnBackPressed, OnPageFinish {
     private var _binding: FragmentPageBinding? = null
     private var _db: DatabaseClient? = null
     private var goNext = false
@@ -31,7 +32,7 @@ class PageFragment : OnBackPressed, Fragment(R.layout.fragment_page), OnPageFini
     @SuppressLint("SetJavaScriptEnabled")
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-
+        view.setOnTouchListener { _, _ -> true }
 
         val binding = FragmentPageBinding.bind(view)
         _binding = binding
@@ -43,22 +44,17 @@ class PageFragment : OnBackPressed, Fragment(R.layout.fragment_page), OnPageFini
         binding.webFeedView.webViewClient = MainWebViewClient(binding.urlTextFeedWeb)
         binding.webFeedView.clearCache(true)
 
-        binding.urlTextFeedWeb.setOnEditorActionListener { v, actionId, _ ->
-            if (actionId == EditorInfo.IME_ACTION_GO) {
-                val vw = requireActivity().currentFocus
-                if (vw != null) {
-                    val imm =
-                        activity?.getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
-                    imm.hideSoftInputFromWindow(view.windowToken, 0)
-                }
-                v.clearFocus()
-                binding.webFeedView.loadUrl(v.text.toString())
-                true
-            } else {
-                false
-            }
-        }
 
+        binding.urlTextFeedWeb.setOnKeyListener { v, keyCode, event ->
+            if ((event.action == KeyEvent.ACTION_DOWN)
+                && (keyCode == KeyEvent.KEYCODE_ENTER)
+            ) {
+                v.clearFocus()
+                hideKeyboard()
+                binding.webFeedView.loadUrl(binding.urlTextFeedWeb.text.toString().trim())
+            }
+            false
+        }
 
 
         binding.pageNext.setOnClickListener {
@@ -86,6 +82,13 @@ class PageFragment : OnBackPressed, Fragment(R.layout.fragment_page), OnPageFini
                 addToBackStack(null)
             }
         }
+    }
+
+
+    private fun hideKeyboard() {
+        val imm =
+            requireActivity().getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
+        imm.hideSoftInputFromWindow(_binding?.urlTextFeedWeb?.windowToken, 0)
     }
 
     override fun onDestroy() {

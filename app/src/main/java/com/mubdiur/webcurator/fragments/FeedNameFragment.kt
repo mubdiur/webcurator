@@ -1,24 +1,27 @@
-package com.mubdiur.webcurator.fragment
+package com.mubdiur.webcurator.fragments
 
+import android.annotation.SuppressLint
 import android.os.Bundle
 import android.view.View
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.commit
 import androidx.fragment.app.replace
 import com.mubdiur.webcurator.R
-import com.mubdiur.webcurator.client.DatabaseClient
+import com.mubdiur.webcurator.clients.DatabaseClient
 import com.mubdiur.webcurator.databinding.FragmentFeedNameBinding
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.launch
 
 class FeedNameFragment : Fragment(R.layout.fragment_feed_name) {
     private var _binding: FragmentFeedNameBinding? = null
     private var _db: DatabaseClient? = null
 
+    @SuppressLint("ClickableViewAccessibility")
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated (view, savedInstanceState)
+        view.setOnTouchListener { _, _ ->  true }
+
         val binding = FragmentFeedNameBinding.bind(view)
         _binding = binding
         val db = DatabaseClient(requireContext())

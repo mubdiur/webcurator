@@ -13,17 +13,14 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.WebCurator"
         tools:ignore="AllowBackup">
-        <activity android:name=".activity.MainActivity"
-            android:windowSoftInputMode="stateAlwaysHidden">
+        <activity android:name=".activities.MainActivity"
+            android:windowSoftInputMode="adjustResize|stateAlwaysVisible">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity
-            android:name=".activity.HomeActivity"
-            android:windowSoftInputMode="stateAlwaysHidden"/>
     </application>
 
 </manifest>

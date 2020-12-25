@@ -1,11 +1,11 @@
-package com.mubdiur.webcurator.adapter
+package com.mubdiur.webcurator.adapters
 
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentActivity
 import androidx.viewpager2.adapter.FragmentStateAdapter
-import com.mubdiur.webcurator.fragment.BrowserFragment
-import com.mubdiur.webcurator.fragment.FeedsFragment
-import com.mubdiur.webcurator.fragment.HomeFragment
+import com.mubdiur.webcurator.fragments.BrowserFragment
+import com.mubdiur.webcurator.fragments.FeedsFragment
+import com.mubdiur.webcurator.fragments.HomeFragment
 
 class PagerAdapter(fragmentActivity: FragmentActivity) : FragmentStateAdapter(fragmentActivity) {
     override fun getItemCount(): Int = 3

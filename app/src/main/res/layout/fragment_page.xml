@@ -6,7 +6,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@color/white"
-    tools:context=".fragment.HomeFragment">
+    tools:context=".fragments.HomeFragment">
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
@@ -38,6 +38,7 @@
                 android:ems="10"
                 android:hint="@string/enter_url_or_a_search_term"
                 android:imeOptions="actionGo"
+
                 android:importantForAutofill="no"
                 android:inputType="textUri"
                 android:paddingStart="16dp"
@@ -56,6 +57,7 @@
             android:id="@+id/webFeedView"
             android:layout_width="0dp"
             android:layout_height="0dp"
+            android:visibility="visible"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"

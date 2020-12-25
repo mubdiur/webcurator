@@ -1,4 +1,4 @@
-package com.mubdiur.webcurator.client
+package com.mubdiur.webcurator.clients
 
 import android.content.ContentValues.TAG
 import android.graphics.Bitmap

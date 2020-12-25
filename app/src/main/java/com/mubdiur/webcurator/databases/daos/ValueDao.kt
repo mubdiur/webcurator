@@ -1,9 +1,9 @@
-package com.mubdiur.webcurator.database.dao
+package com.mubdiur.webcurator.databases.daos
 
 import androidx.room.Dao
 import androidx.room.Insert
 import androidx.room.Query
-import com.mubdiur.webcurator.database.model.Value
+import com.mubdiur.webcurator.databases.models.Value
 
 
 @Dao

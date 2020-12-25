@@ -1,4 +1,4 @@
-package com.mubdiur.webcurator
+package com.mubdiur.webcurator.interfaces
 
 interface OnBackPressed {
     fun onBackPressed() : Boolean

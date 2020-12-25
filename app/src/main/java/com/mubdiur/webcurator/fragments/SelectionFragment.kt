@@ -1,8 +1,7 @@
-package com.mubdiur.webcurator.fragment
+package com.mubdiur.webcurator.fragments
 
-import android.content.ContentValues.TAG
+import android.annotation.SuppressLint
 import android.os.Bundle
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -13,8 +12,10 @@ import androidx.fragment.app.FragmentManager
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.mubdiur.webcurator.R
-import com.mubdiur.webcurator.client.DatabaseClient
+import com.mubdiur.webcurator.clients.DatabaseClient
+import com.mubdiur.webcurator.databases.models.ParsedElement
 import com.mubdiur.webcurator.databinding.FragmentSelectionBinding
+import com.mubdiur.webcurator.interfaces.OnItemClick
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -23,14 +24,19 @@ import org.jsoup.Jsoup
 import org.jsoup.select.Elements
 
 
-class SelectionFragment : Fragment(R.layout.fragment_selection) {
+class SelectionFragment : Fragment(R.layout.fragment_selection), OnItemClick {
+
+    private val dataList = mutableListOf<ParsedElement>()
+    private val selectionMap = hashMapOf<Int, Boolean>()
     private var _binding: FragmentSelectionBinding? = null
     private var _db: DatabaseClient? = null
     private var html = ""
     private val itemList = mutableListOf<Item>()
 
+    @SuppressLint("ClickableViewAccessibility")
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        view.setOnTouchListener { _, _ -> true }
 
         PageFragment.activated = false
 
@@ -41,10 +47,13 @@ class SelectionFragment : Fragment(R.layout.fragment_selection) {
         _db = db
 
         binding.selectionView.layoutManager = LinearLayoutManager(requireContext())
-        binding.selectionView.adapter = SelectionAdapter(itemList)
+        binding.selectionView.adapter = SelectionAdapter(itemList, this)
 
 
         binding.selectionFinish.setOnClickListener {
+
+            // TODO Start the analysis job
+
             requireActivity().supportFragmentManager
                 .popBackStackImmediate(
                     null,
@@ -67,19 +76,31 @@ class SelectionFragment : Fragment(R.layout.fragment_selection) {
                 it.children().remove()
             }
 
-            soloElements.forEach {
-            // for debug
-            // Log.d(TAG, "updateData: under ${element.tagName()} there's ${element.children().size} children")
-                val txt = it.text()
-                if(txt.isNotEmpty()) {
-                    Log.d(TAG, "updateData: ${it.tagName()}")
+            for (i in 0 until soloElements.size) {
+                // for debug
+                // Log.d(TAG, "updateData: under ${element.tagName()} there's ${element.children().size} children")
+                val txt = soloElements[i].text()
+                if (txt.isNotEmpty()) {
+
+
+                    var path = ""
+
+                    var element = elements[i]
+                    do {
+                        path += "${element.tagName()} "
+                        element = element.parent()
+                    } while (element.parent() != null)
+
+                    val data = ParsedElement(elements[i], path.trim())
+                    dataList.add(data)
+
                     val item = Item()
                     item.setText(txt)
                     itemList.add(item)
                 }
-            }
-        }
-    }
+            } // end of for loop
+        } // end of withContext(Dispatchers.Default)
+    } // end of updateData
 
     private suspend fun updateUi() {
         withContext(Dispatchers.Main) {
@@ -92,6 +113,17 @@ class SelectionFragment : Fragment(R.layout.fragment_selection) {
         _db = null
         PageFragment.activated = true
         super.onDestroy()
+    }
+
+    override fun onItemClicked(position: Int) {
+        if (itemList[position].isSelected()) {
+            itemList[position].unSelect()
+            selectionMap[position] = false
+        } else {
+            itemList[position].select()
+            selectionMap[position] = true
+        }
+        _binding?.selectionView?.adapter?.notifyItemChanged(position)
     }
 }
 
@@ -117,7 +149,7 @@ class Item {
 
 // recyclerview adapter
 
-class SelectionAdapter(private val itemList: List<Item>) :
+class SelectionAdapter(private val itemList: List<Item>, private val onItemClick: OnItemClick) :
     RecyclerView.Adapter<SelectionAdapter.ViewHolder>() {
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
         val view: View = LayoutInflater.from(parent.context)
@@ -137,8 +169,10 @@ class SelectionAdapter(private val itemList: List<Item>) :
         } else {
             holder.selectionImg.visibility = View.INVISIBLE
         }
+        holder.itemView.setOnClickListener {
+            onItemClick.onItemClicked(position)
+        }
     }
 
     override fun getItemCount() = itemList.size
-
 }
