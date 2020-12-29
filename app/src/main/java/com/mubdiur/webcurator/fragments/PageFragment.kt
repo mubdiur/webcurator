@@ -24,11 +24,6 @@ class PageFragment : Fragment(R.layout.fragment_page), OnBackPressed, OnPageFini
     private var _db: DatabaseClient? = null
     private var goNext = false
 
-    companion object {
-        @JvmStatic
-        var activated = true
-    }
-
     @SuppressLint("SetJavaScriptEnabled")
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
@@ -64,7 +59,7 @@ class PageFragment : Fragment(R.layout.fragment_page), OnBackPressed, OnPageFini
     } //  end of onViewCreated
 
     override fun onBackPressed(): Boolean {
-        return if (activated && _binding?.webFeedView?.canGoBack() == true) {
+        return if (_binding?.webFeedView?.canGoBack() == true) {
             _binding?.webFeedView?.goBack()
             true
         } else {

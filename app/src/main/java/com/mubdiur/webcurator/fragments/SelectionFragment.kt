@@ -13,7 +13,6 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.mubdiur.webcurator.R
 import com.mubdiur.webcurator.clients.DatabaseClient
-import com.mubdiur.webcurator.databases.models.ParsedElement
 import com.mubdiur.webcurator.databinding.FragmentSelectionBinding
 import com.mubdiur.webcurator.interfaces.OnItemClick
 import kotlinx.coroutines.CoroutineScope
@@ -26,7 +25,6 @@ import org.jsoup.select.Elements
 
 class SelectionFragment : Fragment(R.layout.fragment_selection), OnItemClick {
 
-    private val dataList = mutableListOf<ParsedElement>()
     private val selectionMap = hashMapOf<Int, Boolean>()
     private var _binding: FragmentSelectionBinding? = null
     private var _db: DatabaseClient? = null
@@ -38,7 +36,6 @@ class SelectionFragment : Fragment(R.layout.fragment_selection), OnItemClick {
         super.onViewCreated(view, savedInstanceState)
         view.setOnTouchListener { _, _ -> true }
 
-        PageFragment.activated = false
 
         val binding = FragmentSelectionBinding.bind(view)
         _binding = binding
@@ -50,9 +47,7 @@ class SelectionFragment : Fragment(R.layout.fragment_selection), OnItemClick {
         binding.selectionView.adapter = SelectionAdapter(itemList, this)
 
 
-        binding.selectionFinish.setOnClickListener {
-
-            // TODO Start the analysis job
+        binding.selectionNext.setOnClickListener {
 
             requireActivity().supportFragmentManager
                 .popBackStackImmediate(
@@ -71,34 +66,14 @@ class SelectionFragment : Fragment(R.layout.fragment_selection), OnItemClick {
 
     private suspend fun updateData(elements: Elements) {
         withContext(Dispatchers.Default) {
-            val soloElements = elements.clone()
-            soloElements.forEach {
-                it.children().remove()
-            }
 
-            for (i in 0 until soloElements.size) {
-                // for debug
-                // Log.d(TAG, "updateData: under ${element.tagName()} there's ${element.children().size} children")
-                val txt = soloElements[i].text()
-                if (txt.isNotEmpty()) {
-
-
-                    var path = ""
-
-                    var element = elements[i]
-                    do {
-                        path += "${element.tagName()} "
-                        element = element.parent()
-                    } while (element.parent() != null)
-
-                    val data = ParsedElement(elements[i], path.trim())
-                    dataList.add(data)
-
+            elements.forEach {
+                if(it.ownText().isNotEmpty()) {
                     val item = Item()
-                    item.setText(txt)
+                    item.setText(it.ownText())
                     itemList.add(item)
                 }
-            } // end of for loop
+            } // end of foreach
         } // end of withContext(Dispatchers.Default)
     } // end of updateData
 
@@ -111,7 +86,6 @@ class SelectionFragment : Fragment(R.layout.fragment_selection), OnItemClick {
     override fun onDestroy() {
         _binding = null
         _db = null
-        PageFragment.activated = true
         super.onDestroy()
     }
 

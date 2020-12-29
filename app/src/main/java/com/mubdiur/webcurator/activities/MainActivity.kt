@@ -122,7 +122,8 @@ class MainActivity : AppCompatActivity() {
     } // end of onCreate
 
     override fun onBackPressed() {
-        val fragment: Fragment? = supportFragmentManager.findFragmentByTag("pageFragment")
+        val sz = supportFragmentManager.fragments.size
+        val fragment: Fragment? = supportFragmentManager.fragments[sz-1]
         if(fragment !is OnBackPressed || !fragment.onBackPressed() ) {
             super.onBackPressed()
         }
