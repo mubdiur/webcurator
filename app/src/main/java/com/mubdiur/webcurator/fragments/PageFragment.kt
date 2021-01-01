@@ -16,6 +16,10 @@ import com.mubdiur.webcurator.clients.DatabaseClient
 import com.mubdiur.webcurator.clients.MainWebViewClient
 import com.mubdiur.webcurator.clients.WebJsClient
 import com.mubdiur.webcurator.databinding.FragmentPageBinding
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 
 @SuppressLint("ClickableViewAccessibility")
@@ -31,7 +35,7 @@ class PageFragment : Fragment(R.layout.fragment_page), OnBackPressed, OnPageFini
 
         val binding = FragmentPageBinding.bind(view)
         _binding = binding
-        val db = DatabaseClient(requireContext())
+        val db = DatabaseClient.getClient(requireContext())
         _db = db
 
         binding.webFeedView.settings.javaScriptEnabled = true
@@ -71,10 +75,18 @@ class PageFragment : Fragment(R.layout.fragment_page), OnBackPressed, OnPageFini
     override fun onPageFinished() {
         if (goNext) {
             goNext = false
-            requireActivity().supportFragmentManager.commit {
-                replace<SelectionFragment>(R.id.pageFragment)
-                setReorderingAllowed(true)
-                addToBackStack(null)
+            val url = _binding?.urlTextFeedWeb?.text.toString()
+            CoroutineScope(Dispatchers.IO).launch {
+                try {
+                    _db?.setValue("url", url)
+                } catch (e: Exception) {}
+                withContext(Dispatchers.Main) {
+                    requireActivity().supportFragmentManager.commit {
+                        replace<SelectionFragment>(R.id.pageFragment)
+                        setReorderingAllowed(true)
+                        addToBackStack(null)
+                    }
+                }
             }
         }
     }

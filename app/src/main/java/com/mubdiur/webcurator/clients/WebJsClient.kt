@@ -10,8 +10,11 @@ class WebJsClient(private val db: DatabaseClient, private val callback: OnPageFi
     @JavascriptInterface
     fun saveHtml(html: String){
         CoroutineScope(Dispatchers.IO).launch {
-            db.setValue("html", html)
-            callback.onPageFinished()
+            try {
+                db.setValue("html", html)
+                callback.onPageFinished()
+            } catch (e: Exception){}
+
         }
     }
 }

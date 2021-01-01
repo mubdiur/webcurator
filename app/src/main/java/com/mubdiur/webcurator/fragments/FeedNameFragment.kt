@@ -12,6 +12,7 @@ import com.mubdiur.webcurator.databinding.FragmentFeedNameBinding
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import java.lang.Exception
 
 class FeedNameFragment : Fragment(R.layout.fragment_feed_name) {
     private var _binding: FragmentFeedNameBinding? = null
@@ -24,18 +25,20 @@ class FeedNameFragment : Fragment(R.layout.fragment_feed_name) {
 
         val binding = FragmentFeedNameBinding.bind(view)
         _binding = binding
-        val db = DatabaseClient(requireContext())
+        val db = DatabaseClient.getClient(requireContext())
         _db = db
         binding.feedNameNext.setOnClickListener {
             CoroutineScope(Dispatchers.IO).launch {
-                db.setValue(
-                    "title",
-                    binding.feedTitleEdit.text.toString()
-                )
-                db.setValue(
-                    "Description",
-                    binding.descriptionEdit.text.toString()
-                )
+                try {
+                    db.setValue(
+                        "title",
+                        binding.feedTitleEdit.text.toString()
+                    )
+                    db.setValue(
+                        "Description",
+                        binding.descriptionEdit.text.toString()
+                    )
+                } catch (e: Exception){}
             }
             requireActivity().supportFragmentManager.commit {
                 replace<PageFragment>(R.id.feedNameFragment,  tag = "pageFragment")

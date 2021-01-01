@@ -13,6 +13,7 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.mubdiur.webcurator.R
 import com.mubdiur.webcurator.clients.DatabaseClient
+import com.mubdiur.webcurator.databases.Curator
 import com.mubdiur.webcurator.databinding.FragmentSelectionBinding
 import com.mubdiur.webcurator.interfaces.OnItemClick
 import kotlinx.coroutines.CoroutineScope
@@ -29,6 +30,7 @@ class SelectionFragment : Fragment(R.layout.fragment_selection), OnItemClick {
     private var _binding: FragmentSelectionBinding? = null
     private var _db: DatabaseClient? = null
     private var html = ""
+    private lateinit var allElements: Elements
     private val itemList = mutableListOf<Item>()
 
     @SuppressLint("ClickableViewAccessibility")
@@ -40,15 +42,30 @@ class SelectionFragment : Fragment(R.layout.fragment_selection), OnItemClick {
         val binding = FragmentSelectionBinding.bind(view)
         _binding = binding
 
-        val db = DatabaseClient(requireContext())
+        val db = DatabaseClient.getClient(requireContext())
         _db = db
 
         binding.selectionView.layoutManager = LinearLayoutManager(requireContext())
         binding.selectionView.adapter = SelectionAdapter(itemList, this)
 
 
-        binding.selectionNext.setOnClickListener {
+        binding.selectionFinish.setOnClickListener {
 
+            CoroutineScope(Dispatchers.IO).launch {
+                val selectionList = mutableListOf<Int>()
+                for (i in selectionMap.keys) {
+                    if (selectionMap[i] == true) {
+                        selectionList.add(i)
+                    }
+                }
+                try {
+                    val url = db.getValue("url")
+                    db.setSite(url, Curator.generateQueries(allElements, selectionList))
+                    val sites = db.getAllSites()
+                    println(sites[3].queries)
+                } catch (e: Exception) {}
+
+            }
             requireActivity().supportFragmentManager
                 .popBackStackImmediate(
                     null,
@@ -57,8 +74,10 @@ class SelectionFragment : Fragment(R.layout.fragment_selection), OnItemClick {
         }
 
         CoroutineScope(Dispatchers.IO).launch {
-            html = db.getValue("html")
-            updateData(Jsoup.parse(html).body().allElements)
+            try {
+                html = db.getValue("html")
+                updateData(Jsoup.parse(html).body().allElements)
+            } catch (e: Exception) {}
             updateUi()
         }
 
@@ -66,9 +85,9 @@ class SelectionFragment : Fragment(R.layout.fragment_selection), OnItemClick {
 
     private suspend fun updateData(elements: Elements) {
         withContext(Dispatchers.Default) {
-
+            allElements = elements
             elements.forEach {
-                if(it.ownText().isNotEmpty()) {
+                if (it.ownText().isNotEmpty()) {
                     val item = Item()
                     item.setText(it.ownText())
                     itemList.add(item)

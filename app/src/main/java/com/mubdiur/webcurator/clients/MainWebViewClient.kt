@@ -15,7 +15,7 @@ class MainWebViewClient(private val urlEdit: EditText) : WebViewClient() {
         super.onPageFinished(view, url)
         view?.loadUrl(
             "javascript:window.WebJsClient.saveHtml" +
-                    "('<html>'+document.getElementsByTagName('html')[0].innerHTML+'</html>');"
+                    "('<html>'+document.getElementsByTagName('body')[0].innerHTML+'</html>');"
         )
         Log.d(TAG, "onPageFinished: called.......from web view")
     }
