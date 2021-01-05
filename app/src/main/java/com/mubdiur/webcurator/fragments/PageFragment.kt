@@ -12,9 +12,10 @@ import androidx.fragment.app.replace
 import com.mubdiur.webcurator.interfaces.OnBackPressed
 import com.mubdiur.webcurator.interfaces.OnPageFinish
 import com.mubdiur.webcurator.R
-import com.mubdiur.webcurator.clients.DatabaseClient
 import com.mubdiur.webcurator.clients.MainWebViewClient
 import com.mubdiur.webcurator.clients.WebJsClient
+import com.mubdiur.webcurator.databases.DatabaseClient
+import com.mubdiur.webcurator.databases.models.Value
 import com.mubdiur.webcurator.databinding.FragmentPageBinding
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -24,19 +25,28 @@ import kotlinx.coroutines.withContext
 
 @SuppressLint("ClickableViewAccessibility")
 class PageFragment : Fragment(R.layout.fragment_page), OnBackPressed, OnPageFinish {
+
+
     private var _binding: FragmentPageBinding? = null
     private var _db: DatabaseClient? = null
-    private var goNext = false
+
+    private var _goNext: Boolean? = null
+    private var _url: String? = null
+
+    private val binding get() = _binding!!
+    private val db get() = _db!!
+
 
     @SuppressLint("SetJavaScriptEnabled")
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+
+
         super.onViewCreated(view, savedInstanceState)
         view.setOnTouchListener { _, _ -> true }
 
-        val binding = FragmentPageBinding.bind(view)
-        _binding = binding
-        val db = DatabaseClient.getClient(requireContext())
-        _db = db
+        _binding = FragmentPageBinding.bind(view)
+        _db = DatabaseClient.getInstance(requireContext())
+        _goNext = false
 
         binding.webFeedView.settings.javaScriptEnabled = true
         binding.webFeedView.addJavascriptInterface(WebJsClient(db, this), "WebJsClient")
@@ -57,14 +67,14 @@ class PageFragment : Fragment(R.layout.fragment_page), OnBackPressed, OnPageFini
 
 
         binding.pageNext.setOnClickListener {
-            goNext = true
+            _goNext = true
             binding.webFeedView.reload()
         }
     } //  end of onViewCreated
 
     override fun onBackPressed(): Boolean {
-        return if (_binding?.webFeedView?.canGoBack() == true) {
-            _binding?.webFeedView?.goBack()
+        return if (binding.webFeedView.canGoBack()) {
+            binding.webFeedView.goBack()
             true
         } else {
             false
@@ -73,12 +83,12 @@ class PageFragment : Fragment(R.layout.fragment_page), OnBackPressed, OnPageFini
 
 
     override fun onPageFinished() {
-        if (goNext) {
-            goNext = false
-            val url = _binding?.urlTextFeedWeb?.text.toString()
+        if (_goNext==true) {
+            _goNext = false
+            _url = binding.urlTextFeedWeb.text.toString()
             CoroutineScope(Dispatchers.IO).launch {
                 try {
-                    _db?.setValue("url", url)
+                    db.valueDao().insertValue(Value("url", _url!!))
                 } catch (e: Exception) {}
                 withContext(Dispatchers.Main) {
                     requireActivity().supportFragmentManager.commit {
@@ -93,15 +103,16 @@ class PageFragment : Fragment(R.layout.fragment_page), OnBackPressed, OnPageFini
 
 
     private fun hideKeyboard() {
-        val imm =
-            requireActivity().getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
-        imm.hideSoftInputFromWindow(_binding?.urlTextFeedWeb?.windowToken, 0)
+            (requireActivity().getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager)
+        .hideSoftInputFromWindow(binding.urlTextFeedWeb.windowToken, 0)
     }
 
-    override fun onDestroy() {
+    override fun onDestroyView() {
+        super.onDestroyView()
         _binding = null
         _db = null
-        super.onDestroy()
+        _goNext = null
+        _url = null
     }
 
 }

@@ -5,9 +5,11 @@ import androidx.room.Entity
 import androidx.room.PrimaryKey
 
 
-@Entity(primaryKeys = ["url", "queries"])
+@Entity(tableName = "site")
 data class Site(
     @ColumnInfo(name = "url") val url: String,
-    @ColumnInfo(name = "queries") val queries: List<String>
-)
+    @ColumnInfo(name = "queries") val queries: String
+) {
+    @PrimaryKey(autoGenerate = true) var siteId: Long = 0
+}
 

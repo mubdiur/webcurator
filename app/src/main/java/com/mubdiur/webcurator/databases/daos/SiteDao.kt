@@ -9,9 +9,15 @@ import com.mubdiur.webcurator.databases.models.Site
 @Dao
 interface SiteDao {
     @Query("SELECT * from site")
-    fun getAllSites(): List<Site>
+    suspend fun getAllSites(): List<Site>
     @Query("DELETE from site")
-    fun deleteSiteAll(): Int
+    suspend fun deleteSiteAll(): Int
+    @Query("Select * from site where siteId = :siteId limit 1")
+    suspend fun getSite(siteId: Long): Site
+    @Query("Select Count(*) from site where url = :url and queries = :queries")
+    suspend fun getCount(url: String, queries: String): Int
+    @Query("Select siteId from site where url = :url and queries = :queries limit 1")
+    suspend fun getId(url: String, queries: String): Long
     @Insert
-    fun insertSite(site: Site)
+    suspend fun insertSite(site: Site): Long
 }

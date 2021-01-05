@@ -5,18 +5,17 @@ import org.jsoup.select.Elements
 
 class Curator private constructor() {
     companion object {
-
-
-
-
-
-
-
-
+        private fun fromString(stringListString: String): List<String> {
+            return stringListString.split(",").map { it }
+        }
+        private fun toString(stringList: List<String>): String {
+            return stringList.joinToString(separator = ",")
+        }
         // Returns elements by filtering them with paths
-        fun getContents(elements: Elements, queries: List<String>): Set<String> {
+        fun getContents(elements: Elements, queries: String): Set<String> {
+            val mQueries = fromString(queries)
             val contents = mutableSetOf<String>()
-            queries.forEach { query ->
+            mQueries.forEach { query ->
                 val elementsByQueries = elements.select(query).select("*")
                 for(i in elementsByQueries.indices) {
                     if(elementsByQueries[i].ownText().isNotBlank()) {
@@ -28,18 +27,8 @@ class Curator private constructor() {
         }
 
 
-
-
-
-
-
-
-
-
-
-
         // generate a list of paths with the specified selection from elements
-        fun generateQueries(elements: Elements, selection: List<Int>): List<String> {
+        fun generateQueries(elements: Elements, selection: List<Int>): String {
             val elementQueries = mutableSetOf<String>()
             // Common paths are generated from this list of paths
             val listPaths = mutableListOf<Path>()
@@ -121,7 +110,7 @@ class Curator private constructor() {
                     if(listPaths[index].toQuery().isNotBlank()) elementQueries.add(listPaths[index].toQuery())
                 }
             }
-            return elementQueries.sortedWith { lhs, rhs ->
+            return toString(elementQueries.sortedWith { lhs, rhs ->
                 val l1 = lhs.length
                 val l2 = rhs.length
                 when {
@@ -129,7 +118,7 @@ class Curator private constructor() {
                     l1 > l2 -> 1
                     else -> 0
                 }
-            }
+            })
         } // generate Paths
     } // companion object
 } // curator class

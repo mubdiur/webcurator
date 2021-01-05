@@ -4,6 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="#F3F3F3"
     tools:context=".activities.MainActivity">
 
     <androidx.viewpager2.widget.ViewPager2
@@ -20,6 +21,7 @@
         style="@style/Widget.MaterialComponents.TabLayout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:background="#F3F3F3"
         android:elevation="8dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
@@ -46,8 +48,8 @@
     <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/topBarMain"
         android:layout_width="0dp"
-        android:layout_height="55dp"
-        android:background="@color/white"
+        android:layout_height="56dp"
+        android:background="#F6F6F6"
         android:elevation="4dp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
@@ -57,11 +59,11 @@
             android:id="@+id/titleText"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginStart="16dp"
+            android:layout_marginStart="18dp"
             android:layout_marginEnd="16dp"
+            android:fontFamily="sans-serif-black"
             android:text="@string/home"
             android:textSize="20sp"
-            android:textStyle="bold"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintHorizontal_bias="0.0"
