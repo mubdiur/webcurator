@@ -17,6 +17,7 @@ import com.mubdiur.webcurator.databases.DatabaseClient
 import com.mubdiur.webcurator.databases.models.Feed
 import com.mubdiur.webcurator.databases.models.FeedSites
 import com.mubdiur.webcurator.databases.models.Site
+import com.mubdiur.webcurator.databases.models.SiteQuery
 import com.mubdiur.webcurator.databinding.FragmentSelectionBinding
 import com.mubdiur.webcurator.interfaces.OnItemClick
 import kotlinx.coroutines.CoroutineScope
@@ -31,19 +32,16 @@ class SelectionFragment : Fragment(R.layout.fragment_selection), OnItemClick {
 
     // All nullable
 
-    private var _selectionMap: MutableMap<Int, Boolean>? = null
+    private var _selectionSet: MutableSet<Int>? = null
     private var _binding: FragmentSelectionBinding? = null
     private var _db: DatabaseClient? = null
     private var _html: String? = null
-    private var _allElements: Elements? = null
     private var _itemList: MutableList<Item>? = null
 
     // Not null
-
-    private val selectionMap get() = _selectionMap!!
+    private val selectionSet get() = _selectionSet!!
     private val binding get() = _binding!!
     private val db get() = _db!!
-    private val allElements get() = _allElements!!
     private val itemList get() = _itemList!!
 
 
@@ -56,7 +54,8 @@ class SelectionFragment : Fragment(R.layout.fragment_selection), OnItemClick {
         _binding = FragmentSelectionBinding.bind(view)
         _db = DatabaseClient.getInstance(requireContext())
         _itemList = mutableListOf()
-        _selectionMap = mutableMapOf()
+        _selectionSet = mutableSetOf()
+
         // RecyclerView for selection of texts
         binding.selectionView.layoutManager = LinearLayoutManager(requireContext())
         binding.selectionView.adapter = SelectionAdapter(itemList, this)
@@ -67,61 +66,48 @@ class SelectionFragment : Fragment(R.layout.fragment_selection), OnItemClick {
 
             CoroutineScope(Dispatchers.IO).launch {
                 try {
-                    // get the selected elements
-                    val selectionList = mutableListOf<Int>()
-                    for (i in selectionMap.keys) {
-                        if (selectionMap[i] == true) {
-                            selectionList.add(i)
-                        }
-                    }
+
                     // get feed title and description
                     val feedTitle = db.valueDao().getValue("title")
                     val feedDescription = db.valueDao().getValue("description")
-                    // generate query and get url for the site
-                    val queries = Curator.generateQueries(allElements, selectionList)
+                    // generate queries and get url for the site
+                    val queries = Curator.generateQueries(_html!!, selectionSet.sorted().toList())
                     val url = db.valueDao().getValue("url")
-                    // get the counts of sites with this url and and queries
-                    val count = db.siteDao().getCount(url, queries)
-                    println("test1: count : $count")
+
+
+                    // INSERT SITE!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+                    // see if the site with this url already exist
+                    val count = db.siteDao().countSiteByUrl(url)
+
                     // if the site does not exist add the site and add the feed with the site relation
                     if (count < 1) {
-                        val siteId = db.siteDao().insertSite(
-                            Site(
-                                url, queries
-                            )
-                        )
-                        val feedId = db.feedDao().insertFeed(
-                            Feed(
-                                feedTitle,
-                                feedDescription
-                            )
-                        )
-                        db.feedSitesDao().insert(
-                            FeedSites(
-                                feedId,
-                                siteId
-                            )
-                        )
-
+                        val siteId = db.siteDao().insertSite(Site(url))
+                        val feedId = db.feedDao().insertFeed(Feed(feedTitle, feedDescription))
+                        db.feedSitesDao().insert(FeedSites(feedId, siteId))
+                        // query insertion
+                        queries.forEach { query ->
+                            if(db.queryDao().countByPathSiteId(query, siteId) < 1) {
+                                // no chance of duplicate
+                                db.queryDao().insert(SiteQuery(query, siteId))
+                            }
+                        }
                     }
                     // if the site exists create a feed with this site
                     else {
                         println("testing testing")
-                        val siteId = db.siteDao().getId(url, queries)
-                        val feedId = db.feedDao().insertFeed(
-                            Feed(
-                                feedTitle,
-                                feedDescription
-                            )
-                        )
-                        db.feedSitesDao().insert(
-                            FeedSites(
-                                feedId,
-                                siteId
-                            )
-                        )
+                        val siteId = db.siteDao().getSiteByUrl(url).siteId
+                        val feedId = db.feedDao().insertFeed(Feed(feedTitle, feedDescription))
+                        db.feedSitesDao().insert(FeedSites(feedId, siteId))
+                        // query insertion
+                        queries.forEach { query ->
+                            if(db.queryDao().countByPathSiteId(query, siteId) < 1) {
+                                // no chance of duplicate
+                                db.queryDao().insert(SiteQuery(query, siteId))
+                            }
+                        }
                     }
-                    // return to feeds fragment
+                    // INSERT QUERIES
 
 
                 } catch (e: Exception) {
@@ -150,10 +136,9 @@ class SelectionFragment : Fragment(R.layout.fragment_selection), OnItemClick {
 
     private suspend fun updateData(elements: Elements) {
         withContext(Dispatchers.Default) {
-            _allElements = elements
-            elements.forEach {
-                if (it.ownText().isNotEmpty()) {
-                    itemList.add(Item(it.ownText()))
+            elements.forEachIndexed { index, element ->
+                if (element.ownText().isNotEmpty()) {
+                    itemList.add(Item(element.ownText(), index))
                 }
             } // end of foreach
         } // end of withContext(Dispatchers.Default)
@@ -168,31 +153,29 @@ class SelectionFragment : Fragment(R.layout.fragment_selection), OnItemClick {
     override fun onDestroyView() {
         super.onDestroyView()
         _itemList = null
-        _allElements = null
         _html = null
         _binding = null
         _db = null
-        _selectionMap = null
+        _selectionSet = null
     }
 
     override fun onItemClicked(position: Int) {
         if (itemList[position].isSelected()) {
             itemList[position].unSelect()
-            selectionMap[position] = false
+            selectionSet.remove(itemList[position].originalIndex)
         } else {
             itemList[position].select()
-            selectionMap[position] = true
+            selectionSet.add(itemList[position].originalIndex)
         }
         binding.selectionView.adapter?.notifyItemChanged(position)
     }
 }
 
 // item model
-class Item(private var text: String = "") {
+class Item(private var text: String = "", val originalIndex: Int) {
 
     private var selected = false
     fun getText() = text
-
 
     fun isSelected() = selected
     fun select() {

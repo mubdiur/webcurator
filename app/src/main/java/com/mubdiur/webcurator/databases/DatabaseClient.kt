@@ -4,17 +4,10 @@ import android.content.Context
 import androidx.room.Database
 import androidx.room.Room
 import androidx.room.RoomDatabase
-import androidx.room.TypeConverters
-import com.mubdiur.webcurator.databases.daos.FeedDao
-import com.mubdiur.webcurator.databases.daos.FeedSitesDao
-import com.mubdiur.webcurator.databases.daos.SiteDao
-import com.mubdiur.webcurator.databases.daos.ValueDao
-import com.mubdiur.webcurator.databases.models.Feed
-import com.mubdiur.webcurator.databases.models.FeedSites
-import com.mubdiur.webcurator.databases.models.Site
-import com.mubdiur.webcurator.databases.models.Value
+import com.mubdiur.webcurator.databases.daos.*
+import com.mubdiur.webcurator.databases.models.*
 
-@Database(entities = [Value::class, Site::class, Feed::class, FeedSites::class], version = 1)
+@Database(entities = [Value::class, Site::class, Feed::class, FeedSites::class, SiteQuery::class], version = 1)
 abstract class DatabaseClient : RoomDatabase() {
 
 
@@ -22,6 +15,7 @@ abstract class DatabaseClient : RoomDatabase() {
     abstract fun siteDao(): SiteDao
     abstract fun feedDao(): FeedDao
     abstract fun feedSitesDao(): FeedSitesDao
+    abstract fun queryDao(): QueryDao
 
     companion object {
         private var INSTANCE: DatabaseClient? = null
@@ -38,6 +32,9 @@ abstract class DatabaseClient : RoomDatabase() {
             return INSTANCE as DatabaseClient
         }
 
+        fun clean() {
+            INSTANCE = null
+        }
         //-------------------------------
     }
 }

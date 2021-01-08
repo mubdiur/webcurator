@@ -7,11 +7,14 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.commit
+import androidx.fragment.app.replace
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.mubdiur.webcurator.R
 import com.mubdiur.webcurator.databases.DatabaseClient
 import com.mubdiur.webcurator.databases.models.Feed
+import com.mubdiur.webcurator.databases.models.Value
 import com.mubdiur.webcurator.databinding.FragmentFeedsBinding
 import com.mubdiur.webcurator.interfaces.OnItemClick
 import kotlinx.coroutines.CoroutineScope
@@ -70,7 +73,14 @@ class FeedsFragment : Fragment(R.layout.fragment_feeds), OnItemClick {
     }
 
     override fun onItemClicked(position: Int) {
-        println("clicked: ${feedList[position].feedTitle}")
+        CoroutineScope(Dispatchers.IO).launch {
+            db.valueDao().insertValue(Value("feedId", feedList[position].feedId.toString()))
+            requireActivity().supportFragmentManager.commit {
+                replace<FeedContentFragment>(R.id.feedsFragment)
+                setReorderingAllowed(true)
+                addToBackStack(null)
+            }
+        }
     }
 }
 
@@ -79,7 +89,7 @@ class FeedListAdapter(private val feedList: List<Feed>, private val callBack: On
     RecyclerView.Adapter<FeedListAdapter.ViewHolder>() {
 
     class ViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
-        val feedTitle: TextView = itemView.findViewById(R.id.feed_title)
+        val feedTitle: TextView = itemView.findViewById(R.id.content_text)
         val feedDescription: TextView = itemView.findViewById(R.id.feed_description)
     }
 

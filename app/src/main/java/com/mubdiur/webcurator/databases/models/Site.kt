@@ -7,8 +7,7 @@ import androidx.room.PrimaryKey
 
 @Entity(tableName = "site")
 data class Site(
-    @ColumnInfo(name = "url") val url: String,
-    @ColumnInfo(name = "queries") val queries: String
+    @ColumnInfo(name = "url") val url: String
 ) {
     @PrimaryKey(autoGenerate = true) var siteId: Long = 0
 }

@@ -12,6 +12,7 @@ import com.google.android.material.tabs.TabLayoutMediator
 import com.mubdiur.webcurator.interfaces.OnBackPressed
 import com.mubdiur.webcurator.R
 import com.mubdiur.webcurator.adapters.PagerAdapter
+import com.mubdiur.webcurator.databases.DatabaseClient
 import com.mubdiur.webcurator.databinding.ActivityMainBinding
 import com.mubdiur.webcurator.fragments.FeedNameFragment
 
@@ -127,5 +128,9 @@ class MainActivity : AppCompatActivity() {
         if(fragment !is OnBackPressed || !fragment.onBackPressed() ) {
             super.onBackPressed()
         }
+    }
+
+    override fun onDestroy() {
+        DatabaseClient.clean()
     }
 }
