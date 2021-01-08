@@ -10,7 +10,7 @@ import kotlinx.coroutines.flow.Flow
 interface FeedDao {
 
     @Query("Select * from `feed`")
-    fun getAllFeeds(): Flow<MutableList<Feed>>
+    fun getAllFeeds(): Flow<List<Feed>>
 
     @Query("Select * from `feed` where feedId = :feedId limit 1")
     suspend fun getFeed(feedId: Long): Feed

@@ -1,7 +1,9 @@
 package com.mubdiur.webcurator.fragments
 
 import android.annotation.SuppressLint
+import android.content.ContentValues.TAG
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -28,7 +30,7 @@ class FeedsFragment : Fragment(R.layout.fragment_feeds), OnItemClick {
 
     private var _binding: FragmentFeedsBinding? = null
     private var _db: DatabaseClient? = null
-    private var _feedList: MutableList<Feed>? = null
+    private var _feedList: List<Feed>? = null
 
     private val binding get() = _binding!!
     private val db get() = _db!!
@@ -44,14 +46,22 @@ class FeedsFragment : Fragment(R.layout.fragment_feeds), OnItemClick {
         // initialization
         _binding = FragmentFeedsBinding.bind(view)
         _db = DatabaseClient.getInstance(requireContext())
-        _feedList = mutableListOf()
+        _feedList = listOf()
+
 
         CoroutineScope(Dispatchers.IO).launch {
-            db.feedDao().getAllFeeds().collect {
-                _feedList = it
-                updateUI(feedList)
+            try {
+                db.feedDao().getAllFeeds().collect {
+                    if(it.isNotEmpty()) {
+                        _feedList = it
+                        updateUI(feedList)
+                    }
+                }
+            } catch (e: Exception) {
+                Log.e(TAG, "onViewCreated: ${e.message}")
             }
         }
+
 
         // RecyclerView
         binding.feedList.layoutManager = LinearLayoutManager(requireContext())

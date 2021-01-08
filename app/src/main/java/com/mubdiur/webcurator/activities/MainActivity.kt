@@ -9,12 +9,12 @@ import androidx.fragment.app.commit
 import androidx.fragment.app.replace
 import androidx.viewpager2.widget.ViewPager2
 import com.google.android.material.tabs.TabLayoutMediator
-import com.mubdiur.webcurator.interfaces.OnBackPressed
 import com.mubdiur.webcurator.R
 import com.mubdiur.webcurator.adapters.PagerAdapter
 import com.mubdiur.webcurator.databases.DatabaseClient
 import com.mubdiur.webcurator.databinding.ActivityMainBinding
 import com.mubdiur.webcurator.fragments.FeedNameFragment
+import com.mubdiur.webcurator.interfaces.OnBackPressed
 
 
 class MainActivity : AppCompatActivity() {
@@ -43,6 +43,7 @@ class MainActivity : AppCompatActivity() {
             tab.text = pages[position]
         }.attach()
 
+        DatabaseClient.getInstance(this.applicationContext)
         /**
          * Change top bar according to pages
          * */
@@ -104,7 +105,7 @@ class MainActivity : AppCompatActivity() {
 
 
         supportFragmentManager.addOnBackStackChangedListener {
-            if(supportFragmentManager.backStackEntryCount == 0){
+            if (supportFragmentManager.backStackEntryCount == 0) {
                 binding.addButton.visibility = View.VISIBLE
                 binding.titleText.text = "Feeds"
             }
@@ -124,13 +125,19 @@ class MainActivity : AppCompatActivity() {
 
     override fun onBackPressed() {
         val sz = supportFragmentManager.fragments.size
-        val fragment: Fragment? = supportFragmentManager.fragments[sz-1]
-        if(fragment !is OnBackPressed || !fragment.onBackPressed() ) {
+        val fragment: Fragment? = supportFragmentManager.fragments[sz - 1]
+        if (fragment !is OnBackPressed || !fragment.onBackPressed()) {
             super.onBackPressed()
         }
     }
 
     override fun onDestroy() {
-        DatabaseClient.clean()
+        super.onDestroy()
+        if (DatabaseClient.INSTANCE != null) {
+            if (DatabaseClient.INSTANCE?.isOpen == true) {
+                DatabaseClient.INSTANCE?.close()
+            }
+            DatabaseClient.INSTANCE = null
+        }
     }
 }

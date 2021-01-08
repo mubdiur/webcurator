@@ -68,5 +68,4 @@ dependencies {
     implementation 'com.github.kittinunf.fuel:fuel:2.3.1'
     implementation 'com.github.kittinunf.fuel:fuel-android:2.3.1'
     implementation 'com.beust:klaxon:5.0.1'
-    implementation 'com.squareup.leakcanary:leakcanary-android:2.5'
 }

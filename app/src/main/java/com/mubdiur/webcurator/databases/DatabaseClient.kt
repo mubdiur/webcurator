@@ -7,7 +7,10 @@ import androidx.room.RoomDatabase
 import com.mubdiur.webcurator.databases.daos.*
 import com.mubdiur.webcurator.databases.models.*
 
-@Database(entities = [Value::class, Site::class, Feed::class, FeedSites::class, SiteQuery::class], version = 1)
+@Database(
+    entities = [Value::class, Site::class, Feed::class, FeedSites::class, SiteQuery::class],
+    version = 1
+)
 abstract class DatabaseClient : RoomDatabase() {
 
 
@@ -18,7 +21,7 @@ abstract class DatabaseClient : RoomDatabase() {
     abstract fun queryDao(): QueryDao
 
     companion object {
-        private var INSTANCE: DatabaseClient? = null
+        var INSTANCE: DatabaseClient? = null
 
         fun getInstance(context: Context): DatabaseClient {
             if (INSTANCE == null) {
@@ -31,10 +34,8 @@ abstract class DatabaseClient : RoomDatabase() {
             }
             return INSTANCE as DatabaseClient
         }
-
-        fun clean() {
-            INSTANCE = null
-        }
         //-------------------------------
     }
 }
+
+

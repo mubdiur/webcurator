@@ -52,13 +52,17 @@ class FeedContentFragment: Fragment(R.layout.fragment_feed_content) {
                 val site = db.siteDao().getSite(siteId)
                 // get queries for this siteId
                 val queries = db.queryDao().getQueriesBySiteId(siteId)
-                Fuel.post("https://mubdiur.com:8321", listOf("url" to site.url))
-                    .responseString { result ->
-                        val html = Klaxon().parse<HtmlData>(result.component1().toString())?.html
-                        (binding.contentList.adapter as FeedContentAdapter)
-                            .addItems(Curator.getContents(Jsoup.parse(html).allElements, queries)
-                                .toMutableList())
-                    }
+                try {
+                    Fuel.post("https://mubdiur.com:8321", listOf("url" to site.url))
+                        .responseString { result ->
+                            val html = Klaxon().parse<HtmlData>(result.component1().toString())?.html
+                            (binding.contentList.adapter as FeedContentAdapter)
+                                .addItems(Curator.getContents(Jsoup.parse(html).allElements, queries)
+                                    .toMutableList())
+                        }
+                } catch (e: Exception) {
+                    e.printStackTrace()
+                }
             }
         }
 
