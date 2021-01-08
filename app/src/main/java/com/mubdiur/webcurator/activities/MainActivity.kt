@@ -11,6 +11,7 @@ import androidx.viewpager2.widget.ViewPager2
 import com.google.android.material.tabs.TabLayoutMediator
 import com.mubdiur.webcurator.R
 import com.mubdiur.webcurator.adapters.PagerAdapter
+import com.mubdiur.webcurator.clients.ContentStatus
 import com.mubdiur.webcurator.databases.DatabaseClient
 import com.mubdiur.webcurator.databinding.ActivityMainBinding
 import com.mubdiur.webcurator.fragments.FeedNameFragment
@@ -19,16 +20,20 @@ import com.mubdiur.webcurator.interfaces.OnBackPressed
 
 class MainActivity : AppCompatActivity() {
 
-    private lateinit var binding: ActivityMainBinding
+    companion object {
+        var nullBinding: ActivityMainBinding? = null
+    }
+
+    val binding get() = nullBinding!!
     private val pages = arrayOf("Home", "Feeds", "Browser")
 
     @SuppressLint("SetTextI18n")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        binding = ActivityMainBinding.inflate(layoutInflater)
+        nullBinding = ActivityMainBinding.inflate(layoutInflater)
         val view = binding.root
         setContentView(view)
-
+        ContentStatus.show
         /**
          *  Hides the default actionbar at top
          * */
@@ -80,14 +85,18 @@ class MainActivity : AppCompatActivity() {
                         // Hide stuff for Home and Browser
 
                         // Show stuff for Feeds
+
                         binding.titleText.visibility = View.VISIBLE
-                        if (supportFragmentManager.backStackEntryCount == 0)
-                            binding.titleText.text = pages[position]
-                        else
-                            binding.titleText.text = "Create Feed"
+                        when {
+                            supportFragmentManager.backStackEntryCount == 0 -> binding.titleText.text =
+                                pages[position]
+                            ContentStatus.show -> binding.titleText.text = ContentStatus.title
+                            else -> binding.titleText.text = "Create Feed"
+                        }
 
                         if (supportFragmentManager.backStackEntryCount == 0)
                             binding.addButton.visibility = View.VISIBLE
+
 
                     }
                     2 -> {

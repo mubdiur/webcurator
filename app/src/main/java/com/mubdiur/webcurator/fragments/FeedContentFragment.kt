@@ -12,6 +12,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.beust.klaxon.Klaxon
 import com.github.kittinunf.fuel.Fuel
 import com.mubdiur.webcurator.R
+import com.mubdiur.webcurator.clients.ContentStatus
 import com.mubdiur.webcurator.databases.Curator
 import com.mubdiur.webcurator.databases.DatabaseClient
 import com.mubdiur.webcurator.databases.models.HtmlData
@@ -26,7 +27,6 @@ class FeedContentFragment: Fragment(R.layout.fragment_feed_content) {
     private var _binding: FragmentFeedContentBinding? = null
     private var _db: DatabaseClient? = null
 
-    private val binding get() = _binding!!
     private val db get() = _db!!
 
     @SuppressLint("ClickableViewAccessibility")
@@ -38,8 +38,8 @@ class FeedContentFragment: Fragment(R.layout.fragment_feed_content) {
         _binding = FragmentFeedContentBinding.bind(view)
         _db = DatabaseClient.getInstance(requireContext())
 
-        binding.contentList.layoutManager = LinearLayoutManager(requireContext())
-        binding.contentList.adapter = FeedContentAdapter()
+        _binding?.contentList?.layoutManager = LinearLayoutManager(requireContext())
+        _binding?.contentList?.adapter = FeedContentAdapter()
 
         CoroutineScope(Dispatchers.IO).launch {
             // get feedId from database value
@@ -56,7 +56,7 @@ class FeedContentFragment: Fragment(R.layout.fragment_feed_content) {
                     Fuel.post("https://mubdiur.com:8321", listOf("url" to site.url))
                         .responseString { result ->
                             val html = Klaxon().parse<HtmlData>(result.component1().toString())?.html
-                            (binding.contentList.adapter as FeedContentAdapter)
+                            (_binding?.contentList?.adapter as FeedContentAdapter)
                                 .addItems(Curator.getContents(Jsoup.parse(html).allElements, queries)
                                     .toMutableList())
                         }
@@ -73,6 +73,7 @@ class FeedContentFragment: Fragment(R.layout.fragment_feed_content) {
         super.onDestroyView()
         _binding = null
         _db = null
+        ContentStatus.show = false
     }
 
 }
