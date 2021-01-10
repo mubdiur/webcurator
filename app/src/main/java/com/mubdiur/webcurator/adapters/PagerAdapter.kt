@@ -6,9 +6,10 @@ import androidx.viewpager2.adapter.FragmentStateAdapter
 import com.mubdiur.webcurator.fragments.BrowserFragment
 import com.mubdiur.webcurator.fragments.FeedsFragment
 import com.mubdiur.webcurator.fragments.HomeFragment
+import com.mubdiur.webcurator.fragments.ManageFragment
 
 class PagerAdapter(fragmentActivity: FragmentActivity) : FragmentStateAdapter(fragmentActivity) {
-    override fun getItemCount(): Int = 3
+    override fun getItemCount(): Int = 4
 
     override fun createFragment(position: Int): Fragment {
         when(position) {
@@ -18,7 +19,11 @@ class PagerAdapter(fragmentActivity: FragmentActivity) : FragmentStateAdapter(fr
             1 -> {
                 return FeedsFragment()
             }
+            2 -> {
+                return BrowserFragment()
+            }
+
         }
-        return BrowserFragment()
+        return ManageFragment()
     }
 }

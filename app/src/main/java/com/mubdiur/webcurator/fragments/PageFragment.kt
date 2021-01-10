@@ -12,6 +12,7 @@ import androidx.fragment.app.replace
 import com.mubdiur.webcurator.interfaces.OnBackPressed
 import com.mubdiur.webcurator.interfaces.OnPageFinish
 import com.mubdiur.webcurator.R
+import com.mubdiur.webcurator.clients.CustomTitle
 import com.mubdiur.webcurator.clients.MainWebViewClient
 import com.mubdiur.webcurator.clients.WebJsClient
 import com.mubdiur.webcurator.databases.DatabaseClient
@@ -44,12 +45,16 @@ class PageFragment : Fragment(R.layout.fragment_page), OnBackPressed, OnPageFini
         super.onViewCreated(view, savedInstanceState)
         view.setOnTouchListener { _, _ -> true }
 
+
+
         _binding = FragmentPageBinding.bind(view)
         _db = DatabaseClient.getInstance(requireContext())
         _goNext = false
 
+        CustomTitle.setTitle("Create Feed - Page")
+
         binding.webFeedView.settings.javaScriptEnabled = true
-        binding.webFeedView.addJavascriptInterface(WebJsClient(db, this), "WebJsClient")
+        binding.webFeedView.addJavascriptInterface(WebJsClient(this), "WebJsClient")
         binding.webFeedView.webViewClient = MainWebViewClient(binding.urlTextFeedWeb)
         binding.webFeedView.clearCache(true)
 
@@ -109,6 +114,7 @@ class PageFragment : Fragment(R.layout.fragment_page), OnBackPressed, OnPageFini
 
     override fun onDestroyView() {
         super.onDestroyView()
+        CustomTitle.pop()
         _binding = null
         _db = null
         _goNext = null

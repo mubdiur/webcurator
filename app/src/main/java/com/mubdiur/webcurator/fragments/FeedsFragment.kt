@@ -15,7 +15,7 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.mubdiur.webcurator.R
 import com.mubdiur.webcurator.activities.MainActivity
-import com.mubdiur.webcurator.clients.ContentStatus
+import com.mubdiur.webcurator.clients.CustomTitle
 import com.mubdiur.webcurator.databases.DatabaseClient
 import com.mubdiur.webcurator.databases.models.Feed
 import com.mubdiur.webcurator.databases.models.Value
@@ -86,9 +86,8 @@ class FeedsFragment : Fragment(R.layout.fragment_feeds), OnItemClick {
 
     override fun onItemClicked(position: Int) {
         MainActivity.nullBinding?.titleText?.text = feedList[position].feedTitle
-        MainActivity.nullBinding?.addButton?.visibility = View.INVISIBLE
-        ContentStatus.show = true
-        ContentStatus.title = feedList[position].feedTitle
+        MainActivity.nullBinding?.menuButton?.visibility = View.INVISIBLE
+        CustomTitle.setTitle(feedList[position].feedTitle)
         CoroutineScope(Dispatchers.IO).launch {
             db.valueDao().insertValue(Value("feedId", feedList[position].feedId.toString()))
             requireActivity().supportFragmentManager.commit {

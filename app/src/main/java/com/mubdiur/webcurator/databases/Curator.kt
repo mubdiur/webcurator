@@ -1,7 +1,6 @@
 package com.mubdiur.webcurator.databases
 
 import com.mubdiur.webcurator.databases.models.SiteQuery
-import org.jsoup.Jsoup
 import org.jsoup.nodes.Element
 import org.jsoup.select.Elements
 
@@ -23,8 +22,7 @@ object Curator {
 
 
     // generate a list of paths with the specified selection from elements
-    fun generateQueries(html: String, selection: List<Int>): MutableSet<String> {
-        val elements = Jsoup.parse(html).body().allElements
+    fun generateQueries(elements: Elements, selection: List<Int>): MutableSet<String> {
         // Common paths are generated from this list of paths
         val listPaths = mutableListOf<Path>()
 
@@ -47,13 +45,10 @@ object Curator {
     } // generate queries
 
 
-
-
-
     private fun queriesFromPaths(paths: MutableList<Path>): MutableSet<String> {
         val queries = mutableSetOf<String>()
         paths.forEachIndexed { currentIndex, path ->
-            for(restPathIndex in currentIndex+1 until paths.size) {
+            for (restPathIndex in currentIndex + 1 until paths.size) {
                 val matchedPath = Path()
 
                 val path1 = path.pathUnits
@@ -62,7 +57,7 @@ object Curator {
                 var startPosition = 0
                 var startCount = 0
                 while (startPosition < path1.size && startPosition < path2.size) {
-                    if(path1[startPosition].matched(path2[startPosition])) {
+                    if (path1[startPosition].matched(path2[startPosition])) {
                         startPosition++
                         startCount++
                     } else break
@@ -74,26 +69,26 @@ object Curator {
 
                 var endPosition = 0
                 var endCount = 0
-                while (endPosition < path1.size-startCount && endPosition < path2.size-startCount) {
-                    if(path1reversed[endPosition].matched(path2reversed[endPosition])) {
+                while (endPosition < path1.size - startCount && endPosition < path2.size - startCount) {
+                    if (path1reversed[endPosition].matched(path2reversed[endPosition])) {
                         endPosition++
                         endCount++
                     } else break
                 }
                 val endMatch = Path()
-                for(i in 1..endCount) {
-                    endMatch.pathUnits.add(path1reversed[i-1])
+                for (i in 1..endCount) {
+                    endMatch.pathUnits.add(path1reversed[i - 1])
                 }
 
                 // two paths have been compared
 
                 // add start
-                for(i in 1..startCount) {
-                    matchedPath.pathUnits.add(path1[i-1])
+                for (i in 1..startCount) {
+                    matchedPath.pathUnits.add(path1[i - 1])
                 }
                 // add end
                 matchedPath.pathUnits.addAll(endMatch.pathUnits.reversed())
-                if(matchedPath.pathUnits.isNotEmpty()) {
+                if (matchedPath.pathUnits.isNotEmpty()) {
                     queries.add(matchedPath.toQuery())
                 }
             }
@@ -102,8 +97,6 @@ object Curator {
     } // queries from paths
 
 } // curator object
-
-
 
 
 class Path {

@@ -5,31 +5,29 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.webkit.WebView
 import android.widget.TextView
 import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import com.beust.klaxon.Klaxon
-import com.github.kittinunf.fuel.Fuel
 import com.mubdiur.webcurator.R
-import com.mubdiur.webcurator.clients.ContentStatus
-import com.mubdiur.webcurator.databases.Curator
+import com.mubdiur.webcurator.clients.CustomTitle
+import com.mubdiur.webcurator.clients.HiddenWeb
+import com.mubdiur.webcurator.clients.WebJsClient
+import com.mubdiur.webcurator.databases.DataProcessor
 import com.mubdiur.webcurator.databases.DatabaseClient
-import com.mubdiur.webcurator.databases.models.HtmlData
 import com.mubdiur.webcurator.databinding.FragmentFeedContentBinding
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
+import com.mubdiur.webcurator.interfaces.OnPageFinish
+import kotlinx.coroutines.*
 import org.jsoup.Jsoup
 
 
-class FeedContentFragment: Fragment(R.layout.fragment_feed_content) {
+class FeedContentFragment : Fragment(R.layout.fragment_feed_content), OnPageFinish {
     private var _binding: FragmentFeedContentBinding? = null
     private var _db: DatabaseClient? = null
+    private var stateFinish = true
 
-    private val db get() = _db!!
-
-    @SuppressLint("ClickableViewAccessibility")
+    @SuppressLint("ClickableViewAccessibility", "SetJavaScriptEnabled")
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
 
         super.onViewCreated(view, savedInstanceState)
@@ -38,47 +36,87 @@ class FeedContentFragment: Fragment(R.layout.fragment_feed_content) {
         _binding = FragmentFeedContentBinding.bind(view)
         _db = DatabaseClient.getInstance(requireContext())
 
-        _binding?.contentList?.layoutManager = LinearLayoutManager(requireContext())
-        _binding?.contentList?.adapter = FeedContentAdapter()
+        if (_db != null && _binding != null) {
 
-        CoroutineScope(Dispatchers.IO).launch {
-            // get feedId from database value
-            val feedId = db.valueDao().getValue("feedId").toLong()
-            // fetch list of siteId with this id
-            val siteIdList = db.feedSitesDao().getSitesByFeedId(feedId)
-            // for each site id  fetch the site then html from url and get contents from querying as  list of strings
-            siteIdList.forEach { siteId ->
-                // get the site for this siteId
-                val site = db.siteDao().getSite(siteId)
-                // get queries for this siteId
-                val queries = db.queryDao().getQueriesBySiteId(siteId)
-                try {
-                    Fuel.post("https://mubdiur.com:8321", listOf("url" to site.url))
-                        .responseString { result ->
-                            val html = Klaxon().parse<HtmlData>(result.component1().toString())?.html
-                            (_binding?.contentList?.adapter as FeedContentAdapter)
-                                .addItems(Curator.getContents(Jsoup.parse(html).allElements, queries)
-                                    .toMutableList())
+            _binding!!.contentList.layoutManager = LinearLayoutManager(requireContext())
+            _binding!!.contentList.adapter = FeedContentAdapter()
+
+            val web = WebView(requireContext())
+            web.webViewClient = HiddenWeb
+            web.settings.javaScriptEnabled = true
+            web.clearCache(true)
+            web.setLayerType(View.LAYER_TYPE_HARDWARE, null)
+            web.addJavascriptInterface(WebJsClient(this), "WebJsClient")
+
+            CoroutineScope(Dispatchers.IO).launch {
+                // get feedId from database value
+                if (_db == null) return@launch
+                val feedId = _db!!.valueDao().getValue("feedId").toLong()
+                // fetch list of siteId with this id
+                if (_db == null) return@launch
+                val siteIdList = _db!!.feedSitesDao().getSitesByFeedId(feedId)
+                siteIdList.forEach { siteId ->
+                    val site = _db!!.siteDao().getSite(siteId)
+                    val queries = _db!!.queryDao().getQueriesBySiteId(siteId)
+
+                    DataProcessor.html = ""
+                    stateFinish = false
+                    withContext(Dispatchers.Main) {
+                        web.loadUrl(site.url)
+                    }
+                    println("loading...")
+                    var totalTimeout = 0L
+                    var timeoutReached = false
+                    while (!stateFinish) {
+                        if (totalTimeout >= 10000) {
+                            timeoutReached = true
+                            break
                         }
-                } catch (e: Exception) {
-                    e.printStackTrace()
+                        delay(200)
+                        totalTimeout += 200L
+                    }
+                    if (!timeoutReached) println("finished!!!")
+                    else println("timeout reached!!!")
+                    val html = DataProcessor.html
+                    println("parsed html of size: ${html.length}")
+                    val elements =
+                        withContext(Dispatchers.Default) { Jsoup.parse(html).allElements }
+                    val contents = withContext(Dispatchers.Default) {
+                        DataProcessor.getContentsFromElements(
+                            elements
+                        )
+                    }
+                    val filteredContents = withContext(Dispatchers.Default) {
+                        DataProcessor.filterContentStrings(
+                            contents,
+                            queries
+                        ).take(50).toMutableList()
+                    }
+                    withContext(Dispatchers.Main) {
+                        if (_binding != null) (_binding!!.contentList.adapter as FeedContentAdapter)
+                            .addItems(filteredContents)
+                    }
                 }
             }
+
         }
 
+    } // on view
 
-    }
 
     override fun onDestroyView() {
         super.onDestroyView()
         _binding = null
         _db = null
-        ContentStatus.show = false
+        CustomTitle.resetTitle()
     }
 
+    override fun onPageFinished() {
+        stateFinish = true
+    }
 }
 
-class FeedContentAdapter: RecyclerView.Adapter<FeedContentAdapter.ViewHolder>() {
+class FeedContentAdapter : RecyclerView.Adapter<FeedContentAdapter.ViewHolder>() {
 
     private val itemList = mutableListOf<String>()
 

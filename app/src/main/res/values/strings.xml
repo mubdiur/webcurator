@@ -32,4 +32,10 @@
     <!-- TODO: Remove or change this placeholder text -->
     <string name="hello_blank_fragment">Hello blank fragment</string>
     <string name="textview">TextView</string>
+    <string name="menu">Menu</string>
+    <string name="new_updates_awaiting">new updates awaiting</string>
+    <string name="md_mubdiur_rahman">Md. Mubdiur Rahman</string>
+    <string name="_13">13</string>
+    <string name="_26">26</string>
+    <string name="dec">Dec</string>
 </resources>

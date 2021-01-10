@@ -7,6 +7,7 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.commit
 import androidx.fragment.app.replace
 import com.mubdiur.webcurator.R
+import com.mubdiur.webcurator.clients.CustomTitle
 import com.mubdiur.webcurator.databases.DatabaseClient
 import com.mubdiur.webcurator.databases.models.Value
 import com.mubdiur.webcurator.databinding.FragmentFeedNameBinding
@@ -32,12 +33,15 @@ class FeedNameFragment : Fragment(R.layout.fragment_feed_name) {
         _db = DatabaseClient.getInstance(requireContext())
 
 
+
         binding.feedNameNext.setOnClickListener {
-            if (binding.feedTitleEdit.text.toString().isEmpty()) {
-                binding.feedTitleEdit.error = "This field cannot be blank"
-            }
             if (binding.descriptionEdit.text.toString().isEmpty()) {
+                binding.descriptionEdit.requestFocus()
                 binding.descriptionEdit.error = "This field cannot be blank"
+            }
+            if (binding.feedTitleEdit.text.toString().isEmpty()) {
+                binding.feedTitleEdit.requestFocus()
+                binding.feedTitleEdit.error = "This field cannot be blank"
             }
             if (
                 binding.feedTitleEdit.text.toString().isNotEmpty()
@@ -73,6 +77,7 @@ class FeedNameFragment : Fragment(R.layout.fragment_feed_name) {
 
     override fun onDestroyView() {
         super.onDestroyView()
+        CustomTitle.resetTitle()
         _binding = null
         _db = null
     }
