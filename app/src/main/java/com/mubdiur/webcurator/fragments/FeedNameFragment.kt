@@ -11,6 +11,7 @@ import com.mubdiur.webcurator.clients.CustomTitle
 import com.mubdiur.webcurator.databases.DatabaseClient
 import com.mubdiur.webcurator.databases.models.Value
 import com.mubdiur.webcurator.databinding.FragmentFeedNameBinding
+import com.mubdiur.webcurator.options.OptionMenu
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -32,6 +33,8 @@ class FeedNameFragment : Fragment(R.layout.fragment_feed_name) {
         _binding = FragmentFeedNameBinding.bind(view)
         _db = DatabaseClient.getInstance(requireContext())
 
+        // set option menu context to default coming from feed
+        OptionMenu.contextType = OptionMenu.CONTEXT_DEFAULT
 
 
         binding.feedNameNext.setOnClickListener {
@@ -78,6 +81,8 @@ class FeedNameFragment : Fragment(R.layout.fragment_feed_name) {
     override fun onDestroyView() {
         super.onDestroyView()
         CustomTitle.resetTitle()
+        // set option menu context to feed going back to feed
+        OptionMenu.contextType = OptionMenu.CONTEXT_FEED
         _binding = null
         _db = null
     }

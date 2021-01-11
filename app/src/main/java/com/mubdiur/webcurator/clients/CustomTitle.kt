@@ -12,7 +12,6 @@ object CustomTitle {
         titleList.add(MainActivity.nullBinding?.titleText?.text.toString())
         currentTitle = title
         MainActivity.nullBinding?.titleText?.text = title
-        MainActivity.nullBinding?.menuButton?.visibility = View.INVISIBLE
     }
 
     fun resetTitle() {
@@ -25,6 +24,5 @@ object CustomTitle {
         MainActivity.nullBinding?.titleText?.text = titleList.last()
         currentTitle = titleList.last()
         titleList.removeLast()
-        MainActivity.nullBinding?.menuButton?.visibility = View.INVISIBLE
     }
 }

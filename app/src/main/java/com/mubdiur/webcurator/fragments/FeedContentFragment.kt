@@ -8,6 +8,7 @@ import android.view.ViewGroup
 import android.webkit.WebView
 import android.widget.TextView
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.FragmentManager
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.mubdiur.webcurator.R
@@ -18,14 +19,41 @@ import com.mubdiur.webcurator.databases.DataProcessor
 import com.mubdiur.webcurator.databases.DatabaseClient
 import com.mubdiur.webcurator.databinding.FragmentFeedContentBinding
 import com.mubdiur.webcurator.interfaces.OnPageFinish
+import com.mubdiur.webcurator.options.OptionMenu
 import kotlinx.coroutines.*
 import org.jsoup.Jsoup
 
 
 class FeedContentFragment : Fragment(R.layout.fragment_feed_content), OnPageFinish {
+
+
+    companion object {
+        fun addSite(fragmentManager: FragmentManager) {
+            TODO()
+        }
+        fun editFeed(fragmentManager: FragmentManager) {
+            TODO()
+        }
+        fun manageSites(fragmentManager: FragmentManager) {
+            TODO()
+        }
+        fun deleteFeed() {
+            TODO()
+        }
+        fun toggleNotification() {
+            TODO()
+        }
+    }
+
+
+
     private var _binding: FragmentFeedContentBinding? = null
     private var _db: DatabaseClient? = null
     private var stateFinish = true
+
+
+
+
 
     @SuppressLint("ClickableViewAccessibility", "SetJavaScriptEnabled")
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -36,6 +64,8 @@ class FeedContentFragment : Fragment(R.layout.fragment_feed_content), OnPageFini
         _binding = FragmentFeedContentBinding.bind(view)
         _db = DatabaseClient.getInstance(requireContext())
 
+        // set option menu context to feed item coming from feed
+        OptionMenu.contextType = OptionMenu.CONTEXT_FEED_ITEM
         if (_db != null && _binding != null) {
 
             _binding!!.contentList.layoutManager = LinearLayoutManager(requireContext())
@@ -106,6 +136,10 @@ class FeedContentFragment : Fragment(R.layout.fragment_feed_content), OnPageFini
 
     override fun onDestroyView() {
         super.onDestroyView()
+        // set option menu context to feed going back to feed
+        OptionMenu.feedItemVisible = false
+        OptionMenu.contextType = OptionMenu.CONTEXT_FEED
+
         _binding = null
         _db = null
         CustomTitle.resetTitle()
@@ -114,6 +148,8 @@ class FeedContentFragment : Fragment(R.layout.fragment_feed_content), OnPageFini
     override fun onPageFinished() {
         stateFinish = true
     }
+
+
 }
 
 class FeedContentAdapter : RecyclerView.Adapter<FeedContentAdapter.ViewHolder>() {

@@ -9,6 +9,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.FragmentManager
 import androidx.fragment.app.commit
 import androidx.fragment.app.replace
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -21,6 +22,7 @@ import com.mubdiur.webcurator.databases.models.Feed
 import com.mubdiur.webcurator.databases.models.Value
 import com.mubdiur.webcurator.databinding.FragmentFeedsBinding
 import com.mubdiur.webcurator.interfaces.OnItemClick
+import com.mubdiur.webcurator.options.OptionMenu
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.collect
@@ -29,6 +31,17 @@ import kotlinx.coroutines.withContext
 
 
 class FeedsFragment : Fragment(R.layout.fragment_feeds), OnItemClick {
+
+    companion object {
+        fun addFeed(fragmentManager: FragmentManager) {
+            CustomTitle.setTitle("Create Feed - Basic Info")
+            fragmentManager.commit {
+                replace<FeedNameFragment>(R.id.feedsFragment)
+                setReorderingAllowed(true)
+                addToBackStack(null)
+            }
+        }
+    }
 
     private var _binding: FragmentFeedsBinding? = null
     private var _db: DatabaseClient? = null
@@ -50,6 +63,7 @@ class FeedsFragment : Fragment(R.layout.fragment_feeds), OnItemClick {
         _db = DatabaseClient.getInstance(requireContext())
         _feedList = listOf()
 
+        OptionMenu.contextType = OptionMenu.CONTEXT_FEED
 
         CoroutineScope(Dispatchers.IO).launch {
             try {
@@ -86,8 +100,8 @@ class FeedsFragment : Fragment(R.layout.fragment_feeds), OnItemClick {
 
     override fun onItemClicked(position: Int) {
         MainActivity.nullBinding?.titleText?.text = feedList[position].feedTitle
-        MainActivity.nullBinding?.menuButton?.visibility = View.INVISIBLE
         CustomTitle.setTitle(feedList[position].feedTitle)
+        OptionMenu.feedItemVisible = true
         CoroutineScope(Dispatchers.IO).launch {
             db.valueDao().insertValue(Value("feedId", feedList[position].feedId.toString()))
             requireActivity().supportFragmentManager.commit {
@@ -97,6 +111,12 @@ class FeedsFragment : Fragment(R.layout.fragment_feeds), OnItemClick {
             }
         }
     }
+
+//    override fun onOptionClicked(action: Int) {
+//        println("got clicked signal in feed")
+//        if(action == OptionMenu.ADD_FEED) {
+//        }
+//    }
 }
 
 

@@ -1,16 +1,10 @@
 package com.mubdiur.webcurator.activities
 
 import android.annotation.SuppressLint
-import android.content.res.Resources
-import android.graphics.Color
-import android.graphics.ColorFilter
 import android.os.Bundle
 import android.view.View
 import androidx.appcompat.app.AppCompatActivity
-import androidx.core.graphics.toColor
 import androidx.fragment.app.Fragment
-import androidx.fragment.app.commit
-import androidx.fragment.app.replace
 import androidx.viewpager2.widget.ViewPager2
 import com.google.android.material.tabs.TabLayoutMediator
 import com.mubdiur.webcurator.R
@@ -19,8 +13,11 @@ import com.mubdiur.webcurator.clients.CustomTitle
 import com.mubdiur.webcurator.databases.DataProcessor
 import com.mubdiur.webcurator.databases.DatabaseClient
 import com.mubdiur.webcurator.databinding.ActivityMainBinding
-import com.mubdiur.webcurator.fragments.FeedNameFragment
+import com.mubdiur.webcurator.fragments.BrowserFragment
+import com.mubdiur.webcurator.fragments.FeedContentFragment
+import com.mubdiur.webcurator.fragments.FeedsFragment
 import com.mubdiur.webcurator.interfaces.OnBackPressed
+import com.mubdiur.webcurator.options.OptionMenu
 
 
 class MainActivity : AppCompatActivity() {
@@ -32,18 +29,24 @@ class MainActivity : AppCompatActivity() {
     val binding get() = nullBinding!!
     private val pages = arrayOf("Home", "Feeds", "Browser", "Manage")
 
-    @SuppressLint("SetTextI18n")
+
+    @SuppressLint("SetTextI18n", "ClickableViewAccessibility")
     override fun onCreate(savedInstanceState: Bundle?) {
+
+
         super.onCreate(savedInstanceState)
         nullBinding = ActivityMainBinding.inflate(layoutInflater)
         val view = binding.root
         setContentView(view)
-        CustomTitle.active
         /**
          *  Hides the default actionbar at top
          * */
         supportActionBar?.hide()
 
+
+        /**
+         * ViewPager Part
+         * */
         binding.viewPager.adapter = PagerAdapter(this)
         binding.viewPager.isUserInputEnabled = false
         /**
@@ -59,72 +62,175 @@ class MainActivity : AppCompatActivity() {
             tab.text = ""
         }.attach()
 
+        // Starts the database client with application context
         DatabaseClient.getInstance(this.applicationContext)
+
+
         /**
-         * Change top bar according to pages
+         * Change top bar and option context according to pages
          * */
         binding.viewPager.registerOnPageChangeCallback(object : ViewPager2.OnPageChangeCallback() {
 
             override fun onPageSelected(position: Int) {
                 super.onPageSelected(position)
-//                binding.titleText.text = pages[position]
-//
-//                /**
-//                 * Add Button For Feeds Page
-//                 * */
-//                if(position==1) {
-//                    binding.addButton.visibility = View.VISIBLE
-//                } else {
-//                    binding.addButton.visibility = View.INVISIBLE
-//                }
+
                 DataProcessor.currentRootPosition = position
                 when (position) {
                     1 -> {
-                        binding.titleText.visibility = View.VISIBLE
                         when {
-                            supportFragmentManager.backStackEntryCount == 0 -> binding.titleText.text =
-                                pages[position]
-                            CustomTitle.active -> binding.titleText.text = CustomTitle.currentTitle
-                            else -> binding.titleText.text = pages[position]
+                            supportFragmentManager.backStackEntryCount == 0 -> {
+                                binding.titleText.text = pages[position]
+                                OptionMenu.contextType = OptionMenu.CONTEXT_FEED
+                            }
+                            CustomTitle.active -> {
+                                binding.titleText.text = CustomTitle.currentTitle
+                                if (OptionMenu.feedItemVisible) OptionMenu.contextType =
+                                    OptionMenu.CONTEXT_FEED_ITEM
+                                else OptionMenu.contextType = OptionMenu.CONTEXT_DEFAULT
+                            }
                         }
-
-                        if (supportFragmentManager.backStackEntryCount == 0)
-                            binding.menuButton.visibility = View.VISIBLE
-
+                    }
+                    2 -> { // Browser
+                        OptionMenu.contextType = OptionMenu.CONTEXT_BROWSER
+                        binding.titleText.text = pages[position]
                     }
                     else -> {
-                        binding.menuButton.visibility = View.VISIBLE
-                        // Show stuff for Home
-                        binding.titleText.visibility = View.VISIBLE
+                        OptionMenu.contextType = OptionMenu.CONTEXT_DEFAULT
                         binding.titleText.text = pages[position]
                     }
                 } // end of when
             } // end of on page selected
         }) // end of registerOnPageChangeCallback
-
-
         supportFragmentManager.addOnBackStackChangedListener {
             if (supportFragmentManager.backStackEntryCount == 0) {
                 binding.menuButton.visibility = View.VISIBLE
                 binding.titleText.text = "Feeds"
+                OptionMenu.contextType = OptionMenu.CONTEXT_FEED
             }
         }
 
+
+        // add onclick to optionMenu to mask the clicks
+        binding.optionMenu.setOnTouchListener { _, _ -> true }
+
+
+        // Handle Menu button
         binding.menuButton.setOnClickListener {
-            CustomTitle.setTitle("Create Feed - Basic Info")
-            supportFragmentManager.commit {
-                replace<FeedNameFragment>(R.id.feedsFragment)
-                setReorderingAllowed(true)
-                addToBackStack(null)
+
+            // first hide and show buttons based on context
+            if (!OptionMenu.isVisible) {
+                // set all contextual buttons to gone
+                binding.addFeed.visibility = View.GONE
+                binding.addToFeed.visibility = View.GONE
+                binding.addSite.visibility = View.GONE
+                binding.editFeed.visibility = View.GONE
+                binding.notificationToggle.visibility = View.GONE
+                binding.manageSites.visibility = View.GONE
+                binding.deleteFeed.visibility = View.GONE
+
+
+                when (OptionMenu.contextType) {
+                    OptionMenu.CONTEXT_FEED_ITEM -> {
+                        binding.addSite.visibility = View.VISIBLE
+                        binding.editFeed.visibility = View.VISIBLE
+                        if (OptionMenu.notify) {
+                            binding.notificationToggle.text = "Turn off Notification"
+                        } else {
+                            binding.notificationToggle.text = "Turn on Notification"
+                        }
+                        binding.notificationToggle.visibility = View.VISIBLE
+                        binding.manageSites.visibility = View.VISIBLE
+                        binding.deleteFeed.visibility = View.VISIBLE
+                    }
+                    OptionMenu.CONTEXT_FEED -> {
+                        binding.addFeed.visibility = View.VISIBLE
+                    }
+                    OptionMenu.CONTEXT_BROWSER -> {
+                        binding.addToFeed.visibility = View.VISIBLE
+                    }
+                }
+                showOptions()
+
+            } else {
+                hideOptions()
             }
         }
 
+        // each buttons in menu button
+        binding.addFeed.setOnClickListener {
+            hideOptions()
+            if (OptionMenu.contextType != OptionMenu.CONTEXT_DEFAULT) {
+                FeedsFragment.addFeed(supportFragmentManager)
+            }
+        }
+        binding.addToFeed.setOnClickListener {
+            hideOptions()
+            if (OptionMenu.contextType != OptionMenu.CONTEXT_DEFAULT) {
+                BrowserFragment.addPageToFeed(supportFragmentManager)
+            }
+        }
+        binding.addSite.setOnClickListener {
+            hideOptions()
+            if (OptionMenu.contextType != OptionMenu.CONTEXT_DEFAULT) {
+                FeedContentFragment.addSite(supportFragmentManager)
+            }
+        }
+        binding.editFeed.setOnClickListener {
+            hideOptions()
+            if (OptionMenu.contextType != OptionMenu.CONTEXT_DEFAULT) {
+                FeedContentFragment.editFeed(supportFragmentManager)
+            }
+        }
+        binding.manageSites.setOnClickListener {
+            hideOptions()
+            if (OptionMenu.contextType != OptionMenu.CONTEXT_DEFAULT) {
+                FeedContentFragment.manageSites(supportFragmentManager)
+            }
+        }
+        binding.deleteFeed.setOnClickListener {
+            hideOptions()
+            if (OptionMenu.contextType != OptionMenu.CONTEXT_DEFAULT) {
+                FeedContentFragment.deleteFeed()
+            }
+        }
+        binding.notificationToggle.setOnClickListener {
+            hideOptions()
+            if (OptionMenu.contextType != OptionMenu.CONTEXT_DEFAULT) {
+                FeedContentFragment.toggleNotification()
+            }
+        }
+
+
+        binding.helpButton.setOnClickListener {
+            hideOptions()
+        }
+        binding.aboutButton.setOnClickListener {
+            hideOptions()
+        }
+        binding.logoutButton.setOnClickListener {
+            hideOptions()
+        }
+        binding.cancelButton.setOnClickListener {
+            hideOptions()
+        }
     } // end of onCreate
 
+    private fun showOptions() {
+        binding.optionMenu.visibility = View.VISIBLE
+        OptionMenu.isVisible = true
+        binding.tabBar.visibility = View.GONE
+    }
+
+    private fun hideOptions() {
+        binding.optionMenu.visibility = View.GONE
+        OptionMenu.isVisible = false
+        binding.tabBar.visibility = View.VISIBLE
+    }
+
     override fun onBackPressed() {
-        val sz = supportFragmentManager.fragments.size
-        val fragment: Fragment? = supportFragmentManager.fragments[sz - 1]
-        if (fragment !is OnBackPressed || !fragment.onBackPressed()) {
+        val fragment: Fragment? = supportFragmentManager.fragments.last()
+        if (OptionMenu.isVisible) hideOptions()
+        else if (fragment !is OnBackPressed || !fragment.onBackPressed()) {
             super.onBackPressed()
         }
     }
