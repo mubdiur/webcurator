@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <!-- Primary brand color. -->
-    <color name="colorPrimary">#78403E</color>
+    <color name="colorPrimary">#327DB8</color>
     <color name="colorPrimaryVariant">#EDF8E6</color>
     <color name="colorOnPrimary">#fff</color>
     <!-- Secondary brand color. -->

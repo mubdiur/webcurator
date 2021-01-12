@@ -18,31 +18,36 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginStart="32dp"
-            android:layout_marginTop="32dp"
+            android:layout_marginTop="16dp"
             android:text="@string/title"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintHorizontal_bias="0.0"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintVertical_bias="0.060000002" />
+            app:layout_constraintVertical_bias="0.13999999" />
 
-        <EditText
-            android:id="@+id/feedTitleEdit"
+
+        <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/feedTitleEditLayout"
+            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_marginTop="16dp"
             android:layout_marginEnd="32dp"
-            android:ems="10"
             android:hint="@string/enter_the_title_of_the_feed"
-            android:importantForAutofill="no"
-            android:inputType="textPersonName"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintHorizontal_bias="0.0"
             app:layout_constraintStart_toStartOf="@id/feedTitle"
             app:layout_constraintTop_toBottomOf="@id/feedTitle"
-            app:layout_constraintVertical_bias="0.0" />
+            app:layout_constraintVertical_bias="0.0">
+
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/feedTitleEdit"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content" />
+        </com.google.android.material.textfield.TextInputLayout>
 
         <TextView
             android:id="@+id/descriptionLabel"
@@ -53,41 +58,49 @@
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintHorizontal_bias="0.0"
-            app:layout_constraintStart_toStartOf="@id/feedTitleEdit"
-            app:layout_constraintTop_toBottomOf="@id/feedTitleEdit"
+            app:layout_constraintStart_toStartOf="@id/feedTitleEditLayout"
+            app:layout_constraintTop_toBottomOf="@id/feedTitleEditLayout"
             app:layout_constraintVertical_bias="0.0" />
 
-        <EditText
-            android:id="@+id/descriptionEdit"
+        <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/descriptionEditLayout"
+            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_marginTop="16dp"
             android:layout_marginEnd="32dp"
-            android:ems="10"
             android:hint="@string/enter_a_short_description"
-            android:importantForAutofill="no"
-            android:inputType="textShortMessage|textNoSuggestions"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintHorizontal_bias="0.0"
             app:layout_constraintStart_toStartOf="@id/descriptionLabel"
             app:layout_constraintTop_toBottomOf="@id/descriptionLabel"
-            app:layout_constraintVertical_bias="0.0" />
+            app:layout_constraintVertical_bias="0.0">
+
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/descriptionEdit"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content" />
+        </com.google.android.material.textfield.TextInputLayout>
+
 
         <Button
             android:id="@+id/feedNameNext"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_marginTop="32dp"
             android:layout_marginEnd="32dp"
             android:layout_marginBottom="32dp"
             android:text="@string/next"
             android:textAllCaps="false"
-            app:cornerRadius="50dp"
+            app:icon="@drawable/ic_next_button"
+            app:iconGravity="textEnd"
+            app:iconSize="14dp"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintHorizontal_bias="1.0"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/descriptionEdit"
+            app:layout_constraintTop_toBottomOf="@+id/descriptionEditLayout"
             app:layout_constraintVertical_bias="1.0" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
