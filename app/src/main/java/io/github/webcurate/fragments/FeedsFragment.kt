@@ -1,0 +1,146 @@
+package io.github.webcurate.fragments
+
+import android.annotation.SuppressLint
+import android.content.ContentValues.TAG
+import android.os.Bundle
+import android.util.Log
+import android.view.LayoutInflater
+import android.view.View
+import android.view.ViewGroup
+import android.widget.TextView
+import androidx.fragment.app.Fragment
+import androidx.fragment.app.FragmentManager
+import androidx.fragment.app.commit
+import androidx.fragment.app.replace
+import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
+import io.github.webcurate.R
+import io.github.webcurate.activities.MainActivity
+import io.github.webcurate.clients.CustomTitle
+import io.github.webcurate.databases.DatabaseClient
+import io.github.webcurate.databases.models.Feed
+import io.github.webcurate.databases.models.Value
+import io.github.webcurate.databinding.FragmentFeedsBinding
+import io.github.webcurate.interfaces.OnItemClick
+import io.github.webcurate.options.OptionMenu
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
+
+
+class FeedsFragment : Fragment(R.layout.fragment_feeds), OnItemClick {
+
+    companion object {
+        fun addFeed(fragmentManager: FragmentManager) {
+            CustomTitle.setTitle("Create Feed - Basic Info")
+            fragmentManager.commit {
+                replace<FeedNameFragment>(R.id.feedsFragment)
+                setReorderingAllowed(true)
+                addToBackStack(null)
+            }
+        }
+    }
+
+    private var _binding: FragmentFeedsBinding? = null
+    private var _db: DatabaseClient? = null
+    private var _feedList: List<Feed>? = null
+
+    private val binding get() = _binding!!
+    private val db get() = _db!!
+    private val feedList get() = _feedList!!
+
+
+    @SuppressLint("ClickableViewAccessibility")
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+
+        super.onViewCreated(view, savedInstanceState)
+        view.setOnTouchListener { _, _ -> true }
+
+        // initialization
+        _binding = FragmentFeedsBinding.bind(view)
+        _db = DatabaseClient.getInstance(requireContext())
+        _feedList = listOf()
+
+        OptionMenu.contextType = OptionMenu.CONTEXT_FEED
+
+        CoroutineScope(Dispatchers.IO).launch {
+            try {
+                db.feedDao().getAllFeeds().collect {
+                    if(it.isNotEmpty()) {
+                        _feedList = it
+                        updateUI(feedList)
+                    }
+                }
+            } catch (e: Exception) {
+                Log.e(TAG, "onViewCreated: ${e.message}")
+            }
+        }
+
+
+        // RecyclerView
+        binding.feedList.layoutManager = LinearLayoutManager(requireContext())
+        binding.feedList.adapter = FeedListAdapter(feedList, this)
+    }
+
+    private suspend fun updateUI(feedList: List<Feed>) {
+        withContext(Dispatchers.Main) {
+            binding.feedList.adapter = FeedListAdapter(feedList, this@FeedsFragment)
+            binding.feedList.adapter?.notifyDataSetChanged()
+        }
+    }
+
+    override fun onDestroyView() {
+        super.onDestroyView()
+        _binding = null
+        _db = null
+        _feedList = null
+    }
+
+    override fun onItemClicked(position: Int) {
+        MainActivity.nullBinding?.titleText?.text = feedList[position].feedTitle
+        CustomTitle.setTitle(feedList[position].feedTitle)
+        OptionMenu.feedItemVisible = true
+        CoroutineScope(Dispatchers.IO).launch {
+            db.valueDao().insertValue(Value("feedId", feedList[position].feedId.toString()))
+            requireActivity().supportFragmentManager.commit {
+                replace<FeedContentFragment>(R.id.feedsFragment)
+                setReorderingAllowed(true)
+                addToBackStack(null)
+            }
+        }
+    }
+
+//    override fun onOptionClicked(action: Int) {
+//        println("got clicked signal in feed")
+//        if(action == OptionMenu.ADD_FEED) {
+//        }
+//    }
+}
+
+
+class FeedListAdapter(private val feedList: List<Feed>, private val callBack: OnItemClick) :
+    RecyclerView.Adapter<FeedListAdapter.ViewHolder>() {
+
+    class ViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
+        val feedTitle: TextView = itemView.findViewById(R.id.content_text)
+        val feedDescription: TextView = itemView.findViewById(R.id.feed_description)
+    }
+
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
+        val view = LayoutInflater.from(parent.context)
+            .inflate(R.layout.feed_root_item, parent, false)
+        return ViewHolder(view)
+    }
+
+    override fun onBindViewHolder(holder: ViewHolder, position: Int) {
+        holder.feedTitle.text = feedList[position].feedTitle
+        holder.feedDescription.text = feedList[position].feedDescription
+        holder.itemView.setOnClickListener {
+            callBack.onItemClicked(position)
+        }
+    }
+
+    override fun getItemCount() = feedList.size
+}
