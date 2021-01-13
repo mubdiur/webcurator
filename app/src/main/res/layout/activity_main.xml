@@ -2,9 +2,11 @@
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/mainRoot"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="#F3F3F3"
+    android:visibility="visible"
     tools:context="io.github.webcurate.activities.MainActivity">
 
     <androidx.viewpager2.widget.ViewPager2
@@ -15,6 +17,7 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/topBarMain" />
+
 
     <com.google.android.material.tabs.TabLayout
         android:id="@+id/tabBar"
@@ -31,23 +34,7 @@
         app:tabIndicatorColor="#ffffff"
         app:tabIndicatorGravity="top"
         app:tabIndicatorHeight="3dp"
-        app:tabTextAppearance="@style/TextAppearanceTab">
-
-        <com.google.android.material.tabs.TabItem
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="@string/monday" />
-
-        <com.google.android.material.tabs.TabItem
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="@string/tuesday" />
-
-        <com.google.android.material.tabs.TabItem
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="@string/wednesday" />
-    </com.google.android.material.tabs.TabLayout>
+        app:tabTextAppearance="@style/TextAppearanceTab" />
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/topBarMain"
@@ -55,6 +42,7 @@
         android:layout_height="58dp"
         android:background="#fff"
         android:elevation="2dp"
+        android:visibility="visible"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent">
@@ -100,7 +88,7 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:background="#AA0C0C0C"
-        android:visibility="invisible"
+        android:visibility="gone"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"

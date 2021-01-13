@@ -52,4 +52,11 @@
     <string name="log_out">Log out</string>
     <string name="cancel">Cancel</string>
     <string name="turn_on_notification">Turn on Notification</string>
+    <string name="logo">Logo</string>
+    <string name="title_activity_splash">SplashActivity</string>
+    <!--
+    This string is used for square devices and overridden by hello_world in
+    values-round/strings.xml for round devices.
+    -->
+    <string name="hello_world">Hello Square World!</string>
 </resources>

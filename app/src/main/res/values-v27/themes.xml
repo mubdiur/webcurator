@@ -14,11 +14,16 @@
         <item name="android:statusBarColor">#fff</item>
         <item name="android:windowLightStatusBar">true</item>
         <item name="android:windowLightNavigationBar">true</item>
-        <item name="android:navigationBarColor">#fff</item>
+        <item name="android:navigationBarColor">@color/colorSecondary</item>
         <!-- Customize your theme here. -->
     </style>
     <style name="TextAppearanceTab" parent="TextAppearance.Design.Tab">
         <item name="textAllCaps">false</item>
         <item name="android:textAllCaps">false</item>
+    </style>
+    <style name="Theme.WebCurator.launcher">
+        <item name="android:windowBackground">@drawable/splash_screen</item>
+        <item name="android:windowLightStatusBar">false</item>
+        <item name="android:navigationBarColor">#fff</item>
     </style>
 </resources>

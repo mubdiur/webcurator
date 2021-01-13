@@ -33,6 +33,7 @@ class MainActivity : AppCompatActivity() {
     @SuppressLint("SetTextI18n", "ClickableViewAccessibility")
     override fun onCreate(savedInstanceState: Bundle?) {
 
+        setTheme(R.style.Theme_WebCurator)
 
         super.onCreate(savedInstanceState)
         nullBinding = ActivityMainBinding.inflate(layoutInflater)
@@ -48,7 +49,9 @@ class MainActivity : AppCompatActivity() {
          * ViewPager Part
          * */
         binding.viewPager.adapter = PagerAdapter(this)
-        binding.viewPager.isUserInputEnabled = false
+        binding.viewPager.offscreenPageLimit = 3
+        //binding.viewPager.isUserInputEnabled = false
+
         /**
          * Attached Viewpager with tab bar
          * */
@@ -59,7 +62,6 @@ class MainActivity : AppCompatActivity() {
                 2 -> tab.setIcon(R.drawable.ic_browser)
                 else -> tab.setIcon(R.drawable.ic_manage)
             }
-            tab.text = ""
         }.attach()
 
         // Starts the database client with application context
