@@ -72,6 +72,7 @@ class PageFragment : Fragment(R.layout.fragment_page), OnBackPressed, OnPageFini
 
 
         binding.pageNext.setOnClickListener {
+            hideKeyboard()
             _goNext = true
             binding.webFeedView.reload()
         }

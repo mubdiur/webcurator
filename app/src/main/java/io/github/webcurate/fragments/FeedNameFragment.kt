@@ -1,8 +1,10 @@
 package io.github.webcurate.fragments
 
 import android.annotation.SuppressLint
+import android.content.Context
 import android.os.Bundle
 import android.view.View
+import android.view.inputmethod.InputMethodManager
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.commit
 import androidx.fragment.app.replace
@@ -38,6 +40,7 @@ class FeedNameFragment : Fragment(R.layout.fragment_feed_name) {
 
 
         binding.feedNameNext.setOnClickListener {
+            hideKeyboard()
             if (binding.descriptionEdit.text.toString().isEmpty()) {
                 binding.descriptionEdit.requestFocus()
                 binding.descriptionEdit.error = "This field cannot be blank"
@@ -78,6 +81,10 @@ class FeedNameFragment : Fragment(R.layout.fragment_feed_name) {
         } // onClickListener
     } // onViewCreated
 
+    private fun hideKeyboard() {
+        (requireActivity().getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager)
+            .hideSoftInputFromWindow(binding.descriptionEdit.windowToken, 0)
+    }
     override fun onDestroyView() {
         super.onDestroyView()
         CustomTitle.resetTitle()

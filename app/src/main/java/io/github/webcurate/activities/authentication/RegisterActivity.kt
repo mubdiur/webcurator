@@ -1,7 +1,9 @@
 package io.github.webcurate.activities.authentication
 
+import android.content.Context
 import android.content.Intent
 import android.os.Bundle
+import android.view.inputmethod.InputMethodManager
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import com.google.firebase.auth.UserProfileChangeRequest
@@ -18,6 +20,7 @@ class RegisterActivity : AppCompatActivity() {
         setContentView(binding.root)
 
         binding.signUpButton.setOnClickListener {
+            hideKeyboard(binding)
             // check if all the fields are filled
             var proceed = true
             if (binding.passwordEdit.text!!.toString() != binding.editConfirmPassword.text!!.toString()) {
@@ -68,5 +71,17 @@ class RegisterActivity : AppCompatActivity() {
                 }
             }
         } // end  of sign up button
+
+
+        binding.gotoSignInButton.setOnClickListener {
+            hideKeyboard(binding)
+            startActivity(Intent(this, LoginActivity::class.java))
+            finish()
+        }
+    } // on create
+
+    private fun hideKeyboard(binding: ActivityRegisterBinding) {
+        (getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager)
+            .hideSoftInputFromWindow(binding.editConfirmPassword.windowToken, 0)
     }
 }

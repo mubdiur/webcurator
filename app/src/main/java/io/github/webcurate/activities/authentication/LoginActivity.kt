@@ -1,8 +1,10 @@
 package io.github.webcurate.activities.authentication
 
+import android.content.Context
 import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.view.inputmethod.InputMethodManager
 import android.widget.Toast
 import io.github.webcurate.R
 import io.github.webcurate.activities.MainActivity
@@ -19,11 +21,13 @@ class LoginActivity : AppCompatActivity() {
         setContentView(binding.root)
 
         binding.gotoSignUp.setOnClickListener {
+            hideKeyboard(binding)
             startActivity(Intent(this, RegisterActivity::class.java))
             finish()
         }
 
         binding.loginButton.setOnClickListener {
+            hideKeyboard(binding)
             var proceed = true
             if(binding.passwordEdit.text!!.isEmpty()) {
                 binding.passwordEdit.error = "This field cannot be empty!"
@@ -49,6 +53,15 @@ class LoginActivity : AppCompatActivity() {
                     }
                 }
             }
+        } // on click
+
+        binding.recoverPassword.setOnClickListener {
+            hideKeyboard(binding)
         }
+    } // on create
+
+    private fun hideKeyboard(binding: ActivityLoginBinding) {
+        (getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager)
+            .hideSoftInputFromWindow(binding.passwordEdit.windowToken, 0)
     }
 }

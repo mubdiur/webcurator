@@ -1,12 +1,15 @@
 package io.github.webcurate.activities.authentication
 
+import android.content.Context
 import android.content.Intent
 import android.os.Bundle
+import android.view.inputmethod.InputMethodManager
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
 import io.github.webcurate.R
 import io.github.webcurate.activities.MainActivity
 import io.github.webcurate.databases.AuthManager
+import io.github.webcurate.databinding.ActivityLoginBinding
 import io.github.webcurate.databinding.ActivityVerifyEmailBinding
 import kotlinx.coroutines.*
 
@@ -51,6 +54,7 @@ class VerifyEmailActivity : AppCompatActivity() {
         }
 
         binding.resendVerification.setOnClickListener {
+            hideKeyboard(binding)
             AuthManager.authInstance.currentUser?.updateEmail(binding.emailVerifyEdit.text.toString())
             AuthManager.authInstance.currentUser?.sendEmailVerification()
                 ?.addOnCompleteListener {
@@ -80,6 +84,21 @@ class VerifyEmailActivity : AppCompatActivity() {
                 delay(2000)
             }
         }
+
+        binding.logoutBtn.setOnClickListener {
+            hideKeyboard(binding)
+            if(AuthManager.authInstance.currentUser!=null) {
+                AuthManager.authInstance.signOut()
+                startActivity(Intent(this, LoginActivity::class.java))
+                finish()
+            }
+        }
+
+    } // on create
+
+    private fun hideKeyboard(binding: ActivityVerifyEmailBinding) {
+        (getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager)
+            .hideSoftInputFromWindow(binding.emailVerifyEdit.windowToken, 0)
     }
 
     private fun gotoMain() {
