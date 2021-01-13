@@ -53,10 +53,27 @@
     <string name="cancel">Cancel</string>
     <string name="turn_on_notification">Turn on Notification</string>
     <string name="logo">Logo</string>
-    <string name="title_activity_splash">SplashActivity</string>
-    <!--
-    This string is used for square devices and overridden by hello_world in
-    values-round/strings.xml for round devices.
-    -->
-    <string name="hello_world">Hello Square World!</string>
+    <string name="enter_first_name">Enter First Name</string>
+    <string name="first_name">First Name</string>
+    <string name="last_name">Last Name</string>
+    <string name="enter_password_again">Enter Password Again</string>
+    <string name="enter_email">Enter Email</string>
+    <string name="email">Email</string>
+    <string name="enter_last_name">Enter Last Name</string>
+    <string name="enter_password">Enter Password</string>
+    <string name="retype_password">Retype Password</string>
+    <string name="enter_your_full_name">Enter your full name</string>
+    <string name="user_registration">User Registration</string>
+    <string name="sign_up">Sign Up</string>
+    <string name="already_have_an_account_please">Already have an account?</string>
+    <string name="login">Login</string>
+    <string name="user_login">User Login</string>
+    <string name="don_t_have_an_account_yet">Don\'t have an account yet?</string>
+    <string name="forgot_password">Forgot Password?</string>
+    <string name="recover_password">Recover Password</string>
+    <string name="email_verification">Email Verification</string>
+    <string name="an_email_with_a_confirmation_link_was_sent_to_the_email_address_below_please_check_your_email_and_verify">An email with a confirmation link was sent to the email address below. Please check your email and verify.</string>
+    <string name="resend_verification_email">Resend Verification Email</string>
+    <string name="edit">Edit</string>
+    <string name="edit_email">Edit Email</string>
 </resources>

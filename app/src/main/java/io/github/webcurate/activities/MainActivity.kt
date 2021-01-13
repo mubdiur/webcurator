@@ -1,6 +1,7 @@
 package io.github.webcurate.activities
 
 import android.annotation.SuppressLint
+import android.content.Intent
 import android.os.Bundle
 import android.view.View
 import androidx.appcompat.app.AppCompatActivity
@@ -8,8 +9,11 @@ import androidx.fragment.app.Fragment
 import androidx.viewpager2.widget.ViewPager2
 import com.google.android.material.tabs.TabLayoutMediator
 import io.github.webcurate.R
+import io.github.webcurate.activities.authentication.LoginActivity
+import io.github.webcurate.activities.authentication.VerifyEmailActivity
 import io.github.webcurate.adapters.PagerAdapter
 import io.github.webcurate.clients.CustomTitle
+import io.github.webcurate.databases.AuthManager
 import io.github.webcurate.databases.DataProcessor
 import io.github.webcurate.databases.DatabaseClient
 import io.github.webcurate.databinding.ActivityMainBinding
@@ -25,6 +29,7 @@ class MainActivity : AppCompatActivity() {
     companion object {
         var nullBinding: ActivityMainBinding? = null
     }
+
 
     val binding get() = nullBinding!!
     private val pages = arrayOf("Home", "Feeds", "Browser", "Manage")
@@ -210,12 +215,45 @@ class MainActivity : AppCompatActivity() {
             hideOptions()
         }
         binding.logoutButton.setOnClickListener {
+            if(AuthManager.authInstance.currentUser!=null) {
+                AuthManager.authInstance.signOut()
+                // go to login
+                startActivity(Intent(this, LoginActivity::class.java))
+                finish()
+            }
             hideOptions()
         }
         binding.cancelButton.setOnClickListener {
             hideOptions()
         }
     } // end of onCreate
+
+
+    override fun onStart() {
+        super.onStart()
+        if (AuthManager.authInstance.currentUser == null) {
+            // goto login
+            startActivity(Intent(this, LoginActivity::class.java))
+            finish()
+        } else {
+            AuthManager.authInstance.currentUser?.reload()?.addOnCompleteListener {
+                if(it.isSuccessful) {
+                    if(!AuthManager.authInstance.currentUser!!.isEmailVerified) {
+                        // goto email verification
+                        println("email is not verified")
+                        startActivity(Intent(this, VerifyEmailActivity::class.java))
+                        finish()
+                    }
+                } else {
+                    // logout and goto login
+                    AuthManager.authInstance.signOut()
+                    startActivity(Intent(this, LoginActivity::class.java))
+                    finish()
+                }
+            }
+        }
+    }
+
 
     private fun showOptions() {
         binding.optionMenu.visibility = View.VISIBLE

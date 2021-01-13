@@ -5,8 +5,8 @@ import io.github.webcurate.databases.models.SiteQuery
 import org.jsoup.select.Elements
 
 object DataProcessor {
-
     var html: String = ""
+    var email: String = ""
     var currentRootPosition = 0
     fun getContentsFromElements(elements: Elements): List<FeedContent> {
         val feedList = mutableListOf<FeedContent>()
