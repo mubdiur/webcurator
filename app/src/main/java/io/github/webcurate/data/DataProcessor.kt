@@ -18,7 +18,9 @@ object DataProcessor {
     var email: String = ""
     var currentRootPosition = 0
     val gson = Gson()
+
     var siteModifyMode = false
+    var siteAddMode = false
 
     val updatedList = mutableSetOf<FeedResponse>()
 

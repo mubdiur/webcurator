@@ -30,7 +30,12 @@ class FeedContentFragment : Fragment(R.layout.fragment_feed_content), OnPageFini
 
     companion object {
         fun addSite(fragmentManager: FragmentManager) {
-            TODO()
+            DataProcessor.siteAddMode = true
+            fragmentManager.commit {
+                replace<PageFragment>(R.id.fragmentFeedContent, tag = "pageFragment")
+                setReorderingAllowed(true)
+                addToBackStack(null)
+            }
         }
 
         fun editFeed(fragmentManager: FragmentManager) {

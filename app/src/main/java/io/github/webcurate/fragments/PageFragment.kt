@@ -55,7 +55,10 @@ class PageFragment : Fragment(R.layout.fragment_page), OnBackPressed, OnPageFini
         if (DataProcessor.siteModifyMode) {
             CustomTitle.setTitle("Modify Site - Page")
             binding.webFeedView.loadUrl(DataProcessor.currentSite!!.url)
-        } else {
+        } else if (DataProcessor.siteAddMode) {
+            CustomTitle.setTitle("Add Site - Page")
+        }
+        else {
             CustomTitle.setTitle("Create Feed - Page")
         }
 
@@ -121,6 +124,7 @@ class PageFragment : Fragment(R.layout.fragment_page), OnBackPressed, OnPageFini
         _binding = null
         _goNext = null
         DataProcessor.siteModifyMode = false
+        DataProcessor.siteAddMode = false
     }
 
 }

@@ -63,7 +63,10 @@ class SelectionFragment : Fragment(R.layout.fragment_selection), OnItemClick {
 
        if (DataProcessor.siteModifyMode) {
            CustomTitle.setTitle("Modify Site - Selection")
-       } else {
+       } else if(DataProcessor.siteAddMode) {
+           CustomTitle.setTitle("Add Site - Selection")
+       }
+       else {
            CustomTitle.setTitle("Create Feed - Selection")
        }
 
@@ -80,7 +83,16 @@ class SelectionFragment : Fragment(R.layout.fragment_selection), OnItemClick {
                                 queries
                             )
                         )
-                    } else {
+                    } else if (DataProcessor.siteAddMode) {
+                        Repository.insertOneSite(
+                            DataProcessor.currentFeed!!.id,
+                            SiteRequest(
+                                DataProcessor.feedCreationUrl,
+                                queries
+                            )
+                        )
+                    }
+                    else {
                         Repository.insertFeed(
                             FeedRequest(
                                 DataProcessor.feedCreationTitle,
