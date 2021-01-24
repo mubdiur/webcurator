@@ -31,7 +31,7 @@
     <string name="_13">13</string>
     <string name="_26">26</string>
     <string name="dec">Dec</string>
-    <string name="recent_updates">Recent Updates</string>
+    <string name="recent_updates">Updates</string>
     <string name="updates_found">updates found</string>
     <string name="textview">TextView</string>
     <string name="url">URL</string>
@@ -91,4 +91,7 @@
     <string name="modify">Modify</string>
     <string name="delete">Delete</string>
     <string name="_9_updates">9 updates</string>
+    <string name="total_updates">Total updates:</string>
+    <string name="mark_read">Mark Read</string>
+    <string name="_0">0</string>
 </resources>

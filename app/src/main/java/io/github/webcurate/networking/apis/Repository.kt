@@ -84,9 +84,7 @@ object Repository {
                 is NetworkResponse.Success -> {
                     // Handle successful response
                     contentList = response.body
-
-                    NetEvents.contentEvents.postValue(NetEvents.CONTENTS_READY)
-
+                    if(contentList.isNotEmpty()) NetEvents.contentEvents.postValue(NetEvents.CONTENTS_READY)
                 }
                 is NetworkResponse.ServerError -> {
                     // Handle server error
@@ -372,12 +370,10 @@ object Repository {
     suspend fun curateContentsFeed(feedid: BigInteger) {
         CoroutineScope(Dispatchers.IO).launch {
             when (val response =
-                NetworkService.service.deleteSite(feedid)) {
+                NetworkService.service.curateContentsFeed(feedid)) {
                 is NetworkResponse.Success -> {
                     // Handle successful response
-
                     NetEvents.contentEvents.postValue(NetEvents.UPDATE_CONTENTS)
-
                 }
                 is NetworkResponse.ServerError -> {
                     // Handle server error
@@ -391,10 +387,8 @@ object Repository {
                     // Handle other errors
                     println(response.error.message)
                 }
-
             } // when
         } // coroutine
-
     }
 
     // ------ 4. DELETE operations ---------- //

@@ -80,20 +80,14 @@ class FeedsFragment : Fragment(R.layout.fragment_feeds), OnItemClick {
                 NetEvents.feedEvents.postValue(NetEvents.UPDATE_FEEDS)
             }
         } // feed event observer
-
-
         NetEvents.feedEvents.observe(requireActivity(), feedEventObserver)
         NetEvents.authEvents.observe(requireActivity(), authEventObserver)
-
     }
 
     private fun updateUI(feeds: List<FeedResponse>) {
         feedList = feeds
-        println("${feeds.size}")
-
         binding.feedList.adapter = FeedListAdapter(feedList, this@FeedsFragment)
         binding.feedList.adapter?.notifyDataSetChanged()
-
     }
 
     override fun onDestroyView() {
@@ -102,7 +96,6 @@ class FeedsFragment : Fragment(R.layout.fragment_feeds), OnItemClick {
     }
 
     override fun onItemClicked(position: Int) {
-        MainActivity.nullBinding?.titleText?.text = feedList[position].title
         CustomTitle.setTitle(feedList[position].title)
         OptionMenu.feedItemVisible = true
         DataProcessor.currentFeedId = feedList[position].id
@@ -120,7 +113,7 @@ class FeedListAdapter(private val feedList: List<FeedResponse>, private val call
     RecyclerView.Adapter<FeedListAdapter.ViewHolder>() {
 
     class ViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
-        val feedTitle: TextView = itemView.findViewById(R.id.content_text)
+        val feedTitle: TextView = itemView.findViewById(R.id.titleTextView)
         val feedDescription: TextView = itemView.findViewById(R.id.feed_description)
         val updates: TextView = itemView.findViewById(R.id.updateView)
     }

@@ -28,6 +28,20 @@ class MainActivity : AppCompatActivity() {
 
     companion object {
         var nullBinding: ActivityMainBinding? = null
+
+        fun startLoadingAnimation() {
+            if (nullBinding != null) {
+                nullBinding?.progressBar?.visibility = View.VISIBLE
+            }
+        }
+
+        fun stopLoadingAnimation() {
+            if (nullBinding != null) {
+                if (nullBinding != null) {
+                    nullBinding?.progressBar?.visibility = View.INVISIBLE
+                }
+            }
+        }
     }
 
     val binding get() = nullBinding!!
@@ -120,18 +134,16 @@ class MainActivity : AppCompatActivity() {
 
                 DataProcessor.currentRootPosition = position
                 when (position) {
-                    1 -> {
-                        when {
-                            supportFragmentManager.backStackEntryCount == 0 -> {
-                                binding.titleText.text = pages[position]
-                                OptionMenu.contextType = OptionMenu.CONTEXT_FEED
-                            }
-                            CustomTitle.active -> {
-                                binding.titleText.text = CustomTitle.currentTitle
-                                if (OptionMenu.feedItemVisible) OptionMenu.contextType =
-                                    OptionMenu.CONTEXT_FEED_ITEM
-                                else OptionMenu.contextType = OptionMenu.CONTEXT_DEFAULT
-                            }
+                    1 -> { // feeds
+                        if(supportFragmentManager.backStackEntryCount == 0) {
+                            CustomTitle.resetTitle()
+                            binding.titleText.text = pages[position]
+                            OptionMenu.contextType = OptionMenu.CONTEXT_FEED
+                        } else {
+                            binding.titleText.text = CustomTitle.currentTitle
+                            if (OptionMenu.feedItemVisible) OptionMenu.contextType =
+                                OptionMenu.CONTEXT_FEED_ITEM
+                            else OptionMenu.contextType = OptionMenu.CONTEXT_DEFAULT
                         }
                     }
                     2 -> { // Browser

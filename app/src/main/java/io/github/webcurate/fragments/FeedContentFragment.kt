@@ -8,13 +8,21 @@ import android.view.ViewGroup
 import android.widget.TextView
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentManager
+import androidx.lifecycle.Observer
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import io.github.webcurate.R
 import io.github.webcurate.clients.CustomTitle
+import io.github.webcurate.data.DataProcessor
+import io.github.webcurate.data.NetEvents
 import io.github.webcurate.databinding.FragmentFeedContentBinding
 import io.github.webcurate.interfaces.OnPageFinish
+import io.github.webcurate.networking.apis.Repository
+import io.github.webcurate.networking.models.ContentResponse
 import io.github.webcurate.options.OptionMenu
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 
 
 class FeedContentFragment : Fragment(R.layout.fragment_feed_content), OnPageFinish {
@@ -50,12 +58,35 @@ class FeedContentFragment : Fragment(R.layout.fragment_feed_content), OnPageFini
         view.setOnTouchListener { _, _ -> true }
 
         _binding = FragmentFeedContentBinding.bind(view)
-
         // set option menu context to feed item coming from feed
         OptionMenu.contextType = OptionMenu.CONTEXT_FEED_ITEM
+        OptionMenu.feedItemVisible = true
         _binding!!.contentList.layoutManager = LinearLayoutManager(requireContext())
-        _binding!!.contentList.adapter = FeedContentAdapter()
 
+        val feedcontentAdapter = FeedContentAdapter()
+        _binding!!.contentList.adapter = feedcontentAdapter
+
+        val contentObserver = Observer<Int> {
+            if (it == NetEvents.CONTENTS_READY) {
+                feedcontentAdapter.updateItems(Repository.contentList)
+                if(Repository.contentList.isEmpty()) {
+                    CoroutineScope(Dispatchers.IO).launch {
+                        Repository.curateContentsFeed(DataProcessor.currentFeedId)
+                    }
+                }
+            }
+
+            if (it==NetEvents.UPDATE_CONTENTS) {
+                CoroutineScope(Dispatchers.IO).launch {
+                    Repository.getContentsForFeed(DataProcessor.currentFeedId)
+                }
+            }
+        }
+        NetEvents.contentEvents.observe(requireActivity(), contentObserver)
+
+        CoroutineScope(Dispatchers.IO).launch {
+            Repository.getContentsForFeed(DataProcessor.currentFeedId)
+        }
 
     } // on view
 
@@ -63,11 +94,7 @@ class FeedContentFragment : Fragment(R.layout.fragment_feed_content), OnPageFini
     override fun onDestroyView() {
         super.onDestroyView()
         // set option menu context to feed going back to feed
-        OptionMenu.feedItemVisible = false
-        OptionMenu.contextType = OptionMenu.CONTEXT_FEED
-
         _binding = null
-        CustomTitle.resetTitle()
     }
 
     override fun onPageFinished() {
@@ -79,10 +106,11 @@ class FeedContentFragment : Fragment(R.layout.fragment_feed_content), OnPageFini
 
 class FeedContentAdapter : RecyclerView.Adapter<FeedContentAdapter.ViewHolder>() {
 
-    private val itemList = mutableListOf<String>()
+    private val itemList = mutableListOf<ContentResponse>()
 
     class ViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
-        val itemText: TextView = itemView.findViewById(R.id.content_text)
+        val itemText: TextView = itemView.findViewById(R.id.titleTextView)
+        val sourceText: TextView = itemView.findViewById(R.id.sourceText)
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
@@ -93,13 +121,16 @@ class FeedContentAdapter : RecyclerView.Adapter<FeedContentAdapter.ViewHolder>()
     }
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
-        holder.itemText.text = itemList[position]
+        holder.itemText.text = itemList[position].text
+        val sourceText = "Source: " + itemList[position].source.take(20) + "..."
+        holder.sourceText.text = sourceText
     }
 
     override fun getItemCount() = itemList.size
 
-    fun addItems(items: MutableList<String>) {
-        itemList.addAll(items)
+    fun updateItems(contents: List<ContentResponse>) {
+        itemList.clear()
+        itemList.addAll(contents)
         notifyDataSetChanged()
     }
 }

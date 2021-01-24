@@ -2,6 +2,8 @@ package io.github.webcurate.data
 
 import com.google.gson.Gson
 import io.github.webcurate.data.models.FeedContent
+import io.github.webcurate.networking.apis.Repository
+import io.github.webcurate.networking.models.FeedResponse
 import org.jsoup.select.Elements
 import java.math.BigInteger
 
@@ -14,6 +16,16 @@ object DataProcessor {
     var email: String = ""
     var currentRootPosition = 0
     val gson = Gson()
+    val updatedList = mutableListOf<FeedResponse>()
+
+    fun totalUpdateCount(): Int {
+        var count = 0
+        for (feed in Repository.feedList) {
+            count += feed.updates
+        }
+        return count
+    }
+
 
     fun getContentsFromElements(elements: Elements): List<FeedContent> {
         val feedList = mutableListOf<FeedContent>()

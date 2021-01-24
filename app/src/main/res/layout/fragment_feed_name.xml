@@ -5,8 +5,8 @@
     android:id="@+id/feedNameFragment"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".fragments.FeedNameFragment"
-    android:background="#fff">
+    android:background="@color/commonBg"
+    tools:context=".fragments.FeedNameFragment">
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"

@@ -5,7 +5,7 @@
     android:id="@+id/selectionFragment"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#F4F4F4"
+    android:background="@color/commonBg"
     tools:context=".fragments.SelectionFragment">
 
     <androidx.constraintlayout.widget.ConstraintLayout
@@ -16,12 +16,12 @@
             android:id="@+id/selectionView"
             android:layout_width="0dp"
             android:layout_height="0dp"
-            android:paddingBottom="160dp"
             android:clipToPadding="false"
-            app:layout_constraintTop_toTopOf="parent"
+            android:paddingBottom="160dp"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent" />
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
 
         <Button
             android:id="@+id/selectionFinish"
