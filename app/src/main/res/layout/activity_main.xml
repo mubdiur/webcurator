@@ -6,7 +6,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="#F3F3F3"
-    android:visibility="visible"
+    android:visibility="invisible"
     tools:context="io.github.webcurate.activities.MainActivity">
 
     <androidx.constraintlayout.widget.ConstraintLayout
@@ -179,23 +179,6 @@
                         app:layout_constraintTop_toTopOf="parent"
                         app:layout_constraintVertical_bias="0.0" />
 
-                    <Button
-                        android:id="@+id/addToFeed"
-                        style="@style/Widget.AppCompat.Button.Borderless"
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:text="@string/add_to_feed"
-                        android:textAllCaps="false"
-                        android:textColor="#292929"
-                        app:icon="@drawable/ic_add"
-                        app:iconGravity="textStart"
-                        app:iconSize="13dp"
-                        app:iconTint="#292929"
-                        app:layout_constraintBottom_toBottomOf="parent"
-                        app:layout_constraintEnd_toEndOf="parent"
-                        app:layout_constraintStart_toStartOf="parent"
-                        app:layout_constraintTop_toBottomOf="@id/addFeed"
-                        app:layout_constraintVertical_bias="0.0" />
 
                     <Button
                         android:id="@+id/addSite"
@@ -212,7 +195,7 @@
                         app:layout_constraintBottom_toBottomOf="parent"
                         app:layout_constraintEnd_toEndOf="parent"
                         app:layout_constraintStart_toStartOf="parent"
-                        app:layout_constraintTop_toBottomOf="@id/addToFeed"
+                        app:layout_constraintTop_toBottomOf="@id/addFeed"
                         app:layout_constraintVertical_bias="0.0" />
 
                     <Button
@@ -232,7 +215,6 @@
                         app:layout_constraintStart_toStartOf="parent"
                         app:layout_constraintTop_toBottomOf="@id/addSite"
                         app:layout_constraintVertical_bias="0.0" />
-                    <!--                TODO add a toggle instead of a button here-->
 
                     <Button
                         android:id="@+id/notificationToggle"

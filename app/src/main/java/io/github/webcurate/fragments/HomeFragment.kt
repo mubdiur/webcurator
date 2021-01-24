@@ -10,9 +10,10 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentManager
 import androidx.fragment.app.commit
 import androidx.fragment.app.replace
-import androidx.lifecycle.Observer
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.google.firebase.ktx.Firebase
+import com.google.firebase.messaging.ktx.messaging
 import io.github.webcurate.R
 import io.github.webcurate.activities.MainActivity
 import io.github.webcurate.clients.CustomTitle
@@ -24,6 +25,9 @@ import io.github.webcurate.interfaces.OnItemClick
 import io.github.webcurate.networking.apis.Repository
 import io.github.webcurate.networking.models.FeedResponse
 import io.github.webcurate.options.OptionMenu
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 import java.util.*
 
 class HomeFragment : Fragment(R.layout.fragment_home), OnItemClick {
@@ -44,32 +48,49 @@ class HomeFragment : Fragment(R.layout.fragment_home), OnItemClick {
         val day: Int = cal.get(Calendar.DAY_OF_MONTH)
         val month: Int = cal.get(Calendar.MONTH)
 
-        val authObserver = Observer<Int> {
+        binding!!.recentList.layoutManager = LinearLayoutManager(requireContext())
+        val listAdapter = RecentListAdapter(this@HomeFragment)
+        binding!!.recentList.adapter = listAdapter
+
+        NetEvents.topicEvents.observe(requireActivity(), {
+            if(it==NetEvents.TOPIC_READY) {
+                CoroutineScope(Dispatchers.Main).launch {
+                    NetEvents.topicEvents.value = NetEvents.DEFAULT
+                }
+                Firebase.messaging.subscribeToTopic(Repository.topic)
+                    .addOnCompleteListener { task ->
+                        if (!task.isSuccessful) {
+                            println(task.exception?.message.toString())
+                        }
+                    }
+            }
+        })
+
+
+        NetEvents.authEvents.observe(requireActivity(), {
             if (it == NetEvents.TOKEN_READY) {
                 updateTopCard(
                     monthName(month),
                     day.toString(),
                     AuthManager.authInstance.currentUser?.displayName.toString()
                 )
-
+                CoroutineScope(Dispatchers.IO).launch {
+                    Repository.getTopic()
+                }
             }
-        }
-
-        binding!!.recentList.layoutManager = LinearLayoutManager(requireContext())
-        val listAdapter = RecentListAdapter(this@HomeFragment)
-        binding!!.recentList.adapter = listAdapter
-
-        val feedsObserver = Observer<Int> {
+        })
+        NetEvents.feedEvents.observe(requireActivity(), {
             if (it == NetEvents.FEEDS_READY) {
+                println("Feeds are ready in Home")
                 binding!!.homeUpdateNo.text = DataProcessor.totalUpdateCount().toString()
-                listAdapter.updateItems(Repository.feedList)
+                CoroutineScope(Dispatchers.Main).launch {
+                    NetEvents.feedEvents.value = NetEvents.DEFAULT
+                    listAdapter.updateItems(Repository.feedList)
+                }
             }
-        }
-        NetEvents.authEvents.observe(requireActivity(), authObserver)
-        NetEvents.feedEvents.observe(requireActivity(), feedsObserver)
+        })
 
-
-    }
+    } // on view created
 
     private fun monthName(month: Int): String {
         return when (month) {
@@ -103,16 +124,16 @@ class HomeFragment : Fragment(R.layout.fragment_home), OnItemClick {
         binding = null
     }
 
-    override fun onItemClicked(position: Int) {
+    override fun onItemClicked(position: Int, action: Int) {
         MainActivity.nullBinding!!.viewPager.currentItem = 1
-        CustomTitle.setTitle(DataProcessor.updatedList[position].title)
+        CustomTitle.setTitle(DataProcessor.updatedList.toList()[position].title)
         requireActivity().supportFragmentManager
             .popBackStack(
                 null,
                 FragmentManager.POP_BACK_STACK_INCLUSIVE
             )
         OptionMenu.feedItemVisible = true
-        DataProcessor.currentFeedId = DataProcessor.updatedList[position].id
+        DataProcessor.currentFeed = DataProcessor.updatedList.toList()[position]
         requireActivity().supportFragmentManager.commit {
             replace<FeedContentFragment>(R.id.feedsFragment)
             setReorderingAllowed(true)
@@ -122,7 +143,8 @@ class HomeFragment : Fragment(R.layout.fragment_home), OnItemClick {
 }
 
 
-class RecentListAdapter(private val callBack: OnItemClick): RecyclerView.Adapter<RecentListAdapter.ViewHolder>() {
+class RecentListAdapter(private val callBack: OnItemClick) :
+    RecyclerView.Adapter<RecentListAdapter.ViewHolder>() {
 
     class ViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
         val titleText: TextView = itemView.findViewById(R.id.titleTextView)
@@ -137,10 +159,10 @@ class RecentListAdapter(private val callBack: OnItemClick): RecyclerView.Adapter
     }
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
-        holder.titleText.text = DataProcessor.updatedList[position].title
-        holder.descriptionText.text = DataProcessor.updatedList[position].description
-        val updateText = DataProcessor.updatedList[position].updates.toString() + " updates"
-        holder.updateText.text =  updateText
+        holder.titleText.text = DataProcessor.updatedList.toList()[position].title
+        holder.descriptionText.text = DataProcessor.updatedList.toList()[position].description
+        val updateText = DataProcessor.updatedList.toList()[position].updates.toString() + " updates"
+        holder.updateText.text = updateText
         holder.itemView.setOnClickListener {
             callBack.onItemClicked(position)
         }
@@ -148,10 +170,10 @@ class RecentListAdapter(private val callBack: OnItemClick): RecyclerView.Adapter
 
     override fun getItemCount() = DataProcessor.updatedList.size
 
-    fun updateItems(newList: List<FeedResponse>) {
+    fun updateItems(newList: Set<FeedResponse>) {
         DataProcessor.updatedList.clear()
-        for(feed in newList) {
-            if(feed.updates!=0) {
+        for (feed in newList) {
+            if (feed.updates != 0) {
                 DataProcessor.updatedList.add(feed)
             }
         }

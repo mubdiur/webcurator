@@ -17,11 +17,13 @@ import io.github.webcurate.data.AuthManager
 import io.github.webcurate.data.DataProcessor
 import io.github.webcurate.data.NetEvents
 import io.github.webcurate.databinding.ActivityMainBinding
-import io.github.webcurate.fragments.BrowserFragment
 import io.github.webcurate.fragments.FeedContentFragment
 import io.github.webcurate.fragments.FeedsFragment
 import io.github.webcurate.interfaces.OnBackPressed
 import io.github.webcurate.options.OptionMenu
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 
 
 class MainActivity : AppCompatActivity() {
@@ -89,7 +91,9 @@ class MainActivity : AppCompatActivity() {
                             .addOnCompleteListener { itToken ->
                                 if (it.isSuccessful) {
                                     AuthManager.idToken = itToken.result?.token.toString()
-                                    NetEvents.authEvents.postValue(NetEvents.TOKEN_READY)
+                                    CoroutineScope(Dispatchers.Main).launch {
+                                        NetEvents.authEvents.value = NetEvents.TOKEN_READY
+                                    }
                                 }
                             }
                     }
@@ -135,7 +139,7 @@ class MainActivity : AppCompatActivity() {
                 DataProcessor.currentRootPosition = position
                 when (position) {
                     1 -> { // feeds
-                        if(supportFragmentManager.backStackEntryCount == 0) {
+                        if (supportFragmentManager.backStackEntryCount == 0) {
                             CustomTitle.resetTitle()
                             binding.titleText.text = pages[position]
                             OptionMenu.contextType = OptionMenu.CONTEXT_FEED
@@ -145,10 +149,6 @@ class MainActivity : AppCompatActivity() {
                                 OptionMenu.CONTEXT_FEED_ITEM
                             else OptionMenu.contextType = OptionMenu.CONTEXT_DEFAULT
                         }
-                    }
-                    2 -> { // Browser
-                        OptionMenu.contextType = OptionMenu.CONTEXT_BROWSER
-                        binding.titleText.text = pages[position]
                     }
                     else -> {
                         OptionMenu.contextType = OptionMenu.CONTEXT_DEFAULT
@@ -177,7 +177,6 @@ class MainActivity : AppCompatActivity() {
             if (!OptionMenu.isVisible) {
                 // set all contextual buttons to gone
                 binding.addFeed.visibility = View.GONE
-                binding.addToFeed.visibility = View.GONE
                 binding.addSite.visibility = View.GONE
                 binding.editFeed.visibility = View.GONE
                 binding.notificationToggle.visibility = View.GONE
@@ -199,9 +198,6 @@ class MainActivity : AppCompatActivity() {
                     OptionMenu.CONTEXT_FEED -> {
                         binding.addFeed.visibility = View.VISIBLE
                     }
-                    OptionMenu.CONTEXT_BROWSER -> {
-                        binding.addToFeed.visibility = View.VISIBLE
-                    }
                 }
                 showOptions()
 
@@ -217,12 +213,7 @@ class MainActivity : AppCompatActivity() {
                 FeedsFragment.addFeed(supportFragmentManager)
             }
         }
-        binding.addToFeed.setOnClickListener {
-            hideOptions()
-            if (OptionMenu.contextType != OptionMenu.CONTEXT_DEFAULT) {
-                BrowserFragment.addPageToFeed(supportFragmentManager)
-            }
-        }
+
         binding.addSite.setOnClickListener {
             hideOptions()
             if (OptionMenu.contextType != OptionMenu.CONTEXT_DEFAULT) {

@@ -10,20 +10,19 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentManager
 import androidx.fragment.app.commit
 import androidx.fragment.app.replace
-import androidx.lifecycle.Observer
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import io.github.webcurate.R
-import io.github.webcurate.activities.MainActivity
 import io.github.webcurate.clients.CustomTitle
 import io.github.webcurate.data.DataProcessor
 import io.github.webcurate.data.NetEvents
 import io.github.webcurate.databinding.FragmentFeedsBinding
 import io.github.webcurate.interfaces.OnItemClick
 import io.github.webcurate.networking.apis.Repository
-import io.github.webcurate.networking.models.FeedResponse
 import io.github.webcurate.options.OptionMenu
-import kotlinx.coroutines.*
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 
 
 class FeedsFragment : Fragment(R.layout.fragment_feeds), OnItemClick {
@@ -40,10 +39,7 @@ class FeedsFragment : Fragment(R.layout.fragment_feeds), OnItemClick {
     }
 
     private var _binding: FragmentFeedsBinding? = null
-
-
     private val binding get() = _binding!!
-    private var feedList = listOf<FeedResponse>()
 
 
     @SuppressLint("ClickableViewAccessibility")
@@ -60,45 +56,51 @@ class FeedsFragment : Fragment(R.layout.fragment_feeds), OnItemClick {
 
         // RecyclerView
         binding.feedList.layoutManager = LinearLayoutManager(requireContext())
-        binding.feedList.adapter = FeedListAdapter(listOf(), this)
+        val feedListAdapter = FeedListAdapter(this)
+        binding.feedList.adapter = feedListAdapter
 
-
-        val feedEventObserver = Observer<Int> {
+        NetEvents.feedEvents.observe(requireActivity(), {
             if (it == NetEvents.UPDATE_FEEDS) {
-                NetEvents.feedEvents.value = NetEvents.DEFAULT
+                println("update feeds")
+                CoroutineScope(Dispatchers.Main).launch {
+                    NetEvents.feedEvents.value = NetEvents.DEFAULT
+                }
                 CoroutineScope(Dispatchers.IO).launch {
                     Repository.getUserFeeds()
                 }
             }
             if (it == NetEvents.FEEDS_READY) {
-                NetEvents.feedEvents.value = NetEvents.DEFAULT
-                updateUI(Repository.feedList)
+                println("Feeds ready in Feeds")
+                CoroutineScope(Dispatchers.Main).launch {
+                    NetEvents.feedEvents.value = NetEvents.DEFAULT
+                    feedListAdapter.notifyDataSetChanged()
+                }
             }
-        } // feed event observer
-        val authEventObserver = Observer<Int> {
+        })
+
+        NetEvents.authEvents.observe(requireActivity(), {
             if (it == NetEvents.TOKEN_READY) {
-                NetEvents.feedEvents.postValue(NetEvents.UPDATE_FEEDS)
+                println("token ready")
+                CoroutineScope(Dispatchers.Main).launch {
+                    NetEvents.authEvents.value = NetEvents.DEFAULT
+                    NetEvents.feedEvents.value = NetEvents.UPDATE_FEEDS
+                }
             }
-        } // feed event observer
-        NetEvents.feedEvents.observe(requireActivity(), feedEventObserver)
-        NetEvents.authEvents.observe(requireActivity(), authEventObserver)
+        })
     }
 
-    private fun updateUI(feeds: List<FeedResponse>) {
-        feedList = feeds
-        binding.feedList.adapter = FeedListAdapter(feedList, this@FeedsFragment)
-        binding.feedList.adapter?.notifyDataSetChanged()
-    }
 
     override fun onDestroyView() {
         super.onDestroyView()
         _binding = null
+        NetEvents.feedEvents.removeObservers(requireActivity())
+        NetEvents.authEvents.removeObservers(requireActivity())
     }
 
-    override fun onItemClicked(position: Int) {
-        CustomTitle.setTitle(feedList[position].title)
+    override fun onItemClicked(position: Int, action: Int) {
+        CustomTitle.setTitle(Repository.feedList.toList()[position].title)
         OptionMenu.feedItemVisible = true
-        DataProcessor.currentFeedId = feedList[position].id
+        DataProcessor.currentFeed = Repository.feedList.toList()[position]
         requireActivity().supportFragmentManager.commit {
             replace<FeedContentFragment>(R.id.feedsFragment)
             setReorderingAllowed(true)
@@ -109,7 +111,7 @@ class FeedsFragment : Fragment(R.layout.fragment_feeds), OnItemClick {
 }
 
 
-class FeedListAdapter(private val feedList: List<FeedResponse>, private val callBack: OnItemClick) :
+class FeedListAdapter(private val callBack: OnItemClick) :
     RecyclerView.Adapter<FeedListAdapter.ViewHolder>() {
 
     class ViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
@@ -125,10 +127,10 @@ class FeedListAdapter(private val feedList: List<FeedResponse>, private val call
     }
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
-        holder.feedTitle.text = feedList[position].title
-        holder.feedDescription.text = feedList[position].description
-        if (feedList[position].updates > 0) {
-            val str = "${feedList[position].updates} updates"
+        holder.feedTitle.text = Repository.feedList.toList()[position].title
+        holder.feedDescription.text = Repository.feedList.toList()[position].description
+        if (Repository.feedList.toList()[position].updates > 0) {
+            val str = "${Repository.feedList.toList()[position].updates} updates"
             holder.updates.text = str
             holder.updates.visibility = View.VISIBLE
         } else {
@@ -139,5 +141,5 @@ class FeedListAdapter(private val feedList: List<FeedResponse>, private val call
         }
     }
 
-    override fun getItemCount() = feedList.size
+    override fun getItemCount() = Repository.feedList.size
 }

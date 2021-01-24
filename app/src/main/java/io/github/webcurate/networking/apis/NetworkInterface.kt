@@ -80,6 +80,7 @@ interface NetworkInterface {
     @FormUrlEncoded
     @POST("/")
     suspend fun insertOneSite(
+        @Field("feedid") feedid: BigInteger,
         @Field("site") site: String,
         @Field("token") token: String = AuthManager.idToken,
         @Field("operation") operation: String = "insertOneSite"

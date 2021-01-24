@@ -61,25 +61,39 @@ class SelectionFragment : Fragment(R.layout.fragment_selection), OnItemClick {
         binding.selectionView.layoutManager = LinearLayoutManager(requireContext())
         binding.selectionView.adapter = SelectionAdapter(contentList, this)
 
-
-        CustomTitle.setTitle("Create Feed - Selection")
+       if (DataProcessor.siteModifyMode) {
+           CustomTitle.setTitle("Modify Site - Selection")
+       } else {
+           CustomTitle.setTitle("Create Feed - Selection")
+       }
 
         binding.selectionFinish.setOnClickListener {
             CoroutineScope(Dispatchers.Default).launch {
                 val queries = DataProcessor.getSiteQueries(getSelected()).toList()
                 withContext(Dispatchers.IO) {
-                    Repository.insertFeed(
-                        FeedRequest(
-                            DataProcessor.feedCreationTitle,
-                            DataProcessor.feedCreationDescription,
-                            listOf(
-                                SiteRequest(
-                                    DataProcessor.feedCreationUrl,
-                                    queries
+                    if(DataProcessor.siteModifyMode) {
+                        Repository.deleteSite(DataProcessor.currentSite!!.id)
+                        Repository.insertOneSite(
+                            DataProcessor.currentFeed!!.id,
+                            SiteRequest(
+                                DataProcessor.feedCreationUrl,
+                                queries
+                            )
+                        )
+                    } else {
+                        Repository.insertFeed(
+                            FeedRequest(
+                                DataProcessor.feedCreationTitle,
+                                DataProcessor.feedCreationDescription,
+                                listOf(
+                                    SiteRequest(
+                                        DataProcessor.feedCreationUrl,
+                                        queries
+                                    )
                                 )
                             )
                         )
-                    )
+                    }
                     withContext(Dispatchers.Main) {
                         CustomTitle.resetTitle()
                     }
@@ -111,7 +125,7 @@ class SelectionFragment : Fragment(R.layout.fragment_selection), OnItemClick {
 
     private fun getSelected(): List<FeedContent> {
         val selectedContents = mutableListOf<FeedContent>()
-        selectionSet.forEach {
+        selectionSet.sorted().forEach {
             selectedContents.add(contentList[it])
         }
         return selectedContents
@@ -132,12 +146,12 @@ class SelectionFragment : Fragment(R.layout.fragment_selection), OnItemClick {
         _selectionSet = null
     }
 
-    override fun onItemClicked(position: Int) {
-        if (contentList[position].selected) {
-            contentList[position].selected = false
+    override fun onItemClicked(position: Int, action: Int) {
+        if (contentList.toList()[position].selected) {
+            contentList.toList()[position].selected = false
             selectionSet.remove(position)
         } else {
-            contentList[position].selected = true
+            contentList.toList()[position].selected = true
             selectionSet.add(position)
         }
         binding.selectionView.adapter?.notifyItemChanged(position)
@@ -165,10 +179,10 @@ class SelectionAdapter(
     }
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
-        holder.textView.text = contentList[position].text
-        val shortPath = "Short Path: ${contentList[position].slimPath.joinToString(" > ")}"
+        holder.textView.text = contentList.toList()[position].text
+        val shortPath = "Short Path: ${contentList.toList()[position].slimPath.joinToString(" > ")}"
         holder.slimPath.text = shortPath
-        holder.checkBox.isChecked = contentList[position].selected
+        holder.checkBox.isChecked = contentList.toList()[position].selected
         holder.itemView.setOnClickListener {
             onItemClick.onItemClicked(position)
         }

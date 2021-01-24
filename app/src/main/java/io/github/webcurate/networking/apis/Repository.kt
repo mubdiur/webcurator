@@ -11,9 +11,9 @@ import java.math.BigInteger
 
 object Repository {
     // variables for response
-    var feedList = listOf<FeedResponse>()
-    var siteList = listOf<SiteResponse>()
-    var contentList = listOf<ContentResponse>()
+    var feedList = mutableSetOf<FeedResponse>()
+    var siteList = mutableSetOf<SiteResponse>()
+    var contentList = mutableSetOf<ContentResponse>()
     var topic = ""
     var notification = 0
 
@@ -25,8 +25,12 @@ object Repository {
                 NetworkService.service.getUserFeeds()) {
                 is NetworkResponse.Success -> {
                     // Handle successful response
-                    feedList = response.body
-                    NetEvents.feedEvents.postValue(NetEvents.FEEDS_READY)
+                    feedList.clear()
+                    feedList.addAll(response.body)
+                    CoroutineScope(Dispatchers.Main).launch {
+                        NetEvents.feedEvents.value = NetEvents.FEEDS_READY
+                    }
+
 
                 }
                 is NetworkResponse.ServerError -> {
@@ -54,8 +58,11 @@ object Repository {
                 NetworkService.service.getSitesForFeed(feedid)) {
                 is NetworkResponse.Success -> {
                     // Handle successful response
-                    siteList = response.body
-                    NetEvents.siteEvents.postValue(NetEvents.SITES_READY)
+                    siteList.clear()
+                    siteList.addAll(response.body)
+                    CoroutineScope(Dispatchers.Main).launch {
+                        NetEvents.siteEvents.value = NetEvents.SITES_READY
+                    }
 
                 }
                 is NetworkResponse.ServerError -> {
@@ -83,8 +90,12 @@ object Repository {
                 NetworkService.service.getContentsForFeed(feedid)) {
                 is NetworkResponse.Success -> {
                     // Handle successful response
-                    contentList = response.body
-                    if(contentList.isNotEmpty()) NetEvents.contentEvents.postValue(NetEvents.CONTENTS_READY)
+                    contentList.clear()
+                    contentList.addAll(response.body)
+                    CoroutineScope(Dispatchers.Main).launch {
+                        NetEvents.contentEvents.value = NetEvents.CONTENTS_READY
+                    }
+
                 }
                 is NetworkResponse.ServerError -> {
                     // Handle server error
@@ -137,9 +148,12 @@ object Repository {
                 NetworkService.service.getTopic()) {
                 is NetworkResponse.Success -> {
                     // Handle successful response
+                    topic = ""
                     topic = response.body
+                    CoroutineScope(Dispatchers.Main).launch {
+                        NetEvents.topicEvents.value = NetEvents.TOPIC_READY
+                    }
 
-                    NetEvents.topicEvents.postValue(NetEvents.TOPIC_READY)
 
                 }
                 is NetworkResponse.ServerError -> {
@@ -168,8 +182,10 @@ object Repository {
                 is NetworkResponse.Success -> {
                     // Handle successful response
                     notification = response.body
+                    CoroutineScope(Dispatchers.Main).launch {
+                        NetEvents.notificationEvents.value = NetEvents.NOTIFICATION_READY
+                    }
 
-                    NetEvents.notificationEvents.postValue(NetEvents.NOTIFICATION_READY)
 
                 }
                 is NetworkResponse.ServerError -> {
@@ -200,9 +216,9 @@ object Repository {
                 )) {
                 is NetworkResponse.Success -> {
                     // Handle successful response
-
-                    NetEvents.feedEvents.postValue(NetEvents.UPDATE_FEEDS)
-
+                    CoroutineScope(Dispatchers.Main).launch {
+                        NetEvents.feedEvents.value = NetEvents.UPDATE_FEEDS
+                    }
                 }
                 is NetworkResponse.ServerError -> {
                     // Handle server error
@@ -221,16 +237,16 @@ object Repository {
     }
 
     // network 8
-    suspend fun insertOneSite(siteRequest: SiteRequest) {
+    suspend fun insertOneSite(feedid: BigInteger, siteRequest: SiteRequest) {
         CoroutineScope(Dispatchers.IO).launch {
             when (val response =
-                NetworkService.service.insertOneSite(DataProcessor.gson.toJson(siteRequest))) {
+                NetworkService.service.insertOneSite(feedid, DataProcessor.gson.toJson(siteRequest))) {
                 is NetworkResponse.Success -> {
                     // Handle successful response
-
-                    NetEvents.siteEvents.postValue(NetEvents.UPDATE_SITES)
-                    NetEvents.feedEvents.postValue(NetEvents.UPDATE_FEEDS)
-
+                    // review this
+                    CoroutineScope(Dispatchers.Main).launch {
+                        NetEvents.feedEvents.value = NetEvents.UPDATE_FEEDS
+                    }
                 }
                 is NetworkResponse.ServerError -> {
                     // Handle server error
@@ -259,9 +275,12 @@ object Repository {
                 is NetworkResponse.Success -> {
                     // Handle successful response
                     Repository.notification = notification
+                    // review this
+                    CoroutineScope(Dispatchers.Main).launch {
+                        NetEvents.notificationEvents.value = NetEvents.NOTIFICATION_READY
+                        NetEvents.feedEvents.value = NetEvents.UPDATE_FEEDS
+                    }
 
-                    NetEvents.notificationEvents.postValue(NetEvents.NOTIFICATION_READY)
-                    NetEvents.feedEvents.postValue(NetEvents.UPDATE_FEEDS)
 
                 }
                 is NetworkResponse.ServerError -> {
@@ -289,8 +308,10 @@ object Repository {
                 NetworkService.service.modifyFeed(feedid, title, description)) {
                 is NetworkResponse.Success -> {
                     // Handle successful response
+                    CoroutineScope(Dispatchers.Main).launch {
+                        NetEvents.feedEvents.value = NetEvents.UPDATE_FEEDS
+                    }
 
-                    NetEvents.feedEvents.postValue(NetEvents.UPDATE_FEEDS)
 
                 }
                 is NetworkResponse.ServerError -> {
@@ -317,8 +338,10 @@ object Repository {
                 NetworkService.service.markFeedRead(feedid)) {
                 is NetworkResponse.Success -> {
                     // Handle successful response
+                    CoroutineScope(Dispatchers.Main).launch {
+                        NetEvents.feedEvents.value = NetEvents.UPDATE_FEEDS
+                    }
 
-                    NetEvents.feedEvents.postValue(NetEvents.UPDATE_FEEDS)
 
                 }
                 is NetworkResponse.ServerError -> {
@@ -345,8 +368,10 @@ object Repository {
                 NetworkService.service.markAllRead()) {
                 is NetworkResponse.Success -> {
                     // Handle successful response
+                    CoroutineScope(Dispatchers.Main).launch {
+                        NetEvents.feedEvents.value = NetEvents.UPDATE_FEEDS
+                    }
 
-                    NetEvents.feedEvents.postValue(NetEvents.UPDATE_FEEDS)
 
                 }
                 is NetworkResponse.ServerError -> {
@@ -373,7 +398,10 @@ object Repository {
                 NetworkService.service.curateContentsFeed(feedid)) {
                 is NetworkResponse.Success -> {
                     // Handle successful response
-                    NetEvents.contentEvents.postValue(NetEvents.UPDATE_CONTENTS)
+                    CoroutineScope(Dispatchers.Main).launch {
+                        NetEvents.contentEvents.value = NetEvents.CONTENTS_CURATED
+                    }
+
                 }
                 is NetworkResponse.ServerError -> {
                     // Handle server error
@@ -399,8 +427,10 @@ object Repository {
                 NetworkService.service.deleteSite(siteid)) {
                 is NetworkResponse.Success -> {
                     // Handle successful response
+                    CoroutineScope(Dispatchers.Main).launch {
+                        NetEvents.siteEvents.value = NetEvents.SITE_DELETED
+                    }
 
-                    NetEvents.siteEvents.postValue(NetEvents.UPDATE_SITES)
 
                 }
                 is NetworkResponse.ServerError -> {
@@ -428,8 +458,11 @@ object Repository {
                 NetworkService.service.deleteFeed(feedid)) {
                 is NetworkResponse.Success -> {
                     // Handle successful response
+                    CoroutineScope(Dispatchers.Main).launch {
+                        NetEvents.feedEvents.value = NetEvents.UPDATE_FEEDS
+                        NetEvents.contentEvents.value = NetEvents.CONTENTS_INVALID
+                    }
 
-                    NetEvents.feedEvents.postValue(NetEvents.UPDATE_FEEDS)
 
                 }
                 is NetworkResponse.ServerError -> {

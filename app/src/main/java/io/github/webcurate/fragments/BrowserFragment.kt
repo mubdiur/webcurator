@@ -7,7 +7,6 @@ import android.view.KeyEvent
 import android.view.View
 import android.view.inputmethod.InputMethodManager
 import androidx.fragment.app.Fragment
-import androidx.fragment.app.FragmentManager
 import io.github.webcurate.R
 import io.github.webcurate.clients.MainWebViewClient
 import io.github.webcurate.clients.WebJsClient
@@ -19,11 +18,6 @@ import io.github.webcurate.interfaces.OnPageFinish
 @SuppressLint("ClickableViewAccessibility")
 class BrowserFragment : Fragment(R.layout.fragment_browser), OnBackPressed {
 
-    companion object {
-        fun addPageToFeed(fragmentManager: FragmentManager) {
-            TODO()
-        }
-    }
 
     private var _binding: FragmentBrowserBinding? = null
 

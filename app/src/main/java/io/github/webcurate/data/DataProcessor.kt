@@ -4,11 +4,13 @@ import com.google.gson.Gson
 import io.github.webcurate.data.models.FeedContent
 import io.github.webcurate.networking.apis.Repository
 import io.github.webcurate.networking.models.FeedResponse
+import io.github.webcurate.networking.models.SiteResponse
 import org.jsoup.select.Elements
-import java.math.BigInteger
 
 object DataProcessor {
-    var currentFeedId = BigInteger("0")
+    var currentFeed: FeedResponse? = null
+    var currentSite: SiteResponse? = null
+
     var feedCreationTitle: String = ""
     var feedCreationDescription: String = ""
     var feedCreationUrl: String = ""
@@ -16,7 +18,9 @@ object DataProcessor {
     var email: String = ""
     var currentRootPosition = 0
     val gson = Gson()
-    val updatedList = mutableListOf<FeedResponse>()
+    var siteModifyMode = false
+
+    val updatedList = mutableSetOf<FeedResponse>()
 
     fun totalUpdateCount(): Int {
         var count = 0

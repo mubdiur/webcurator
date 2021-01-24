@@ -17,6 +17,9 @@ import io.github.webcurate.data.DataProcessor
 import io.github.webcurate.databinding.FragmentPageBinding
 import io.github.webcurate.interfaces.OnBackPressed
 import io.github.webcurate.interfaces.OnPageFinish
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 
 
 @SuppressLint("ClickableViewAccessibility")
@@ -42,13 +45,19 @@ class PageFragment : Fragment(R.layout.fragment_page), OnBackPressed, OnPageFini
         _binding = FragmentPageBinding.bind(view)
         _goNext = false
 
-        CustomTitle.setTitle("Create Feed - Page")
+
 
         binding.webFeedView.settings.javaScriptEnabled = true
         binding.webFeedView.addJavascriptInterface(WebJsClient(this), "WebJsClient")
         binding.webFeedView.webViewClient = MainWebViewClient(binding.urlTextFeedWeb)
         binding.webFeedView.clearCache(true)
 
+        if (DataProcessor.siteModifyMode) {
+            CustomTitle.setTitle("Modify Site - Page")
+            binding.webFeedView.loadUrl(DataProcessor.currentSite!!.url)
+        } else {
+            CustomTitle.setTitle("Create Feed - Page")
+        }
 
         binding.urlTextFeedWeb.setOnKeyListener { v, keyCode, event ->
             if ((event.action == KeyEvent.ACTION_DOWN)
@@ -87,7 +96,7 @@ class PageFragment : Fragment(R.layout.fragment_page), OnBackPressed, OnPageFini
 
 
     override fun onPageFinished() {
-        binding.urlProgress.visibility = View.INVISIBLE
+        CoroutineScope(Dispatchers.Main).launch { binding.urlProgress.visibility = View.INVISIBLE }
         if (_goNext == true) {
             _goNext = false
             DataProcessor.feedCreationUrl = binding.urlTextFeedWeb.text.toString()
@@ -111,6 +120,7 @@ class PageFragment : Fragment(R.layout.fragment_page), OnBackPressed, OnPageFini
         CustomTitle.pop()
         _binding = null
         _goNext = null
+        DataProcessor.siteModifyMode = false
     }
 
 }

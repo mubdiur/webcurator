@@ -1,6 +1,5 @@
 package io.github.webcurate.data
 
-import android.database.Observable
 import androidx.lifecycle.MutableLiveData
 
 object NetEvents {
@@ -10,32 +9,25 @@ object NetEvents {
     const val SITES_READY = 3
     const val FEEDS_READY = 4
     const val TOPIC_READY = 5
-    const val NOTIFICATION_READY = 5
-    const val UPDATE_SITES = 6
-    const val TOKEN_READY = 7
-    const val UPDATE_CONTENTS = 8
+    const val NOTIFICATION_READY = 6
+    const val UPDATE_SITES = 7
+    const val TOKEN_READY = 8
+    const val UPDATE_CONTENTS = 9
+    const val SITE_DELETED = 10
+    const val CURATE_CONTENTS = 11
+    const val CONTENTS_CURATED = 12
+    const val CONTENTS_INVALID = 13
+
     // feedResponse
-    val feedEvents: MutableLiveData<Int> by lazy {
-        MutableLiveData<Int>()
-    }
+    val feedEvents = MutableLiveData<Int>()
     // siteResponse
-    val siteEvents: MutableLiveData<Int> by lazy {
-        MutableLiveData<Int>()
-    }
+    val siteEvents = MutableLiveData<Int>()
     // contentResponse
-    val contentEvents: MutableLiveData<Int> by lazy {
-        MutableLiveData<Int>()
-    }
+    val contentEvents =  MutableLiveData<Int>()
     // Topic response
-    val topicEvents: MutableLiveData<Int> by lazy {
-        MutableLiveData<Int>()
-    }
+    val topicEvents = MutableLiveData<Int>()
     // Notification response
-    val notificationEvents: MutableLiveData<Int> by lazy {
-        MutableLiveData<Int>()
-    }
+    val notificationEvents = MutableLiveData<Int>()
     // auth events
-    val authEvents: MutableLiveData<Int> by lazy {
-        MutableLiveData<Int>()
-    }
+    val authEvents = MutableLiveData<Int>()
 }

@@ -8,7 +8,8 @@ import android.view.ViewGroup
 import android.widget.TextView
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentManager
-import androidx.lifecycle.Observer
+import androidx.fragment.app.commit
+import androidx.fragment.app.replace
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import io.github.webcurate.R
@@ -18,7 +19,6 @@ import io.github.webcurate.data.NetEvents
 import io.github.webcurate.databinding.FragmentFeedContentBinding
 import io.github.webcurate.interfaces.OnPageFinish
 import io.github.webcurate.networking.apis.Repository
-import io.github.webcurate.networking.models.ContentResponse
 import io.github.webcurate.options.OptionMenu
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -34,16 +34,32 @@ class FeedContentFragment : Fragment(R.layout.fragment_feed_content), OnPageFini
         }
 
         fun editFeed(fragmentManager: FragmentManager) {
-            TODO()
+            CustomTitle.setTitle("Edit Feed")
+            fragmentManager.commit {
+                replace<FeedEditFragment>(R.id.fragmentFeedContent)
+                setReorderingAllowed(true)
+                addToBackStack(null)
+            }
         }
 
         fun deleteFeed() {
-            TODO()
+            CoroutineScope(Dispatchers.IO).launch {
+                Repository.deleteFeed(DataProcessor.currentFeed!!.id)
+            }
         }
 
         fun toggleNotification() {
-            TODO()
+            CoroutineScope(Dispatchers.IO).launch {
+                Repository.setNotification(
+                    DataProcessor.currentFeed!!.id,
+                    when(DataProcessor.currentFeed!!.notification) {
+                        1 -> 0
+                        else -> 1
+                    }
+                )
+            }
         }
+
     }
 
 
@@ -61,53 +77,118 @@ class FeedContentFragment : Fragment(R.layout.fragment_feed_content), OnPageFini
         // set option menu context to feed item coming from feed
         OptionMenu.contextType = OptionMenu.CONTEXT_FEED_ITEM
         OptionMenu.feedItemVisible = true
+        OptionMenu.notify = when (DataProcessor.currentFeed!!.notification) {
+            1 -> true
+            else -> false
+        }
+
+
+
         _binding!!.contentList.layoutManager = LinearLayoutManager(requireContext())
 
-        val feedcontentAdapter = FeedContentAdapter()
-        _binding!!.contentList.adapter = feedcontentAdapter
-
-        val contentObserver = Observer<Int> {
+        val feedContentAdapter = FeedContentAdapter()
+        _binding!!.contentList.adapter = feedContentAdapter
+        /**
+         * Content Events
+         */
+        NetEvents.contentEvents.observe(requireActivity(), {
             if (it == NetEvents.CONTENTS_READY) {
-                feedcontentAdapter.updateItems(Repository.contentList)
-                if(Repository.contentList.isEmpty()) {
-                    CoroutineScope(Dispatchers.IO).launch {
-                        Repository.curateContentsFeed(DataProcessor.currentFeedId)
-                    }
+                println("Contents ready")
+                CoroutineScope(Dispatchers.Main).launch {
+                    NetEvents.contentEvents.value = NetEvents.DEFAULT
+                    feedContentAdapter.notifyDataSetChanged()
                 }
             }
 
-            if (it==NetEvents.UPDATE_CONTENTS) {
-                CoroutineScope(Dispatchers.IO).launch {
-                    Repository.getContentsForFeed(DataProcessor.currentFeedId)
+            if (it == NetEvents.CONTENTS_INVALID) {
+                println("Contents ready")
+                CoroutineScope(Dispatchers.Main).launch {
+                    NetEvents.contentEvents.value = NetEvents.DEFAULT
                 }
+                CustomTitle.resetTitle()
+                requireActivity().supportFragmentManager
+                    .popBackStack(
+                        null,
+                        FragmentManager.POP_BACK_STACK_INCLUSIVE
+                    )
+            }
+
+
+            if (it == NetEvents.UPDATE_CONTENTS) {
+                println("Update contents")
+                CoroutineScope(Dispatchers.Main).launch {
+                    NetEvents.contentEvents.value = NetEvents.DEFAULT
+                }
+                CoroutineScope(Dispatchers.IO).launch {
+                    Repository.getContentsForFeed(DataProcessor.currentFeed!!.id)
+                }
+            }
+            if (it == NetEvents.CURATE_CONTENTS) {
+                println("curate contents")
+                CoroutineScope(Dispatchers.Main).launch {
+                    NetEvents.contentEvents.value = NetEvents.DEFAULT
+                }
+
+                CoroutineScope(Dispatchers.IO).launch {
+                    Repository.curateContentsFeed(DataProcessor.currentFeed!!.id)
+                }
+            }
+            if (it == NetEvents.CONTENTS_CURATED) {
+                println("contents are curated")
+                CoroutineScope(Dispatchers.Main).launch {
+                    NetEvents.contentEvents.value = NetEvents.DEFAULT
+                }
+                CoroutineScope(Dispatchers.IO).launch {
+                    Repository.getContentsForFeed(DataProcessor.currentFeed!!.id)
+                }
+            }
+
+        })
+
+        /**
+         * Notification events
+         */
+        NetEvents.notificationEvents.observe(requireActivity(), {
+            if(it==NetEvents.NOTIFICATION_READY) {
+                CoroutineScope(Dispatchers.Main).launch {
+                    NetEvents.notificationEvents.value = NetEvents.DEFAULT
+                }
+                CustomTitle.resetTitle()
+                requireActivity().supportFragmentManager
+                    .popBackStack(
+                        null,
+                        FragmentManager.POP_BACK_STACK_INCLUSIVE
+                    )
+            }
+        })
+
+
+        if (DataProcessor.currentFeed!!.updates != 0) {
+            CoroutineScope(Dispatchers.IO).launch {
+                Repository.markFeedRead(DataProcessor.currentFeed!!.id)
             }
         }
-        NetEvents.contentEvents.observe(requireActivity(), contentObserver)
-
-        CoroutineScope(Dispatchers.IO).launch {
-            Repository.getContentsForFeed(DataProcessor.currentFeedId)
+        CoroutineScope(Dispatchers.Main).launch {
+            NetEvents.contentEvents.value = NetEvents.CURATE_CONTENTS
         }
 
     } // on view
-
 
     override fun onDestroyView() {
         super.onDestroyView()
         // set option menu context to feed going back to feed
         _binding = null
+        NetEvents.contentEvents.removeObservers(requireActivity())
+        NetEvents.notificationEvents.removeObservers(requireActivity())
+        Repository.contentList.clear()
     }
 
     override fun onPageFinished() {
         stateFinish = true
     }
-
-
 }
 
 class FeedContentAdapter : RecyclerView.Adapter<FeedContentAdapter.ViewHolder>() {
-
-    private val itemList = mutableListOf<ContentResponse>()
-
     class ViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
         val itemText: TextView = itemView.findViewById(R.id.titleTextView)
         val sourceText: TextView = itemView.findViewById(R.id.sourceText)
@@ -121,16 +202,11 @@ class FeedContentAdapter : RecyclerView.Adapter<FeedContentAdapter.ViewHolder>()
     }
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
-        holder.itemText.text = itemList[position].text
-        val sourceText = "Source: " + itemList[position].source.take(20) + "..."
+        holder.itemText.text = Repository.contentList.toList()[position].text
+        val sourceText =
+            "Source: " + Repository.contentList.toList()[position].source.take(20) + "..."
         holder.sourceText.text = sourceText
     }
 
-    override fun getItemCount() = itemList.size
-
-    fun updateItems(contents: List<ContentResponse>) {
-        itemList.clear()
-        itemList.addAll(contents)
-        notifyDataSetChanged()
-    }
+    override fun getItemCount() = Repository.contentList.size
 }
