@@ -5,11 +5,11 @@ import android.content.Intent
 import android.os.Bundle
 import android.view.inputmethod.InputMethodManager
 import android.widget.TextView
+import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import io.github.webcurate.R
 import io.github.webcurate.activities.MainActivity
-import io.github.webcurate.databases.AuthManager
-import io.github.webcurate.databinding.ActivityLoginBinding
+import io.github.webcurate.data.AuthManager
 import io.github.webcurate.databinding.ActivityVerifyEmailBinding
 import kotlinx.coroutines.*
 
@@ -17,14 +17,13 @@ class VerifyEmailActivity : AppCompatActivity() {
 
     override fun onStart() {
         super.onStart()
-        if(AuthManager.authInstance.currentUser!=null) {
+        if (AuthManager.authInstance.currentUser != null) {
             AuthManager.authInstance.currentUser?.sendEmailVerification()
         } else {
             startActivity(Intent(this, LoginActivity::class.java))
             finish()
         }
     }
-
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -36,7 +35,7 @@ class VerifyEmailActivity : AppCompatActivity() {
 
         binding.emailVerifyEdit.isEnabled = false
 
-
+        val dialogBuilder = AlertDialog.Builder(this)
 
         if (AuthManager.authInstance.currentUser != null) {
             binding.emailVerifyEdit.setText(
@@ -58,8 +57,10 @@ class VerifyEmailActivity : AppCompatActivity() {
             AuthManager.authInstance.currentUser?.updateEmail(binding.emailVerifyEdit.text.toString())
             AuthManager.authInstance.currentUser?.sendEmailVerification()
                 ?.addOnCompleteListener {
-                    if (it.isSuccessful) {
-                        println("verification email was successfully sent")
+                    if (!it.isSuccessful) {
+                        dialogBuilder.setTitle("Error!")
+                        dialogBuilder.setMessage(it.exception?.message.toString())
+                        dialogBuilder.create().show()
                     }
                 }
             binding.emailVerifyEdit.isEnabled = false
@@ -70,15 +71,14 @@ class VerifyEmailActivity : AppCompatActivity() {
             var keepChecking = true
             while (keepChecking) {
                 totalDelay += 2000L
-                if(AuthManager.authInstance.currentUser!=null) {
-                    if(AuthManager.authInstance.currentUser?.isEmailVerified==true) {
+                if (AuthManager.authInstance.currentUser != null) {
+                    if (AuthManager.authInstance.currentUser?.isEmailVerified == true) {
                         withContext(Dispatchers.Main) {
                             gotoMain()
                             keepChecking = false
                         }
-                    }
-                        else
-                    AuthManager.authInstance.currentUser?.reload()
+                    } else
+                        AuthManager.authInstance.currentUser?.reload()
 
                 }
                 delay(2000)
@@ -87,7 +87,7 @@ class VerifyEmailActivity : AppCompatActivity() {
 
         binding.logoutBtn.setOnClickListener {
             hideKeyboard(binding)
-            if(AuthManager.authInstance.currentUser!=null) {
+            if (AuthManager.authInstance.currentUser != null) {
                 AuthManager.authInstance.signOut()
                 startActivity(Intent(this, LoginActivity::class.java))
                 finish()

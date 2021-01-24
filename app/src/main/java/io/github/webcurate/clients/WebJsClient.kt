@@ -1,7 +1,7 @@
 package io.github.webcurate.clients
 
 import android.webkit.JavascriptInterface
-import io.github.webcurate.databases.DataProcessor
+import io.github.webcurate.data.DataProcessor
 import io.github.webcurate.interfaces.OnPageFinish
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers

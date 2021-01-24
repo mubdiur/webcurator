@@ -13,11 +13,13 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import io.github.webcurate.R
 import io.github.webcurate.clients.CustomTitle
-import io.github.webcurate.databases.DataProcessor
-import io.github.webcurate.databases.DatabaseClient
-import io.github.webcurate.databases.models.*
+import io.github.webcurate.data.DataProcessor
+import io.github.webcurate.data.models.FeedContent
 import io.github.webcurate.databinding.FragmentSelectionBinding
 import io.github.webcurate.interfaces.OnItemClick
+import io.github.webcurate.networking.apis.Repository
+import io.github.webcurate.networking.models.FeedRequest
+import io.github.webcurate.networking.models.SiteRequest
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -32,7 +34,6 @@ class SelectionFragment : Fragment(R.layout.fragment_selection), OnItemClick {
 
     private var _selectionSet: MutableSet<Int>? = null
     private var _binding: FragmentSelectionBinding? = null
-    private var _db: DatabaseClient? = null
     private var _html: String? = null
     private var _contentList: MutableList<FeedContent>? = null
     private var _allElements: Elements? = null
@@ -40,7 +41,6 @@ class SelectionFragment : Fragment(R.layout.fragment_selection), OnItemClick {
     // Not null
     private val selectionSet get() = _selectionSet!!
     private val binding get() = _binding!!
-    private val db get() = _db!!
     private val contentList get() = _contentList!!
 
 
@@ -54,7 +54,6 @@ class SelectionFragment : Fragment(R.layout.fragment_selection), OnItemClick {
 
         // Initializations
         _binding = FragmentSelectionBinding.bind(view)
-        _db = DatabaseClient.getInstance(requireContext())
         _contentList = mutableListOf()
         _selectionSet = mutableSetOf()
         _allElements = Elements()
@@ -66,66 +65,30 @@ class SelectionFragment : Fragment(R.layout.fragment_selection), OnItemClick {
         CustomTitle.setTitle("Create Feed - Selection")
 
         binding.selectionFinish.setOnClickListener {
-
-
-            CoroutineScope(Dispatchers.IO).launch {
-                try {
-
-                    // get feed title and description
-                    val feedTitle = db.valueDao().getValue("title")
-                    val feedDescription = db.valueDao().getValue("description")
-                    // generate queries and get url for the site
-                    // val queries = Curator.generateQueries(_allElements!!, selectionSet.sorted().toList())
-
-                    val queries = DataProcessor.getSiteQueries(getSelected())
-                    val url = db.valueDao().getValue("url")
-
-
-                    // INSERT SITE!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-
-                    // see if the site with this url already exist
-                    val count = db.siteDao().countSiteByUrl(url)
-
-                    // if the site does not exist add the site and add the feed with the site relation
-                    if (count < 1) {
-                        val siteId = db.siteDao().insertSite(Site(url))
-                        val feedId = db.feedDao().insertFeed(Feed(feedTitle, feedDescription))
-                        db.feedSitesDao().insert(FeedSites(feedId, siteId))
-                        // query insertion
-                        queries.forEach { query ->
-                            if (db.queryDao().countByPathSiteId(query, siteId) < 1) {
-                                // no chance of duplicate
-                                db.queryDao().insert(SiteQuery(query, siteId))
-                            }
-                        }
-                    }
-                    // if the site exists create a feed with this site
-                    else {
-                        val siteId = db.siteDao().getSiteByUrl(url).siteId
-                        val feedId = db.feedDao().insertFeed(Feed(feedTitle, feedDescription))
-                        db.feedSitesDao().insert(FeedSites(feedId, siteId))
-                        // query insertion
-                        queries.forEach { query ->
-                            if (db.queryDao().countByPathSiteId(query, siteId) < 1) {
-                                // no chance of duplicate
-                                db.queryDao().insert(SiteQuery(query, siteId))
-                            }
-                        }
-                    }
-                    // INSERT QUERIES
-
-
-                } catch (e: Exception) {
-                    e.printStackTrace()
-                }
-                withContext(Dispatchers.Main) {
-                    CustomTitle.resetTitle()
-                }
-                requireActivity().supportFragmentManager
-                    .popBackStack(
-                        null,
-                        FragmentManager.POP_BACK_STACK_INCLUSIVE
+            CoroutineScope(Dispatchers.Default).launch {
+                val queries = DataProcessor.getSiteQueries(getSelected()).toList()
+                withContext(Dispatchers.IO) {
+                    Repository.insertFeed(
+                        FeedRequest(
+                            DataProcessor.feedCreationTitle,
+                            DataProcessor.feedCreationDescription,
+                            listOf(
+                                SiteRequest(
+                                    DataProcessor.feedCreationUrl,
+                                    queries
+                                )
+                            )
+                        )
                     )
+                    withContext(Dispatchers.Main) {
+                        CustomTitle.resetTitle()
+                    }
+                    requireActivity().supportFragmentManager
+                        .popBackStack(
+                            null,
+                            FragmentManager.POP_BACK_STACK_INCLUSIVE
+                        )
+                } // end of with context
 
             } // Coroutine
 
@@ -166,7 +129,6 @@ class SelectionFragment : Fragment(R.layout.fragment_selection), OnItemClick {
         _contentList = null
         _html = null
         _binding = null
-        _db = null
         _selectionSet = null
     }
 

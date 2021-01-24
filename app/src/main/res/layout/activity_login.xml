@@ -120,7 +120,7 @@
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/recoverPassword"
+        app:layout_constraintTop_toBottomOf="@+id/passwordResetButton"
         app:layout_constraintVertical_bias="0.04000002" />
 
     <TextView
@@ -161,14 +161,14 @@
         android:layout_height="wrap_content"
         android:layout_marginStart="16dp"
         android:text="@string/forgot_password"
-        app:layout_constraintBottom_toBottomOf="@+id/recoverPassword"
+        app:layout_constraintBottom_toBottomOf="@+id/passwordResetButton"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="@+id/passwordInputLayout"
-        app:layout_constraintTop_toTopOf="@+id/recoverPassword" />
+        app:layout_constraintTop_toTopOf="@+id/passwordResetButton" />
 
     <Button
-        android:id="@+id/recoverPassword"
+        android:id="@+id/passwordResetButton"
         style="@android:style/Widget.Material.Button.Borderless.Colored"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"

@@ -13,9 +13,9 @@ import io.github.webcurate.activities.authentication.LoginActivity
 import io.github.webcurate.activities.authentication.VerifyEmailActivity
 import io.github.webcurate.adapters.PagerAdapter
 import io.github.webcurate.clients.CustomTitle
-import io.github.webcurate.databases.AuthManager
-import io.github.webcurate.databases.DataProcessor
-import io.github.webcurate.databases.DatabaseClient
+import io.github.webcurate.data.AuthManager
+import io.github.webcurate.data.DataProcessor
+import io.github.webcurate.data.NetEvents
 import io.github.webcurate.databinding.ActivityMainBinding
 import io.github.webcurate.fragments.BrowserFragment
 import io.github.webcurate.fragments.FeedContentFragment
@@ -29,7 +29,6 @@ class MainActivity : AppCompatActivity() {
     companion object {
         var nullBinding: ActivityMainBinding? = null
     }
-
 
     val binding get() = nullBinding!!
     private val pages = arrayOf("Home", "Feeds", "Browser", "Manage")
@@ -48,6 +47,46 @@ class MainActivity : AppCompatActivity() {
          *  Hides the default actionbar at top
          * */
         supportActionBar?.hide()
+        // Hide main view
+        binding.appRoot.visibility = View.INVISIBLE
+
+
+        /**
+         * This is where the login is checked and also checked if the user email is verified or not.
+         * if not verified then the user is redirected to the verification activity
+         * */
+        if (AuthManager.authInstance.currentUser == null) {
+            // goto login
+            startActivity(Intent(this, LoginActivity::class.java))
+            finish()
+        } else {
+            AuthManager.authInstance.currentUser?.reload()?.addOnCompleteListener { it ->
+                if (it.isSuccessful) {
+                    if (!AuthManager.authInstance.currentUser!!.isEmailVerified) {
+                        // goto email verification
+                        println("email is not verified")
+                        startActivity(Intent(this, VerifyEmailActivity::class.java))
+                        finish()
+                    } else {
+                        // the user is valid
+                        binding.appRoot.visibility = View.VISIBLE
+                        // update id token
+                        AuthManager.authInstance.currentUser!!.getIdToken(true)
+                            .addOnCompleteListener { itToken ->
+                                if (it.isSuccessful) {
+                                    AuthManager.idToken = itToken.result?.token.toString()
+                                    NetEvents.authEvents.postValue(NetEvents.TOKEN_READY)
+                                }
+                            }
+                    }
+                } else {
+                    // logout and goto login
+                    AuthManager.authInstance.signOut()
+                    startActivity(Intent(this, LoginActivity::class.java))
+                    finish()
+                }
+            }
+        }
 
 
         /**
@@ -55,7 +94,7 @@ class MainActivity : AppCompatActivity() {
          * */
         binding.viewPager.adapter = PagerAdapter(this)
         binding.viewPager.offscreenPageLimit = 3
-        //binding.viewPager.isUserInputEnabled = false
+        binding.viewPager.isUserInputEnabled = false
 
         /**
          * Attached Viewpager with tab bar
@@ -70,8 +109,6 @@ class MainActivity : AppCompatActivity() {
         }.attach()
 
         // Starts the database client with application context
-        DatabaseClient.getInstance(this.applicationContext)
-
 
         /**
          * Change top bar and option context according to pages
@@ -132,7 +169,6 @@ class MainActivity : AppCompatActivity() {
                 binding.addSite.visibility = View.GONE
                 binding.editFeed.visibility = View.GONE
                 binding.notificationToggle.visibility = View.GONE
-                binding.manageSites.visibility = View.GONE
                 binding.deleteFeed.visibility = View.GONE
 
 
@@ -146,7 +182,6 @@ class MainActivity : AppCompatActivity() {
                             binding.notificationToggle.text = "Turn on Notification"
                         }
                         binding.notificationToggle.visibility = View.VISIBLE
-                        binding.manageSites.visibility = View.VISIBLE
                         binding.deleteFeed.visibility = View.VISIBLE
                     }
                     OptionMenu.CONTEXT_FEED -> {
@@ -188,12 +223,7 @@ class MainActivity : AppCompatActivity() {
                 FeedContentFragment.editFeed(supportFragmentManager)
             }
         }
-        binding.manageSites.setOnClickListener {
-            hideOptions()
-            if (OptionMenu.contextType != OptionMenu.CONTEXT_DEFAULT) {
-                FeedContentFragment.manageSites(supportFragmentManager)
-            }
-        }
+
         binding.deleteFeed.setOnClickListener {
             hideOptions()
             if (OptionMenu.contextType != OptionMenu.CONTEXT_DEFAULT) {
@@ -215,7 +245,7 @@ class MainActivity : AppCompatActivity() {
             hideOptions()
         }
         binding.logoutButton.setOnClickListener {
-            if(AuthManager.authInstance.currentUser!=null) {
+            if (AuthManager.authInstance.currentUser != null) {
                 AuthManager.authInstance.signOut()
                 // go to login
                 startActivity(Intent(this, LoginActivity::class.java))
@@ -227,32 +257,6 @@ class MainActivity : AppCompatActivity() {
             hideOptions()
         }
     } // end of onCreate
-
-
-    override fun onStart() {
-        super.onStart()
-        if (AuthManager.authInstance.currentUser == null) {
-            // goto login
-            startActivity(Intent(this, LoginActivity::class.java))
-            finish()
-        } else {
-            AuthManager.authInstance.currentUser?.reload()?.addOnCompleteListener {
-                if(it.isSuccessful) {
-                    if(!AuthManager.authInstance.currentUser!!.isEmailVerified) {
-                        // goto email verification
-                        println("email is not verified")
-                        startActivity(Intent(this, VerifyEmailActivity::class.java))
-                        finish()
-                    }
-                } else {
-                    // logout and goto login
-                    AuthManager.authInstance.signOut()
-                    startActivity(Intent(this, LoginActivity::class.java))
-                    finish()
-                }
-            }
-        }
-    }
 
 
     private fun showOptions() {
@@ -272,16 +276,6 @@ class MainActivity : AppCompatActivity() {
         if (OptionMenu.isVisible) hideOptions()
         else if (fragment !is OnBackPressed || !fragment.onBackPressed()) {
             super.onBackPressed()
-        }
-    }
-
-    override fun onDestroy() {
-        super.onDestroy()
-        if (DatabaseClient.INSTANCE != null) {
-            if (DatabaseClient.INSTANCE?.isOpen == true) {
-                DatabaseClient.INSTANCE?.close()
-            }
-            DatabaseClient.INSTANCE = null
         }
     }
 }

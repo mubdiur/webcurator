@@ -15,7 +15,7 @@
         android:theme="@style/Theme.WebCurator.launcher"
         android:usesCleartextTraffic="true"
         tools:ignore="AllowBackup">
-        <activity android:name=".activities.authentication.ReAuthActivity"></activity>
+        <activity android:name=".activities.authentication.ReAuthActivity"/>
         <activity android:name=".activities.authentication.VerifyEmailActivity" />
         <activity android:name=".activities.authentication.ForgotPasswordActivity" />
         <activity android:name=".activities.authentication.RegisterActivity" />

@@ -21,6 +21,22 @@
         app:layout_constraintTop_toTopOf="parent"
         tools:context="io.github.webcurate.activities.MainActivity">
 
+        <ProgressBar
+            android:id="@+id/progressBar"
+            style="?android:attr/progressBarStyleHorizontal"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:indeterminate="true"
+            android:indeterminateTint="@color/colorPrimary"
+            android:scaleY="1.5"
+            android:visibility="invisible"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.5"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/topBarMain"
+            app:layout_constraintVertical_bias="0.0" />
+
         <androidx.viewpager2.widget.ViewPager2
             android:id="@+id/viewPager"
             android:layout_width="0dp"
@@ -34,25 +50,25 @@
 
         <com.google.android.material.tabs.TabLayout
             android:id="@+id/tabBar"
-            style="@style/Widget.MaterialComponents.TabLayout.Colored"
+            style="@style/Widget.MaterialComponents.TabLayout"
             android:layout_width="match_parent"
-            android:layout_height="60dp"
-            android:background="@color/colorSecondary"
+            android:layout_height="59dp"
+            android:background="@drawable/top_bottom_bordered"
             android:elevation="8dp"
             android:visibility="visible"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:tabIndicator="@drawable/tab_indicator"
-            app:tabIndicatorColor="#ffffff"
+            app:tabIndicatorColor="@color/colorPrimary"
             app:tabIndicatorGravity="top"
-            app:tabIndicatorHeight="3dp"
+            app:tabIndicatorHeight="2dp"
             app:tabTextAppearance="@style/TextAppearanceTab" />
 
         <androidx.constraintlayout.widget.ConstraintLayout
             android:id="@+id/topBarMain"
             android:layout_width="0dp"
-            android:layout_height="58dp"
+            android:layout_height="57dp"
             android:background="#fff"
             android:elevation="2dp"
             android:visibility="visible"
@@ -231,24 +247,6 @@
                         app:layout_constraintVertical_bias="0.0" />
 
                     <Button
-                        android:id="@+id/manageSites"
-                        style="@style/Widget.AppCompat.Button.Borderless"
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:text="@string/manage_sites"
-                        android:textAllCaps="false"
-                        android:textColor="#292929"
-                        app:icon="@drawable/ic_manage_site"
-                        app:iconGravity="textStart"
-                        app:iconSize="18dp"
-                        app:iconTint="#292929"
-                        app:layout_constraintBottom_toBottomOf="parent"
-                        app:layout_constraintEnd_toEndOf="parent"
-                        app:layout_constraintStart_toStartOf="parent"
-                        app:layout_constraintTop_toBottomOf="@id/notificationToggle"
-                        app:layout_constraintVertical_bias="0.0" />
-
-                    <Button
                         android:id="@+id/deleteFeed"
                         style="@style/Widget.AppCompat.Button.Borderless"
                         android:layout_width="0dp"
@@ -263,7 +261,7 @@
                         app:layout_constraintBottom_toBottomOf="parent"
                         app:layout_constraintEnd_toEndOf="parent"
                         app:layout_constraintStart_toStartOf="parent"
-                        app:layout_constraintTop_toBottomOf="@id/manageSites"
+                        app:layout_constraintTop_toBottomOf="@id/notificationToggle"
                         app:layout_constraintVertical_bias="0.0" />
 
                     <Button

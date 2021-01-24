@@ -46,7 +46,7 @@ class BrowserFragment : Fragment(R.layout.fragment_browser), OnBackPressed {
         binding.webFeedView.settings.javaScriptEnabled = true
         binding.webFeedView.addJavascriptInterface(WebJsClient(object : OnPageFinish {
             override fun onPageFinished() {
-                // Do nothing
+                binding.urlProgress.visibility = View.INVISIBLE
             }
         }), "WebJsClient")
         binding.webFeedView.webViewClient = MainWebViewClient(binding.urlTextFeedWeb)
@@ -60,6 +60,7 @@ class BrowserFragment : Fragment(R.layout.fragment_browser), OnBackPressed {
                 v.clearFocus()
                 hideKeyboard()
                 binding.webFeedView.loadUrl(binding.urlTextFeedWeb.text.toString().trim())
+                binding.urlProgress.visibility = View.VISIBLE
             }
             false
         }
@@ -67,6 +68,7 @@ class BrowserFragment : Fragment(R.layout.fragment_browser), OnBackPressed {
         binding.goBtn.setOnClickListener {
             binding.urlTextFeedWeb.clearFocus()
             hideKeyboard()
+            binding.urlProgress.visibility = View.VISIBLE
             binding.webFeedView.loadUrl(binding.urlTextFeedWeb.text.toString().trim())
         }
 

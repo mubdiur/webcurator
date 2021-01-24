@@ -10,20 +10,14 @@ import androidx.fragment.app.commit
 import androidx.fragment.app.replace
 import io.github.webcurate.R
 import io.github.webcurate.clients.CustomTitle
-import io.github.webcurate.databases.DatabaseClient
-import io.github.webcurate.databases.models.Value
+import io.github.webcurate.data.DataProcessor
 import io.github.webcurate.databinding.FragmentFeedNameBinding
 import io.github.webcurate.options.OptionMenu
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
 
 class FeedNameFragment : Fragment(R.layout.fragment_feed_name) {
 
     private var _binding: FragmentFeedNameBinding? = null
-    private var _db: DatabaseClient? = null
     private val binding get() = _binding!!
-    private val db get() = _db!!
 
 
     @SuppressLint("ClickableViewAccessibility")
@@ -33,7 +27,6 @@ class FeedNameFragment : Fragment(R.layout.fragment_feed_name) {
         super.onViewCreated(view, savedInstanceState)
         view.setOnTouchListener { _, _ -> true }
         _binding = FragmentFeedNameBinding.bind(view)
-        _db = DatabaseClient.getInstance(requireContext())
 
         // set option menu context to default coming from feed
         OptionMenu.contextType = OptionMenu.CONTEXT_DEFAULT
@@ -53,25 +46,9 @@ class FeedNameFragment : Fragment(R.layout.fragment_feed_name) {
                 binding.feedTitleEdit.text.toString().isNotEmpty()
                 && binding.descriptionEdit.text.toString().isNotEmpty()
             ) {
+                DataProcessor.feedCreationTitle = binding.feedTitleEdit.text.toString()
+                DataProcessor.feedCreationDescription = binding.descriptionEdit.text.toString()
 
-
-                CoroutineScope(Dispatchers.IO).launch {
-                    try {
-                        db.valueDao().insertValue(
-                            Value(
-                                "title",
-                                binding.feedTitleEdit.text.toString()
-                            )
-                        )
-                        db.valueDao().insertValue(
-                            Value(
-                                "description",
-                                binding.descriptionEdit.text.toString()
-                            )
-                        )
-                    } catch (e: Exception) {
-                    }
-                }
                 requireActivity().supportFragmentManager.commit {
                     replace<PageFragment>(R.id.feedNameFragment, tag = "pageFragment")
                     setReorderingAllowed(true)
@@ -85,12 +62,12 @@ class FeedNameFragment : Fragment(R.layout.fragment_feed_name) {
         (requireActivity().getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager)
             .hideSoftInputFromWindow(binding.descriptionEdit.windowToken, 0)
     }
+
     override fun onDestroyView() {
         super.onDestroyView()
         CustomTitle.resetTitle()
         // set option menu context to feed going back to feed
         OptionMenu.contextType = OptionMenu.CONTEXT_FEED
         _binding = null
-        _db = null
     }
 }

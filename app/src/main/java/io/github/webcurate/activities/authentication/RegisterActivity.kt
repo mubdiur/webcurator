@@ -4,11 +4,11 @@ import android.content.Context
 import android.content.Intent
 import android.os.Bundle
 import android.view.inputmethod.InputMethodManager
-import android.widget.Toast
+import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import com.google.firebase.auth.UserProfileChangeRequest
 import io.github.webcurate.R
-import io.github.webcurate.databases.AuthManager
+import io.github.webcurate.data.AuthManager
 import io.github.webcurate.databinding.ActivityRegisterBinding
 
 class RegisterActivity : AppCompatActivity() {
@@ -18,6 +18,10 @@ class RegisterActivity : AppCompatActivity() {
 
         val binding = ActivityRegisterBinding.inflate(layoutInflater)
         setContentView(binding.root)
+
+
+        val dialogBuilder = AlertDialog.Builder(this)
+
 
         binding.signUpButton.setOnClickListener {
             hideKeyboard(binding)
@@ -65,8 +69,9 @@ class RegisterActivity : AppCompatActivity() {
                                 finish()
                             }
                     } else {
-                        // something went wrong in creating account
-                        Toast.makeText(this, it.exception?.message, Toast.LENGTH_LONG).show()
+                        dialogBuilder.setTitle("Error!")
+                        dialogBuilder.setMessage(it.exception?.message.toString())
+                        dialogBuilder.create().show()
                     }
                 }
             }

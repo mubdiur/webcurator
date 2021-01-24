@@ -9,19 +9,14 @@ import android.view.inputmethod.InputMethodManager
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.commit
 import androidx.fragment.app.replace
-import io.github.webcurate.interfaces.OnBackPressed
-import io.github.webcurate.interfaces.OnPageFinish
 import io.github.webcurate.R
 import io.github.webcurate.clients.CustomTitle
 import io.github.webcurate.clients.MainWebViewClient
 import io.github.webcurate.clients.WebJsClient
-import io.github.webcurate.databases.DatabaseClient
-import io.github.webcurate.databases.models.Value
+import io.github.webcurate.data.DataProcessor
 import io.github.webcurate.databinding.FragmentPageBinding
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
+import io.github.webcurate.interfaces.OnBackPressed
+import io.github.webcurate.interfaces.OnPageFinish
 
 
 @SuppressLint("ClickableViewAccessibility")
@@ -29,13 +24,10 @@ class PageFragment : Fragment(R.layout.fragment_page), OnBackPressed, OnPageFini
 
 
     private var _binding: FragmentPageBinding? = null
-    private var _db: DatabaseClient? = null
 
     private var _goNext: Boolean? = null
-    private var _url: String? = null
 
     private val binding get() = _binding!!
-    private val db get() = _db!!
 
 
     @SuppressLint("SetJavaScriptEnabled")
@@ -48,7 +40,6 @@ class PageFragment : Fragment(R.layout.fragment_page), OnBackPressed, OnPageFini
 
 
         _binding = FragmentPageBinding.bind(view)
-        _db = DatabaseClient.getInstance(requireContext())
         _goNext = false
 
         CustomTitle.setTitle("Create Feed - Page")
@@ -65,11 +56,18 @@ class PageFragment : Fragment(R.layout.fragment_page), OnBackPressed, OnPageFini
             ) {
                 v.clearFocus()
                 hideKeyboard()
+                binding.urlProgress.visibility = View.VISIBLE
                 binding.webFeedView.loadUrl(binding.urlTextFeedWeb.text.toString().trim())
             }
             false
         }
 
+        binding.goBtn.setOnClickListener {
+            binding.urlTextFeedWeb.clearFocus()
+            hideKeyboard()
+            binding.urlProgress.visibility = View.VISIBLE
+            binding.webFeedView.loadUrl(binding.urlTextFeedWeb.text.toString().trim())
+        }
 
         binding.pageNext.setOnClickListener {
             hideKeyboard()
@@ -89,37 +87,30 @@ class PageFragment : Fragment(R.layout.fragment_page), OnBackPressed, OnPageFini
 
 
     override fun onPageFinished() {
-        if (_goNext==true) {
+        binding.urlProgress.visibility = View.INVISIBLE
+        if (_goNext == true) {
             _goNext = false
-            _url = binding.urlTextFeedWeb.text.toString()
-            CoroutineScope(Dispatchers.IO).launch {
-                try {
-                    db.valueDao().insertValue(Value("url", _url!!))
-                } catch (e: Exception) {}
-                withContext(Dispatchers.Main) {
-                    requireActivity().supportFragmentManager.commit {
-                        replace<SelectionFragment>(R.id.pageFragment)
-                        setReorderingAllowed(true)
-                        addToBackStack(null)
-                    }
-                }
+            DataProcessor.feedCreationUrl = binding.urlTextFeedWeb.text.toString()
+
+            requireActivity().supportFragmentManager.commit {
+                replace<SelectionFragment>(R.id.pageFragment)
+                setReorderingAllowed(true)
+                addToBackStack(null)
             }
         }
     }
 
 
     private fun hideKeyboard() {
-            (requireActivity().getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager)
-        .hideSoftInputFromWindow(binding.urlTextFeedWeb.windowToken, 0)
+        (requireActivity().getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager)
+            .hideSoftInputFromWindow(binding.urlTextFeedWeb.windowToken, 0)
     }
 
     override fun onDestroyView() {
         super.onDestroyView()
         CustomTitle.pop()
         _binding = null
-        _db = null
         _goNext = null
-        _url = null
     }
 
 }

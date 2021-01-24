@@ -1,4 +1,4 @@
-package io.github.webcurate.databases.models
+package io.github.webcurate.data.models
 
 class FeedContent(
     val text: String,
