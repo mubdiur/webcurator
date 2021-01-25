@@ -13,6 +13,7 @@ import androidx.fragment.app.replace
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import io.github.webcurate.R
+import io.github.webcurate.activities.MainActivity
 import io.github.webcurate.clients.CustomTitle
 import io.github.webcurate.data.DataProcessor
 import io.github.webcurate.data.NetEvents
@@ -40,6 +41,7 @@ class FeedContentFragment : Fragment(R.layout.fragment_feed_content), OnPageFini
 
         fun editFeed(fragmentManager: FragmentManager) {
             CustomTitle.setTitle("Edit Feed")
+            OptionMenu.feedItemEditing = true
             fragmentManager.commit {
                 replace<FeedEditFragment>(R.id.fragmentFeedContent)
                 setReorderingAllowed(true)
@@ -57,7 +59,7 @@ class FeedContentFragment : Fragment(R.layout.fragment_feed_content), OnPageFini
             CoroutineScope(Dispatchers.IO).launch {
                 Repository.setNotification(
                     DataProcessor.currentFeed!!.id,
-                    when(DataProcessor.currentFeed!!.notification) {
+                    when (DataProcessor.currentFeed!!.notification) {
                         1 -> 0
                         else -> 1
                     }
@@ -81,7 +83,6 @@ class FeedContentFragment : Fragment(R.layout.fragment_feed_content), OnPageFini
         _binding = FragmentFeedContentBinding.bind(view)
         // set option menu context to feed item coming from feed
         OptionMenu.contextType = OptionMenu.CONTEXT_FEED_ITEM
-        OptionMenu.feedItemVisible = true
         OptionMenu.notify = when (DataProcessor.currentFeed!!.notification) {
             1 -> true
             else -> false
@@ -102,6 +103,11 @@ class FeedContentFragment : Fragment(R.layout.fragment_feed_content), OnPageFini
                 CoroutineScope(Dispatchers.Main).launch {
                     NetEvents.contentEvents.value = NetEvents.DEFAULT
                     feedContentAdapter.notifyDataSetChanged()
+                    if(Repository.contentList.isEmpty()) {
+                        _binding!!.listCover.visibility = View.VISIBLE
+                    } else {
+                        _binding!!.listCover.visibility = View.GONE
+                    }
                 }
             }
 
@@ -154,7 +160,7 @@ class FeedContentFragment : Fragment(R.layout.fragment_feed_content), OnPageFini
          * Notification events
          */
         NetEvents.notificationEvents.observe(requireActivity(), {
-            if(it==NetEvents.NOTIFICATION_READY) {
+            if (it == NetEvents.NOTIFICATION_READY) {
                 CoroutineScope(Dispatchers.Main).launch {
                     NetEvents.notificationEvents.value = NetEvents.DEFAULT
                 }
@@ -168,20 +174,23 @@ class FeedContentFragment : Fragment(R.layout.fragment_feed_content), OnPageFini
         })
 
 
-        if (DataProcessor.currentFeed!!.updates != 0) {
-            CoroutineScope(Dispatchers.IO).launch {
-                Repository.markFeedRead(DataProcessor.currentFeed!!.id)
-            }
-        }
+
         CoroutineScope(Dispatchers.Main).launch {
             NetEvents.contentEvents.value = NetEvents.CURATE_CONTENTS
         }
 
-    } // on view
+        _binding!!.reloadButton.setOnClickListener {
+            NetEvents.contentEvents.value = NetEvents.CURATE_CONTENTS
+        }
+
+    } // on create view
 
     override fun onDestroyView() {
         super.onDestroyView()
-        // set option menu context to feed going back to feed
+        OptionMenu.feedItemVisible = false
+        CoroutineScope(Dispatchers.IO).launch {
+            Repository.markFeedRead(DataProcessor.currentFeed!!.id)
+        }
         _binding = null
         NetEvents.contentEvents.removeObservers(requireActivity())
         NetEvents.notificationEvents.removeObservers(requireActivity())
@@ -207,10 +216,15 @@ class FeedContentAdapter : RecyclerView.Adapter<FeedContentAdapter.ViewHolder>()
     }
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
-        holder.itemText.text = Repository.contentList.toList()[position].text
+        holder.itemText.text = Repository.contentList.toList()[position].text.trim()
         val sourceText =
             "Source: " + Repository.contentList.toList()[position].source.take(20) + "..."
         holder.sourceText.text = sourceText
+        holder.itemView.setOnClickListener {
+            DataProcessor.contentURL = Repository.contentList.toList()[position].source
+            MainActivity.nullBinding!!.viewPager.currentItem = 2
+            NetEvents.browserEvents.value = NetEvents.LOAD_URL
+        }
     }
 
     override fun getItemCount() = Repository.contentList.size

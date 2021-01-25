@@ -32,10 +32,8 @@
             android:visibility="invisible"
             app:layout_constraintBottom_toBottomOf="@id/topBarMain"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintHorizontal_bias="0.5"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/topBarMain"
-            app:layout_constraintVertical_bias="0.0" />
+            app:layout_constraintTop_toBottomOf="@id/topBarMain" />
 
         <androidx.viewpager2.widget.ViewPager2
             android:id="@+id/viewPager"
@@ -84,7 +82,7 @@
                 android:layout_marginEnd="68dp"
                 android:fontFamily="sans-serif-medium"
                 android:text="@string/home"
-                android:textColor="#151515"
+                android:textColor="@color/primaryFontColor"
                 android:textSize="20sp"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"

@@ -29,7 +29,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content">
 
-                <TextView
+                <TextView android:textColor="@color/primaryFontColor"
                     android:id="@+id/textView12"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
@@ -65,7 +65,7 @@
                 </com.google.android.material.textfield.TextInputLayout>
 
 
-                <TextView
+                <TextView android:textColor="@color/primaryFontColor"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginBottom="8dp"
@@ -103,7 +103,7 @@
             </androidx.constraintlayout.widget.ConstraintLayout>
         </androidx.cardview.widget.CardView>
 
-        <TextView
+        <TextView android:textColor="@color/primaryFontColor"
             android:id="@+id/sitesTitle"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -118,6 +118,49 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@id/topCard"
             app:layout_constraintVertical_bias="0.0" />
+
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:id="@+id/listCover"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:background="@color/commonBg"
+            android:translationZ="1dp"
+            android:visibility="invisible"
+            app:layout_constraintBottom_toBottomOf="@id/siteList"
+            app:layout_constraintEnd_toEndOf="@id/siteList"
+            app:layout_constraintStart_toStartOf="@id/siteList"
+            app:layout_constraintTop_toTopOf="@id/siteList">
+
+            <TextView
+                android:id="@+id/mainText"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:fontFamily="sans-serif-light"
+                android:text="@string/no_sites"
+                android:textColor="@color/dimmedFontColor"
+                android:textSize="30sp"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintHorizontal_bias="0.5"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintVertical_bias="0.32999998" />
+
+            <TextView
+                android:id="@+id/subText"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
+                android:text="@string/add_valid_sites_from_top_right_corner"
+                android:textColor="@color/dimmedFontColor"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintHorizontal_bias="0.5"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/mainText"
+                app:layout_constraintVertical_bias="0.0" />
+        </androidx.constraintlayout.widget.ConstraintLayout>
 
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/siteList"

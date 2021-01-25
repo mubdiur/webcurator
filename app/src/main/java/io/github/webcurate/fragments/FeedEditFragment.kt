@@ -40,7 +40,7 @@ class FeedEditFragment : Fragment(R.layout.fragment_feed_edit), OnItemClick {
         binding = FragmentFeedEditBinding.bind(view)
 
         // Set the Option Menu Context to default
-        OptionMenu.contextType = OptionMenu.CONTEXT_DEFAULT
+        OptionMenu.contextType = OptionMenu.CONTEXT_FEED_EDIT
 
         binding!!.feedTitle.setText(DataProcessor.currentFeed!!.title, TextView.BufferType.EDITABLE)
         binding!!.feedDescription.setText(
@@ -97,6 +97,11 @@ class FeedEditFragment : Fragment(R.layout.fragment_feed_edit), OnItemClick {
                 CoroutineScope(Dispatchers.Main).launch {
                     NetEvents.siteEvents.value = NetEvents.DEFAULT
                     siteListAdapter.notifyDataSetChanged()
+                    if(Repository.siteList.isEmpty()) {
+                        binding!!.listCover.visibility = View.VISIBLE
+                    } else {
+                        binding!!.listCover.visibility = View.GONE
+                    }
                 }
             }
             if (it == NetEvents.UPDATE_SITES) {
@@ -133,11 +138,13 @@ class FeedEditFragment : Fragment(R.layout.fragment_feed_edit), OnItemClick {
 
     override fun onDestroyView() {
         super.onDestroyView()
+        OptionMenu.feedItemEditing = false
         OptionMenu.contextType = OptionMenu.CONTEXT_FEED_ITEM
         binding = null
         Repository.siteList.clear()
         NetEvents.siteEvents.removeObservers(requireActivity())
         CustomTitle.pop()
+        OptionMenu.contextType = OptionMenu.CONTEXT_FEED_ITEM
     }
 
     private fun hideKeyboard() {

@@ -16,11 +16,15 @@ object DataProcessor {
     var feedCreationUrl: String = ""
     var html: String = ""
     var email: String = ""
+    var contentURL: String = ""
+
+
     var currentRootPosition = 0
     val gson = Gson()
 
     var siteModifyMode = false
     var siteAddMode = false
+    var backToFeed = false
 
     val updatedList = mutableSetOf<FeedResponse>()
 

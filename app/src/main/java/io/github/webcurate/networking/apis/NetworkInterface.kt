@@ -40,15 +40,6 @@ interface NetworkInterface {
         @Field("operation") operation: String = "getContentsForFeed"
     ): NetworkResponse<List<ContentResponse>, ErrorResponse>
 
-    // network 4
-    @FormUrlEncoded
-    @POST("/")
-    suspend fun getUpdateCount(
-        @Field("feedid") feedid: BigInteger,
-        @Field("token") token: String = AuthManager.idToken,
-        @Field("operation") operation: String = "getUpdateCount"
-    ): NetworkResponse<Int, ErrorResponse>
-
     // network 5
     @FormUrlEncoded
     @POST("/")
@@ -57,14 +48,6 @@ interface NetworkInterface {
         @Field("operation") operation: String = "getTopic"
     ): NetworkResponse<String, ErrorResponse>
 
-    // network 6
-    @FormUrlEncoded
-    @POST("/")
-    suspend fun getNotificationStatus(
-        @Field("feedid") feedid: BigInteger,
-        @Field("token") token: String = AuthManager.idToken,
-        @Field("operation") operation: String = "getNotificationStatus"
-    ): NetworkResponse<Int, ErrorResponse>
 
     // ------ 2. INSERT operations ---------- //
     // network 7

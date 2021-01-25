@@ -13,6 +13,48 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent">
 
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:id="@+id/listCover"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:background="@color/commonBg"
+            android:translationZ="1dp"
+            android:visibility="invisible"
+            app:layout_constraintBottom_toBottomOf="@id/recentList"
+            app:layout_constraintEnd_toEndOf="@id/recentList"
+            app:layout_constraintStart_toStartOf="@id/recentList"
+            app:layout_constraintTop_toTopOf="@id/recentList">
+
+            <TextView
+                android:id="@+id/mainText"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:fontFamily="sans-serif-light"
+                android:text="@string/no_updates"
+                android:textColor="@color/dimmedFontColor"
+                android:textSize="30sp"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintHorizontal_bias="0.5"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintVertical_bias="0.39" />
+
+            <TextView
+                android:id="@+id/subText"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
+                android:text="@string/goto_next_tab_from_bottom_to_add_feeds"
+                android:textColor="@color/dimmedFontColor"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintHorizontal_bias="0.5"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/mainText"
+                app:layout_constraintVertical_bias="0.0" />
+        </androidx.constraintlayout.widget.ConstraintLayout>
+
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/recentList"
             android:layout_width="0dp"
@@ -25,7 +67,7 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@id/recentText" />
 
-        <TextView
+        <TextView android:textColor="@color/primaryFontColor"
             android:id="@+id/recentText"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -64,7 +106,7 @@
                 android:paddingEnd="8dp"
                 android:paddingBottom="2dp">
 
-                <TextView
+                <TextView android:textColor="@color/primaryFontColor"
                     android:id="@+id/homeNameText"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
@@ -94,7 +136,7 @@
                     app:layout_constraintStart_toEndOf="@id/textView2"
                     app:layout_constraintTop_toTopOf="@id/textView2" />
 
-                <TextView
+                <TextView android:textColor="@color/primaryFontColor"
                     android:id="@+id/textView2"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"

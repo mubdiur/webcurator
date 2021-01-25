@@ -17,6 +17,7 @@ object NetEvents {
     const val CURATE_CONTENTS = 11
     const val CONTENTS_CURATED = 12
     const val CONTENTS_INVALID = 13
+    const val LOAD_URL = 14
 
     // feedResponse
     val feedEvents = MutableLiveData<Int>()
@@ -30,4 +31,6 @@ object NetEvents {
     val notificationEvents = MutableLiveData<Int>()
     // auth events
     val authEvents = MutableLiveData<Int>()
+    // browser events
+    val browserEvents = MutableLiveData<Int>()
 }

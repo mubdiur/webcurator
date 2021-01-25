@@ -2,6 +2,7 @@ package io.github.webcurate.activities.authentication
 
 import android.content.Context
 import android.os.Bundle
+import android.view.View
 import android.view.inputmethod.InputMethodManager
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
@@ -27,6 +28,7 @@ class ReAuthActivity : AppCompatActivity() {
                 binding.passwordEdit.error = "This field cannot be empty!"
                 binding.passwordEdit.requestFocus()
             } else {
+                binding.urlProgress.visibility = View.VISIBLE
                 AuthManager.authInstance.currentUser?.reauthenticate(
                     EmailAuthProvider.getCredential(
                         AuthManager.authInstance.currentUser!!.email.toString(),
@@ -34,8 +36,10 @@ class ReAuthActivity : AppCompatActivity() {
                     )
                 )?.addOnCompleteListener {
                     if(it.isSuccessful) {
+                        binding.urlProgress.visibility = View.INVISIBLE
                         finish()
                     } else {
+                        binding.urlProgress.visibility = View.INVISIBLE
                         dialogBuilder.setTitle("Error!")
                         dialogBuilder.setMessage(it.exception?.message.toString())
                         dialogBuilder.create().show()

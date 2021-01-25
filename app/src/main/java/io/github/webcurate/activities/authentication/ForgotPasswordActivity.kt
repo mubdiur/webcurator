@@ -34,13 +34,16 @@ class ForgotPasswordActivity : AppCompatActivity() {
                 binding.editEmail.error = "This field cannot be empty!"
                 binding.editEmail.requestFocus()
             } else {
+                binding.urlProgress.visibility = View.VISIBLE
                 AuthManager.authInstance.sendPasswordResetEmail(binding.editEmail.text.toString())
                     .addOnCompleteListener {
                         if(!it.isSuccessful) {
+                            binding.urlProgress.visibility = View.INVISIBLE
                             dialogBuilder.setTitle("Error!")
                             dialogBuilder.setMessage(it.exception?.message.toString())
                             dialogBuilder.create().show()
                         } else {
+                            binding.urlProgress.visibility = View.INVISIBLE
                             showSuccess(binding)
                         }
                     }

@@ -30,7 +30,7 @@
                 app:layout_constraintRight_toRightOf="parent"
                 app:layout_constraintTop_toTopOf="parent" />
 
-            <TextView
+            <TextView android:textColor="@color/primaryFontColor"
                 android:id="@+id/item_text_select"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
@@ -42,7 +42,7 @@
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent" />
 
-            <TextView
+            <TextView android:textColor="@color/primaryFontColor"
                 android:id="@+id/item_slim_path"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"

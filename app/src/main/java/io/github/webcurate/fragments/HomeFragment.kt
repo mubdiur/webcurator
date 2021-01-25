@@ -49,7 +49,7 @@ class HomeFragment : Fragment(R.layout.fragment_home), OnItemClick {
         val month: Int = cal.get(Calendar.MONTH)
 
         binding!!.recentList.layoutManager = LinearLayoutManager(requireContext())
-        val listAdapter = RecentListAdapter(this@HomeFragment)
+        val listAdapter = RecentListAdapter(this@HomeFragment, binding!!)
         binding!!.recentList.adapter = listAdapter
 
         NetEvents.topicEvents.observe(requireActivity(), {
@@ -90,6 +90,11 @@ class HomeFragment : Fragment(R.layout.fragment_home), OnItemClick {
             }
         })
 
+        binding!!.markRead.setOnClickListener {
+             CoroutineScope(Dispatchers.IO).launch {
+                 Repository.markAllRead()
+             }
+        }
     } // on view created
 
     private fun monthName(month: Int): String {
@@ -143,7 +148,7 @@ class HomeFragment : Fragment(R.layout.fragment_home), OnItemClick {
 }
 
 
-class RecentListAdapter(private val callBack: OnItemClick) :
+class RecentListAdapter(private val callBack: OnItemClick, private val binding: FragmentHomeBinding) :
     RecyclerView.Adapter<RecentListAdapter.ViewHolder>() {
 
     class ViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
@@ -176,6 +181,11 @@ class RecentListAdapter(private val callBack: OnItemClick) :
             if (feed.updates != 0) {
                 DataProcessor.updatedList.add(feed)
             }
+        }
+        if(DataProcessor.updatedList.isEmpty()) {
+            binding.listCover.visibility = View.VISIBLE
+        } else {
+            binding.listCover.visibility = View.GONE
         }
         notifyDataSetChanged()
     }

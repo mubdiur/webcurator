@@ -3,6 +3,7 @@ package io.github.webcurate.fragments
 import android.annotation.SuppressLint
 import android.content.Context
 import android.os.Bundle
+import android.util.Patterns
 import android.view.KeyEvent
 import android.view.View
 import android.view.inputmethod.InputMethodManager
@@ -20,6 +21,7 @@ import io.github.webcurate.interfaces.OnPageFinish
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import java.net.URLEncoder
 
 
 @SuppressLint("ClickableViewAccessibility")
@@ -52,14 +54,17 @@ class PageFragment : Fragment(R.layout.fragment_page), OnBackPressed, OnPageFini
         binding.webFeedView.webViewClient = MainWebViewClient(binding.urlTextFeedWeb)
         binding.webFeedView.clearCache(true)
 
-        if (DataProcessor.siteModifyMode) {
-            CustomTitle.setTitle("Modify Site - Page")
-            binding.webFeedView.loadUrl(DataProcessor.currentSite!!.url)
-        } else if (DataProcessor.siteAddMode) {
-            CustomTitle.setTitle("Add Site - Page")
-        }
-        else {
-            CustomTitle.setTitle("Create Feed - Page")
+        when {
+            DataProcessor.siteModifyMode -> {
+                CustomTitle.setTitle("Modify Site - Page")
+                binding.webFeedView.loadUrl(DataProcessor.currentSite!!.url)
+            }
+            DataProcessor.siteAddMode -> {
+                CustomTitle.setTitle("Add Site - Page")
+            }
+            else -> {
+                CustomTitle.setTitle("Create Feed - Page")
+            }
         }
 
         binding.urlTextFeedWeb.setOnKeyListener { v, keyCode, event ->
@@ -69,7 +74,18 @@ class PageFragment : Fragment(R.layout.fragment_page), OnBackPressed, OnPageFini
                 v.clearFocus()
                 hideKeyboard()
                 binding.urlProgress.visibility = View.VISIBLE
-                binding.webFeedView.loadUrl(binding.urlTextFeedWeb.text.toString().trim())
+                var url = binding.urlTextFeedWeb.text.toString().trim()
+                if (Patterns.WEB_URL.matcher(url).matches()) {
+                    if(!url.startsWith("http")) {
+                        url = "http://$url"
+                    }
+                    binding.webFeedView.loadUrl(url)
+                }
+                else {
+                    val searchTerm = URLEncoder.encode(url, "utf-8")
+                    val searchUrl = "https://google.com/search?q=$searchTerm"
+                    binding.webFeedView.loadUrl(searchUrl)
+                }
             }
             false
         }
@@ -78,7 +94,18 @@ class PageFragment : Fragment(R.layout.fragment_page), OnBackPressed, OnPageFini
             binding.urlTextFeedWeb.clearFocus()
             hideKeyboard()
             binding.urlProgress.visibility = View.VISIBLE
-            binding.webFeedView.loadUrl(binding.urlTextFeedWeb.text.toString().trim())
+            var url = binding.urlTextFeedWeb.text.toString().trim()
+            if (Patterns.WEB_URL.matcher(url).matches()) {
+                if(!url.startsWith("http")) {
+                    url = "http://$url"
+                }
+                binding.webFeedView.loadUrl(url)
+            }
+            else {
+                val searchTerm = URLEncoder.encode(url, "utf-8")
+                val searchUrl = "https://google.com/search?q=$searchTerm"
+                binding.webFeedView.loadUrl(searchUrl)
+            }
         }
 
         binding.pageNext.setOnClickListener {

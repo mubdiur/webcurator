@@ -3,6 +3,7 @@ package io.github.webcurate.activities.authentication
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
+import android.view.View
 import android.view.inputmethod.InputMethodManager
 import android.widget.TextView
 import androidx.appcompat.app.AlertDialog
@@ -54,16 +55,25 @@ class VerifyEmailActivity : AppCompatActivity() {
 
         binding.resendVerification.setOnClickListener {
             hideKeyboard(binding)
-            AuthManager.authInstance.currentUser?.updateEmail(binding.emailVerifyEdit.text.toString())
-            AuthManager.authInstance.currentUser?.sendEmailVerification()
-                ?.addOnCompleteListener {
-                    if (!it.isSuccessful) {
-                        dialogBuilder.setTitle("Error!")
-                        dialogBuilder.setMessage(it.exception?.message.toString())
-                        dialogBuilder.create().show()
+            if(binding.emailVerifyEdit.text!!.isEmpty()) {
+                binding.emailVerifyEdit.error = "This field cannot be empty"
+                binding.emailVerifyEdit.requestFocus()
+            } else {
+                AuthManager.authInstance.currentUser?.updateEmail(binding.emailVerifyEdit.text.toString())
+                AuthManager.authInstance.currentUser?.sendEmailVerification()
+                    ?.addOnCompleteListener {
+                        if (!it.isSuccessful) {
+                            binding.urlProgress.visibility = View.INVISIBLE
+                            dialogBuilder.setTitle("Error!")
+                            dialogBuilder.setMessage(it.exception?.message.toString())
+                            dialogBuilder.create().show()
+                        } else {
+                            binding.urlProgress.visibility = View.INVISIBLE
+                        }
                     }
-                }
-            binding.emailVerifyEdit.isEnabled = false
+
+                binding.emailVerifyEdit.isEnabled = false
+            }
         }
 
         CoroutineScope(Dispatchers.IO).launch {

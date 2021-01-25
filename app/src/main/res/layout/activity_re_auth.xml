@@ -7,7 +7,20 @@
     android:background="@color/commonBg"
     tools:context=".activities.authentication.ReAuthActivity">
 
-    <TextView
+    <ProgressBar
+        android:id="@+id/urlProgress"
+        style="@android:style/Widget.Material.Light.ProgressBar.Horizontal"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:indeterminate="true"
+        android:indeterminateTint="@color/colorPrimary"
+        android:translationZ="1dp"
+        android:visibility="invisible"
+        app:layout_constraintBottom_toTopOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+    <TextView android:textColor="@color/primaryFontColor"
         android:id="@+id/textView9"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -43,7 +56,7 @@
 
     </com.google.android.material.textfield.TextInputLayout>
 
-    <TextView
+    <TextView android:textColor="@color/primaryFontColor"
         android:id="@+id/textView10"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"

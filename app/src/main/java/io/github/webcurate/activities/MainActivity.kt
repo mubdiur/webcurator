@@ -17,6 +17,7 @@ import io.github.webcurate.data.AuthManager
 import io.github.webcurate.data.DataProcessor
 import io.github.webcurate.data.NetEvents
 import io.github.webcurate.databinding.ActivityMainBinding
+import io.github.webcurate.fragments.BrowserFragment
 import io.github.webcurate.fragments.FeedContentFragment
 import io.github.webcurate.fragments.FeedsFragment
 import io.github.webcurate.interfaces.OnBackPressed
@@ -145,8 +146,15 @@ class MainActivity : AppCompatActivity() {
                             OptionMenu.contextType = OptionMenu.CONTEXT_FEED
                         } else {
                             binding.titleText.text = CustomTitle.currentTitle
-                            if (OptionMenu.feedItemVisible) OptionMenu.contextType =
-                                OptionMenu.CONTEXT_FEED_ITEM
+                            if (OptionMenu.feedItemVisible) {
+                                if(OptionMenu.feedItemEditing) {
+                                    OptionMenu.contextType =
+                                        OptionMenu.CONTEXT_FEED_EDIT
+                                } else {
+                                    OptionMenu.contextType =
+                                        OptionMenu.CONTEXT_FEED_ITEM
+                                }
+                            }
                             else OptionMenu.contextType = OptionMenu.CONTEXT_DEFAULT
                         }
                     }
@@ -187,6 +195,16 @@ class MainActivity : AppCompatActivity() {
                     OptionMenu.CONTEXT_FEED_ITEM -> {
                         binding.addSite.visibility = View.VISIBLE
                         binding.editFeed.visibility = View.VISIBLE
+                        if (OptionMenu.notify) {
+                            binding.notificationToggle.text = "Turn off Notification"
+                        } else {
+                            binding.notificationToggle.text = "Turn on Notification"
+                        }
+                        binding.notificationToggle.visibility = View.VISIBLE
+                        binding.deleteFeed.visibility = View.VISIBLE
+                    }
+                    OptionMenu.CONTEXT_FEED_EDIT -> {
+                        binding.addSite.visibility = View.VISIBLE
                         if (OptionMenu.notify) {
                             binding.notificationToggle.text = "Turn off Notification"
                         } else {
@@ -276,9 +294,31 @@ class MainActivity : AppCompatActivity() {
 
     override fun onBackPressed() {
         val fragment: Fragment? = supportFragmentManager.fragments.last()
-        if (OptionMenu.isVisible) hideOptions()
-        else if (fragment !is OnBackPressed || !fragment.onBackPressed()) {
-            super.onBackPressed()
+
+        when {
+            OptionMenu.isVisible -> hideOptions()
+            binding.viewPager.currentItem==2 -> {
+                when {
+                    BrowserFragment.nullBinding!!.webFeedView.canGoBack() -> {
+                        BrowserFragment.nullBinding!!.webFeedView.goBack()
+                    }
+                    DataProcessor.backToFeed -> {
+                        DataProcessor.backToFeed = false
+                        binding.viewPager.currentItem = 1
+                    }
+                    else -> {
+                        super.onBackPressed()
+                    }
+                }
+            }
+            fragment is OnBackPressed && binding.viewPager.currentItem==1 -> {
+                if(!fragment.onBackPressed()) {
+                    super.onBackPressed()
+                }
+            }
+            else -> {
+                super.onBackPressed()
+            }
         }
     }
 }

@@ -61,50 +61,56 @@ class SelectionFragment : Fragment(R.layout.fragment_selection), OnItemClick {
         binding.selectionView.layoutManager = LinearLayoutManager(requireContext())
         binding.selectionView.adapter = SelectionAdapter(contentList, this)
 
-       if (DataProcessor.siteModifyMode) {
-           CustomTitle.setTitle("Modify Site - Selection")
-       } else if(DataProcessor.siteAddMode) {
-           CustomTitle.setTitle("Add Site - Selection")
-       }
-       else {
-           CustomTitle.setTitle("Create Feed - Selection")
-       }
+        when {
+            DataProcessor.siteModifyMode -> {
+                CustomTitle.setTitle("Modify Site - Selection")
+            }
+            DataProcessor.siteAddMode -> {
+                CustomTitle.setTitle("Add Site - Selection")
+            }
+            else -> {
+                CustomTitle.setTitle("Create Feed - Selection")
+            }
+        }
 
         binding.selectionFinish.setOnClickListener {
             CoroutineScope(Dispatchers.Default).launch {
                 val queries = DataProcessor.getSiteQueries(getSelected()).toList()
                 withContext(Dispatchers.IO) {
-                    if(DataProcessor.siteModifyMode) {
-                        Repository.deleteSite(DataProcessor.currentSite!!.id)
-                        Repository.insertOneSite(
-                            DataProcessor.currentFeed!!.id,
-                            SiteRequest(
-                                DataProcessor.feedCreationUrl,
-                                queries
+                    when {
+                        DataProcessor.siteModifyMode -> {
+                            Repository.deleteSite(DataProcessor.currentSite!!.id)
+                            Repository.insertOneSite(
+                                DataProcessor.currentFeed!!.id,
+                                SiteRequest(
+                                    DataProcessor.feedCreationUrl,
+                                    queries
+                                )
                             )
-                        )
-                    } else if (DataProcessor.siteAddMode) {
-                        Repository.insertOneSite(
-                            DataProcessor.currentFeed!!.id,
-                            SiteRequest(
-                                DataProcessor.feedCreationUrl,
-                                queries
+                        }
+                        DataProcessor.siteAddMode -> {
+                            Repository.insertOneSite(
+                                DataProcessor.currentFeed!!.id,
+                                SiteRequest(
+                                    DataProcessor.feedCreationUrl,
+                                    queries
+                                )
                             )
-                        )
-                    }
-                    else {
-                        Repository.insertFeed(
-                            FeedRequest(
-                                DataProcessor.feedCreationTitle,
-                                DataProcessor.feedCreationDescription,
-                                listOf(
-                                    SiteRequest(
-                                        DataProcessor.feedCreationUrl,
-                                        queries
+                        }
+                        else -> {
+                            Repository.insertFeed(
+                                FeedRequest(
+                                    DataProcessor.feedCreationTitle,
+                                    DataProcessor.feedCreationDescription,
+                                    listOf(
+                                        SiteRequest(
+                                            DataProcessor.feedCreationUrl,
+                                            queries
+                                        )
                                     )
                                 )
                             )
-                        )
+                        }
                     }
                     withContext(Dispatchers.Main) {
                         CustomTitle.resetTitle()

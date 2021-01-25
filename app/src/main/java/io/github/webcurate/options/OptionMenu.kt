@@ -8,10 +8,12 @@ object OptionMenu {
     // 0 is the default context
     const val CONTEXT_FEED = 1
     const val CONTEXT_FEED_ITEM = 2
+    const val CONTEXT_FEED_EDIT = 3
 
     const val CONTEXT_DEFAULT = 0
 
     var feedItemVisible = false
+    var feedItemEditing = false
     var isVisible = false
     var notify = false
 

@@ -3,6 +3,7 @@ package io.github.webcurate.activities.authentication
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
+import android.view.View
 import android.view.inputmethod.InputMethodManager
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
@@ -43,15 +44,18 @@ class LoginActivity : AppCompatActivity() {
                 binding.editEmail.requestFocus()
             }
             if (proceed) {
+                binding.urlProgress.visibility = View.VISIBLE
                 AuthManager.authInstance.signInWithEmailAndPassword(
                     binding.editEmail.text.toString(),
                     binding.passwordEdit.text.toString()
                 ).addOnCompleteListener {
                     if (it.isSuccessful) {
+                        binding.urlProgress.visibility = View.INVISIBLE
                         //
                         startActivity(Intent(this, MainActivity::class.java))
                         finish()
                     } else {
+                        binding.urlProgress.visibility = View.INVISIBLE
                         dialogBuilder.setTitle("Error!")
                         dialogBuilder.setMessage(it.exception?.message.toString())
                         dialogBuilder.create().show()

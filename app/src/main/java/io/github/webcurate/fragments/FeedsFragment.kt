@@ -74,6 +74,11 @@ class FeedsFragment : Fragment(R.layout.fragment_feeds), OnItemClick {
                 CoroutineScope(Dispatchers.Main).launch {
                     NetEvents.feedEvents.value = NetEvents.DEFAULT
                     feedListAdapter.notifyDataSetChanged()
+                    if(Repository.feedList.isEmpty()) {
+                        binding.listCover.visibility = View.VISIBLE
+                    } else {
+                        binding.listCover.visibility = View.GONE
+                    }
                 }
             }
         })

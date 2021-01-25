@@ -15,6 +15,15 @@
         android:theme="@style/Theme.WebCurator.launcher"
         android:usesCleartextTraffic="true"
         tools:ignore="AllowBackup">
+
+        <meta-data
+            android:name="com.google.firebase.messaging.default_notification_icon"
+            android:resource="@drawable/ic_stat_notification" />
+
+        <meta-data
+            android:name="com.google.firebase.messaging.default_notification_color"
+            android:resource="@color/colorOnPrimary" />
+
         <activity android:name=".activities.authentication.ReAuthActivity"/>
         <activity android:name=".activities.authentication.VerifyEmailActivity" />
         <activity android:name=".activities.authentication.ForgotPasswordActivity" />

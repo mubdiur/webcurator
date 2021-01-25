@@ -13,7 +13,7 @@
         android:layout_height="match_parent">
 
 
-        <TextView
+        <TextView android:textColor="@color/primaryFontColor"
             android:id="@+id/feedTitle"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -49,7 +49,7 @@
                 android:layout_height="wrap_content" />
         </com.google.android.material.textfield.TextInputLayout>
 
-        <TextView
+        <TextView android:textColor="@color/primaryFontColor"
             android:id="@+id/descriptionLabel"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"

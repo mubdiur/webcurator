@@ -13,7 +13,6 @@
     <string name="site_url">Site URL</string>
     <string name="enter_url_or_a_search_term">Enter URL or a search term…</string>
     <string name="previous">Previous</string>
-    <string name="name">Name</string>
     <string name="go">Go</string>
     <string name="selection">Selection</string>
     <string name="add">Add</string>
@@ -93,4 +92,13 @@
     <string name="total_updates">Total updates:</string>
     <string name="mark_read">Mark Read</string>
     <string name="_0">0</string>
+    <string name="name">Name</string>
+    <string name="list_empty">List Empty</string>
+    <string name="add_feeds_from_top_right_corner">Add feeds from top right corner!</string>
+    <string name="no_feeds">No Feeds!</string>
+    <string name="no_contents">No Contents!</string>
+    <string name="add_valid_sites_from_top_right_corner">Add valid sites from top right corner!</string>
+    <string name="no_sites">No Sites!</string>
+    <string name="no_updates">No Updates!</string>
+    <string name="goto_next_tab_from_bottom_to_add_feeds">Goto next tab from bottom to add feeds!</string>
 </resources>

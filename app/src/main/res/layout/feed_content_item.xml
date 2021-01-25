@@ -22,7 +22,7 @@
             android:layout_height="wrap_content"
             android:padding="18dp">
 
-            <TextView
+            <TextView android:textColor="@color/primaryFontColor"
                 android:id="@+id/titleTextView"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
@@ -36,7 +36,7 @@
                 app:layout_constraintTop_toTopOf="parent"
                 app:layout_constraintVertical_bias="0.0" />
 
-            <TextView
+            <TextView android:textColor="@color/primaryFontColor"
                 android:id="@+id/sourceText"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"

@@ -1,6 +1,7 @@
 package io.github.webcurate.networking.apis
 
 import com.haroldadmin.cnradapter.NetworkResponse
+import io.github.webcurate.activities.MainActivity
 import io.github.webcurate.data.DataProcessor
 import io.github.webcurate.data.NetEvents
 import io.github.webcurate.networking.models.*
@@ -15,11 +16,13 @@ object Repository {
     var siteList = mutableSetOf<SiteResponse>()
     var contentList = mutableSetOf<ContentResponse>()
     var topic = ""
-    var notification = 0
 
     // ------ 1. FETCH operations ---------- //
     // network 1
     suspend fun getUserFeeds() {
+        CoroutineScope(Dispatchers.Main).launch {
+            MainActivity.startLoadingAnimation()
+        }
         CoroutineScope(Dispatchers.IO).launch {
             when (val response =
                 NetworkService.service.getUserFeeds()) {
@@ -30,20 +33,31 @@ object Repository {
                     CoroutineScope(Dispatchers.Main).launch {
                         NetEvents.feedEvents.value = NetEvents.FEEDS_READY
                     }
-
+                    CoroutineScope(Dispatchers.Main).launch {
+                        MainActivity.stopLoadingAnimation()
+                    }
 
                 }
                 is NetworkResponse.ServerError -> {
                     // Handle server error
                     println(response.body?.message)
+                    CoroutineScope(Dispatchers.Main).launch {
+                        MainActivity.stopLoadingAnimation()
+                    }
                 }
                 is NetworkResponse.NetworkError -> {
                     // Handle network error
                     println(response.error.message)
+                    CoroutineScope(Dispatchers.Main).launch {
+                        MainActivity.stopLoadingAnimation()
+                    }
                 }
                 is NetworkResponse.UnknownError -> {
                     // Handle other errors
                     println(response.error.message)
+                    CoroutineScope(Dispatchers.Main).launch {
+                        MainActivity.stopLoadingAnimation()
+                    }
                 }
 
             } // when
@@ -53,6 +67,9 @@ object Repository {
 
     // network 2
     suspend fun getSitesForFeed(feedid: BigInteger) {
+        CoroutineScope(Dispatchers.Main).launch {
+            MainActivity.startLoadingAnimation()
+        }
         CoroutineScope(Dispatchers.IO).launch {
             when (val response =
                 NetworkService.service.getSitesForFeed(feedid)) {
@@ -62,29 +79,41 @@ object Repository {
                     siteList.addAll(response.body)
                     CoroutineScope(Dispatchers.Main).launch {
                         NetEvents.siteEvents.value = NetEvents.SITES_READY
+                        MainActivity.stopLoadingAnimation()
                     }
 
                 }
                 is NetworkResponse.ServerError -> {
                     // Handle server error
                     println(response.body?.message)
+                    CoroutineScope(Dispatchers.Main).launch {
+                        MainActivity.stopLoadingAnimation()
+                    }
                 }
                 is NetworkResponse.NetworkError -> {
                     // Handle network error
                     println(response.error.message)
+                    CoroutineScope(Dispatchers.Main).launch {
+                        MainActivity.stopLoadingAnimation()
+                    }
                 }
                 is NetworkResponse.UnknownError -> {
                     // Handle other errors
                     println(response.error.message)
+                    CoroutineScope(Dispatchers.Main).launch {
+                        MainActivity.stopLoadingAnimation()
+                    }
                 }
 
             } // when
         } // coroutine
-
     }
 
     // network 3
     suspend fun getContentsForFeed(feedid: BigInteger) {
+        CoroutineScope(Dispatchers.Main).launch {
+            MainActivity.startLoadingAnimation()
+        }
         CoroutineScope(Dispatchers.IO).launch {
             when (val response =
                 NetworkService.service.getContentsForFeed(feedid)) {
@@ -94,20 +123,30 @@ object Repository {
                     contentList.addAll(response.body)
                     CoroutineScope(Dispatchers.Main).launch {
                         NetEvents.contentEvents.value = NetEvents.CONTENTS_READY
+                        MainActivity.stopLoadingAnimation()
                     }
 
                 }
                 is NetworkResponse.ServerError -> {
                     // Handle server error
                     println(response.body?.message)
+                    CoroutineScope(Dispatchers.Main).launch {
+                        MainActivity.stopLoadingAnimation()
+                    }
                 }
                 is NetworkResponse.NetworkError -> {
                     // Handle network error
                     println(response.error.message)
+                    CoroutineScope(Dispatchers.Main).launch {
+                        MainActivity.stopLoadingAnimation()
+                    }
                 }
                 is NetworkResponse.UnknownError -> {
                     // Handle other errors
                     println(response.error.message)
+                    CoroutineScope(Dispatchers.Main).launch {
+                        MainActivity.stopLoadingAnimation()
+                    }
                 }
 
             } // when
@@ -115,34 +154,12 @@ object Repository {
 
     }
 
-    // network 4
-    suspend fun getUpdateCount(feedid: BigInteger) {
-        CoroutineScope(Dispatchers.IO).launch {
-            when (val response =
-                NetworkService.service.getUpdateCount(feedid)) {
-                is NetworkResponse.Success -> {
-                    // Handle successful response
-                }
-                is NetworkResponse.ServerError -> {
-                    // Handle server error
-                    println(response.body?.message)
-                }
-                is NetworkResponse.NetworkError -> {
-                    // Handle network error
-                    println(response.error.message)
-                }
-                is NetworkResponse.UnknownError -> {
-                    // Handle other errors
-                    println(response.error.message)
-                }
-
-            } // when
-        } // coroutine
-
-    }
 
     // network 5
     suspend fun getTopic() {
+        CoroutineScope(Dispatchers.Main).launch {
+            MainActivity.startLoadingAnimation()
+        }
         CoroutineScope(Dispatchers.IO).launch {
             when (val response =
                 NetworkService.service.getTopic()) {
@@ -152,6 +169,7 @@ object Repository {
                     topic = response.body
                     CoroutineScope(Dispatchers.Main).launch {
                         NetEvents.topicEvents.value = NetEvents.TOPIC_READY
+                        MainActivity.stopLoadingAnimation()
                     }
 
 
@@ -159,56 +177,37 @@ object Repository {
                 is NetworkResponse.ServerError -> {
                     // Handle server error
                     println(response.body?.message)
-                }
-                is NetworkResponse.NetworkError -> {
-                    // Handle network error
-                    println(response.error.message)
-                }
-                is NetworkResponse.UnknownError -> {
-                    // Handle other errors
-                    println(response.error.message)
-                }
-
-            } // when
-        } // coroutine
-
-    }
-
-    // network 6
-    suspend fun getNotificationStatus(feedid: BigInteger) {
-        CoroutineScope(Dispatchers.IO).launch {
-            when (val response =
-                NetworkService.service.getNotificationStatus(feedid)) {
-                is NetworkResponse.Success -> {
-                    // Handle successful response
-                    notification = response.body
                     CoroutineScope(Dispatchers.Main).launch {
-                        NetEvents.notificationEvents.value = NetEvents.NOTIFICATION_READY
+                        MainActivity.stopLoadingAnimation()
                     }
-
-
-                }
-                is NetworkResponse.ServerError -> {
-                    // Handle server error
-                    println(response.body?.message)
                 }
                 is NetworkResponse.NetworkError -> {
                     // Handle network error
                     println(response.error.message)
+                    CoroutineScope(Dispatchers.Main).launch {
+                        MainActivity.stopLoadingAnimation()
+                    }
                 }
                 is NetworkResponse.UnknownError -> {
                     // Handle other errors
                     println(response.error.message)
+                    CoroutineScope(Dispatchers.Main).launch {
+                        MainActivity.stopLoadingAnimation()
+                    }
                 }
 
             } // when
         } // coroutine
 
     }
+
 
     // ------ 2. INSERT operations ---------- //
     // network 7
     suspend fun insertFeed(feedRequest: FeedRequest) {
+        CoroutineScope(Dispatchers.Main).launch {
+            MainActivity.startLoadingAnimation()
+        }
         CoroutineScope(Dispatchers.IO).launch {
             when (val response =
                 NetworkService.service.insertFeed(
@@ -218,19 +217,29 @@ object Repository {
                     // Handle successful response
                     CoroutineScope(Dispatchers.Main).launch {
                         NetEvents.feedEvents.value = NetEvents.UPDATE_FEEDS
+                        MainActivity.stopLoadingAnimation()
                     }
                 }
                 is NetworkResponse.ServerError -> {
                     // Handle server error
                     println(response.body?.message)
+                    CoroutineScope(Dispatchers.Main).launch {
+                        MainActivity.stopLoadingAnimation()
+                    }
                 }
                 is NetworkResponse.NetworkError -> {
                     // Handle network error
                     println(response.error.message)
+                    CoroutineScope(Dispatchers.Main).launch {
+                        MainActivity.stopLoadingAnimation()
+                    }
                 }
                 is NetworkResponse.UnknownError -> {
                     // Handle other errors
                     println(response.error.message)
+                    CoroutineScope(Dispatchers.Main).launch {
+                        MainActivity.stopLoadingAnimation()
+                    }
                 }
             }
         }
@@ -238,27 +247,43 @@ object Repository {
 
     // network 8
     suspend fun insertOneSite(feedid: BigInteger, siteRequest: SiteRequest) {
+        CoroutineScope(Dispatchers.Main).launch {
+            MainActivity.startLoadingAnimation()
+        }
         CoroutineScope(Dispatchers.IO).launch {
             when (val response =
-                NetworkService.service.insertOneSite(feedid, DataProcessor.gson.toJson(siteRequest))) {
+                NetworkService.service.insertOneSite(
+                    feedid,
+                    DataProcessor.gson.toJson(siteRequest)
+                )) {
                 is NetworkResponse.Success -> {
                     // Handle successful response
                     // review this
                     CoroutineScope(Dispatchers.Main).launch {
                         NetEvents.feedEvents.value = NetEvents.UPDATE_FEEDS
+                        MainActivity.stopLoadingAnimation()
                     }
                 }
                 is NetworkResponse.ServerError -> {
                     // Handle server error
                     println(response.body?.message)
+                    CoroutineScope(Dispatchers.Main).launch {
+                        MainActivity.stopLoadingAnimation()
+                    }
                 }
                 is NetworkResponse.NetworkError -> {
                     // Handle network error
                     println(response.error.message)
+                    CoroutineScope(Dispatchers.Main).launch {
+                        MainActivity.stopLoadingAnimation()
+                    }
                 }
                 is NetworkResponse.UnknownError -> {
                     // Handle other errors
                     println(response.error.message)
+                    CoroutineScope(Dispatchers.Main).launch {
+                        MainActivity.stopLoadingAnimation()
+                    }
                 }
 
             } // when
@@ -269,16 +294,19 @@ object Repository {
     // ------ 3. UPDATE operations ---------- //
     // network 9
     suspend fun setNotification(feedid: BigInteger, notification: Int) {
+        CoroutineScope(Dispatchers.Main).launch {
+            MainActivity.startLoadingAnimation()
+        }
         CoroutineScope(Dispatchers.IO).launch {
             when (val response =
                 NetworkService.service.setNotification(feedid, notification)) {
                 is NetworkResponse.Success -> {
                     // Handle successful response
-                    Repository.notification = notification
                     // review this
                     CoroutineScope(Dispatchers.Main).launch {
                         NetEvents.notificationEvents.value = NetEvents.NOTIFICATION_READY
                         NetEvents.feedEvents.value = NetEvents.UPDATE_FEEDS
+                        MainActivity.stopLoadingAnimation()
                     }
 
 
@@ -286,23 +314,34 @@ object Repository {
                 is NetworkResponse.ServerError -> {
                     // Handle server error
                     println(response.body?.message)
+                    CoroutineScope(Dispatchers.Main).launch {
+                        MainActivity.stopLoadingAnimation()
+                    }
                 }
                 is NetworkResponse.NetworkError -> {
                     // Handle network error
                     println(response.error.message)
+                    CoroutineScope(Dispatchers.Main).launch {
+                        MainActivity.stopLoadingAnimation()
+                    }
                 }
                 is NetworkResponse.UnknownError -> {
                     // Handle other errors
                     println(response.error.message)
+                    CoroutineScope(Dispatchers.Main).launch {
+                        MainActivity.stopLoadingAnimation()
+                    }
                 }
 
             } // when
         } // coroutine
-
     }
 
     // network 10
     suspend fun modifyFeed(feedid: BigInteger, title: String, description: String) {
+        CoroutineScope(Dispatchers.Main).launch {
+            MainActivity.startLoadingAnimation()
+        }
         CoroutineScope(Dispatchers.IO).launch {
             when (val response =
                 NetworkService.service.modifyFeed(feedid, title, description)) {
@@ -310,6 +349,7 @@ object Repository {
                     // Handle successful response
                     CoroutineScope(Dispatchers.Main).launch {
                         NetEvents.feedEvents.value = NetEvents.UPDATE_FEEDS
+                        MainActivity.stopLoadingAnimation()
                     }
 
 
@@ -317,14 +357,23 @@ object Repository {
                 is NetworkResponse.ServerError -> {
                     // Handle server error
                     println(response.body?.message)
+                    CoroutineScope(Dispatchers.Main).launch {
+                        MainActivity.stopLoadingAnimation()
+                    }
                 }
                 is NetworkResponse.NetworkError -> {
                     // Handle network error
                     println(response.error.message)
+                    CoroutineScope(Dispatchers.Main).launch {
+                        MainActivity.stopLoadingAnimation()
+                    }
                 }
                 is NetworkResponse.UnknownError -> {
                     // Handle other errors
                     println(response.error.message)
+                    CoroutineScope(Dispatchers.Main).launch {
+                        MainActivity.stopLoadingAnimation()
+                    }
                 }
 
             } // when
@@ -333,6 +382,9 @@ object Repository {
 
     // network 10.1
     suspend fun markFeedRead(feedid: BigInteger) {
+        CoroutineScope(Dispatchers.Main).launch {
+            MainActivity.startLoadingAnimation()
+        }
         CoroutineScope(Dispatchers.IO).launch {
             when (val response =
                 NetworkService.service.markFeedRead(feedid)) {
@@ -340,6 +392,7 @@ object Repository {
                     // Handle successful response
                     CoroutineScope(Dispatchers.Main).launch {
                         NetEvents.feedEvents.value = NetEvents.UPDATE_FEEDS
+                        MainActivity.stopLoadingAnimation()
                     }
 
 
@@ -347,14 +400,23 @@ object Repository {
                 is NetworkResponse.ServerError -> {
                     // Handle server error
                     println(response.body?.message)
+                    CoroutineScope(Dispatchers.Main).launch {
+                        MainActivity.stopLoadingAnimation()
+                    }
                 }
                 is NetworkResponse.NetworkError -> {
                     // Handle network error
                     println(response.error.message)
+                    CoroutineScope(Dispatchers.Main).launch {
+                        MainActivity.stopLoadingAnimation()
+                    }
                 }
                 is NetworkResponse.UnknownError -> {
                     // Handle other errors
                     println(response.error.message)
+                    CoroutineScope(Dispatchers.Main).launch {
+                        MainActivity.stopLoadingAnimation()
+                    }
                 }
 
             } // when
@@ -363,6 +425,9 @@ object Repository {
 
     // network 10.2
     suspend fun markAllRead() {
+        CoroutineScope(Dispatchers.Main).launch {
+            MainActivity.startLoadingAnimation()
+        }
         CoroutineScope(Dispatchers.IO).launch {
             when (val response =
                 NetworkService.service.markAllRead()) {
@@ -370,6 +435,7 @@ object Repository {
                     // Handle successful response
                     CoroutineScope(Dispatchers.Main).launch {
                         NetEvents.feedEvents.value = NetEvents.UPDATE_FEEDS
+                        MainActivity.stopLoadingAnimation()
                     }
 
 
@@ -377,14 +443,23 @@ object Repository {
                 is NetworkResponse.ServerError -> {
                     // Handle server error
                     println(response.body?.message)
+                    CoroutineScope(Dispatchers.Main).launch {
+                        MainActivity.stopLoadingAnimation()
+                    }
                 }
                 is NetworkResponse.NetworkError -> {
                     // Handle network error
                     println(response.error.message)
+                    CoroutineScope(Dispatchers.Main).launch {
+                        MainActivity.stopLoadingAnimation()
+                    }
                 }
                 is NetworkResponse.UnknownError -> {
                     // Handle other errors
                     println(response.error.message)
+                    CoroutineScope(Dispatchers.Main).launch {
+                        MainActivity.stopLoadingAnimation()
+                    }
                 }
 
             } // when
@@ -393,6 +468,9 @@ object Repository {
 
     // network 10.3
     suspend fun curateContentsFeed(feedid: BigInteger) {
+        CoroutineScope(Dispatchers.Main).launch {
+            MainActivity.startLoadingAnimation()
+        }
         CoroutineScope(Dispatchers.IO).launch {
             when (val response =
                 NetworkService.service.curateContentsFeed(feedid)) {
@@ -400,20 +478,30 @@ object Repository {
                     // Handle successful response
                     CoroutineScope(Dispatchers.Main).launch {
                         NetEvents.contentEvents.value = NetEvents.CONTENTS_CURATED
+                        MainActivity.stopLoadingAnimation()
                     }
 
                 }
                 is NetworkResponse.ServerError -> {
                     // Handle server error
                     println(response.body?.message)
+                    CoroutineScope(Dispatchers.Main).launch {
+                        MainActivity.stopLoadingAnimation()
+                    }
                 }
                 is NetworkResponse.NetworkError -> {
                     // Handle network error
                     println(response.error.message)
+                    CoroutineScope(Dispatchers.Main).launch {
+                        MainActivity.stopLoadingAnimation()
+                    }
                 }
                 is NetworkResponse.UnknownError -> {
                     // Handle other errors
                     println(response.error.message)
+                    CoroutineScope(Dispatchers.Main).launch {
+                        MainActivity.stopLoadingAnimation()
+                    }
                 }
             } // when
         } // coroutine
@@ -422,6 +510,9 @@ object Repository {
     // ------ 4. DELETE operations ---------- //
     // network 11
     suspend fun deleteSite(siteid: BigInteger) {
+        CoroutineScope(Dispatchers.Main).launch {
+            MainActivity.startLoadingAnimation()
+        }
         CoroutineScope(Dispatchers.IO).launch {
             when (val response =
                 NetworkService.service.deleteSite(siteid)) {
@@ -429,6 +520,7 @@ object Repository {
                     // Handle successful response
                     CoroutineScope(Dispatchers.Main).launch {
                         NetEvents.siteEvents.value = NetEvents.SITE_DELETED
+                        MainActivity.stopLoadingAnimation()
                     }
 
 
@@ -436,14 +528,23 @@ object Repository {
                 is NetworkResponse.ServerError -> {
                     // Handle server error
                     println(response.body?.message)
+                    CoroutineScope(Dispatchers.Main).launch {
+                        MainActivity.stopLoadingAnimation()
+                    }
                 }
                 is NetworkResponse.NetworkError -> {
                     // Handle network error
                     println(response.error.message)
+                    CoroutineScope(Dispatchers.Main).launch {
+                        MainActivity.stopLoadingAnimation()
+                    }
                 }
                 is NetworkResponse.UnknownError -> {
                     // Handle other errors
                     println(response.error.message)
+                    CoroutineScope(Dispatchers.Main).launch {
+                        MainActivity.stopLoadingAnimation()
+                    }
                 }
 
             } // when
@@ -453,6 +554,9 @@ object Repository {
 
     // network 12
     suspend fun deleteFeed(feedid: BigInteger) {
+        CoroutineScope(Dispatchers.Main).launch {
+            MainActivity.startLoadingAnimation()
+        }
         CoroutineScope(Dispatchers.IO).launch {
             when (val response =
                 NetworkService.service.deleteFeed(feedid)) {
@@ -461,6 +565,7 @@ object Repository {
                     CoroutineScope(Dispatchers.Main).launch {
                         NetEvents.feedEvents.value = NetEvents.UPDATE_FEEDS
                         NetEvents.contentEvents.value = NetEvents.CONTENTS_INVALID
+                        MainActivity.stopLoadingAnimation()
                     }
 
 
@@ -468,14 +573,23 @@ object Repository {
                 is NetworkResponse.ServerError -> {
                     // Handle server error
                     println(response.body?.message)
+                    CoroutineScope(Dispatchers.Main).launch {
+                        MainActivity.stopLoadingAnimation()
+                    }
                 }
                 is NetworkResponse.NetworkError -> {
                     // Handle network error
                     println(response.error.message)
+                    CoroutineScope(Dispatchers.Main).launch {
+                        MainActivity.stopLoadingAnimation()
+                    }
                 }
                 is NetworkResponse.UnknownError -> {
                     // Handle other errors
                     println(response.error.message)
+                    CoroutineScope(Dispatchers.Main).launch {
+                        MainActivity.stopLoadingAnimation()
+                    }
                 }
 
             } // when
