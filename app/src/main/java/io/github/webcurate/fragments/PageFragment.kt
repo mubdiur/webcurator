@@ -13,7 +13,6 @@ import androidx.fragment.app.replace
 import io.github.webcurate.R
 import io.github.webcurate.clients.CustomTitle
 import io.github.webcurate.clients.MainWebViewClient
-import io.github.webcurate.clients.WebJsClient
 import io.github.webcurate.data.DataProcessor
 import io.github.webcurate.databinding.FragmentPageBinding
 import io.github.webcurate.interfaces.OnBackPressed
@@ -30,8 +29,6 @@ class PageFragment : Fragment(R.layout.fragment_page), OnBackPressed, OnPageFini
 
     private var _binding: FragmentPageBinding? = null
 
-    private var _goNext: Boolean? = null
-
     private val binding get() = _binding!!
 
 
@@ -45,13 +42,11 @@ class PageFragment : Fragment(R.layout.fragment_page), OnBackPressed, OnPageFini
 
 
         _binding = FragmentPageBinding.bind(view)
-        _goNext = false
 
 
 
         binding.webFeedView.settings.javaScriptEnabled = true
-        binding.webFeedView.addJavascriptInterface(WebJsClient(this), "WebJsClient")
-        binding.webFeedView.webViewClient = MainWebViewClient(binding.urlTextFeedWeb)
+        binding.webFeedView.webViewClient = MainWebViewClient(binding.urlTextFeedWeb, this)
         binding.webFeedView.clearCache(true)
 
         when {
@@ -76,12 +71,11 @@ class PageFragment : Fragment(R.layout.fragment_page), OnBackPressed, OnPageFini
                 binding.urlProgress.visibility = View.VISIBLE
                 var url = binding.urlTextFeedWeb.text.toString().trim()
                 if (Patterns.WEB_URL.matcher(url).matches()) {
-                    if(!url.startsWith("http")) {
+                    if (!url.startsWith("http")) {
                         url = "http://$url"
                     }
                     binding.webFeedView.loadUrl(url)
-                }
-                else {
+                } else {
                     val searchTerm = URLEncoder.encode(url, "utf-8")
                     val searchUrl = "https://google.com/search?q=$searchTerm"
                     binding.webFeedView.loadUrl(searchUrl)
@@ -96,12 +90,11 @@ class PageFragment : Fragment(R.layout.fragment_page), OnBackPressed, OnPageFini
             binding.urlProgress.visibility = View.VISIBLE
             var url = binding.urlTextFeedWeb.text.toString().trim()
             if (Patterns.WEB_URL.matcher(url).matches()) {
-                if(!url.startsWith("http")) {
+                if (!url.startsWith("http")) {
                     url = "http://$url"
                 }
                 binding.webFeedView.loadUrl(url)
-            }
-            else {
+            } else {
                 val searchTerm = URLEncoder.encode(url, "utf-8")
                 val searchUrl = "https://google.com/search?q=$searchTerm"
                 binding.webFeedView.loadUrl(searchUrl)
@@ -110,8 +103,12 @@ class PageFragment : Fragment(R.layout.fragment_page), OnBackPressed, OnPageFini
 
         binding.pageNext.setOnClickListener {
             hideKeyboard()
-            _goNext = true
-            binding.webFeedView.reload()
+            DataProcessor.feedCreationUrl = binding.urlTextFeedWeb.text.toString()
+            requireActivity().supportFragmentManager.commit {
+                replace<SelectionFragment>(R.id.pageFragment)
+                setReorderingAllowed(true)
+                addToBackStack(null)
+            }
         }
     } //  end of onViewCreated
 
@@ -127,16 +124,6 @@ class PageFragment : Fragment(R.layout.fragment_page), OnBackPressed, OnPageFini
 
     override fun onPageFinished() {
         CoroutineScope(Dispatchers.Main).launch { binding.urlProgress.visibility = View.INVISIBLE }
-        if (_goNext == true) {
-            _goNext = false
-            DataProcessor.feedCreationUrl = binding.urlTextFeedWeb.text.toString()
-
-            requireActivity().supportFragmentManager.commit {
-                replace<SelectionFragment>(R.id.pageFragment)
-                setReorderingAllowed(true)
-                addToBackStack(null)
-            }
-        }
     }
 
 
@@ -149,7 +136,6 @@ class PageFragment : Fragment(R.layout.fragment_page), OnBackPressed, OnPageFini
         super.onDestroyView()
         CustomTitle.pop()
         _binding = null
-        _goNext = null
         DataProcessor.siteModifyMode = false
         DataProcessor.siteAddMode = false
     }

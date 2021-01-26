@@ -218,7 +218,7 @@ class FeedContentAdapter : RecyclerView.Adapter<FeedContentAdapter.ViewHolder>()
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
         holder.itemText.text = Repository.contentList.toList()[position].text.trim()
         val sourceText =
-            "Source: " + Repository.contentList.toList()[position].source.take(20) + "..."
+            "Source: " + Repository.contentList.toList()[position].source.take(35) + "..."
         holder.sourceText.text = sourceText
         holder.itemView.setOnClickListener {
             DataProcessor.contentURL = Repository.contentList.toList()[position].source

@@ -14,6 +14,7 @@ import androidx.recyclerview.widget.RecyclerView
 import io.github.webcurate.R
 import io.github.webcurate.clients.CustomTitle
 import io.github.webcurate.data.DataProcessor
+import io.github.webcurate.data.NetEvents
 import io.github.webcurate.data.models.FeedContent
 import io.github.webcurate.databinding.FragmentSelectionBinding
 import io.github.webcurate.interfaces.OnItemClick
@@ -126,17 +127,28 @@ class SelectionFragment : Fragment(R.layout.fragment_selection), OnItemClick {
 
         }
 
-        CoroutineScope(Dispatchers.IO).launch {
-            try {
-                _html = DataProcessor.html
-                contentList.addAll(
-                    DataProcessor.getContentsFromElements(
-                        Jsoup.parse(_html!!).body().allElements
-                    )
-                )
-            } catch (e: Exception) {
+        NetEvents.htmlEvents.observe(requireActivity(), {
+            if (it == NetEvents.HTML_READY) {
+                CoroutineScope(Dispatchers.Main).launch {
+                    NetEvents.htmlEvents.value = NetEvents.DEFAULT
+                }
+                CoroutineScope(Dispatchers.IO).launch {
+                    try {
+                        _html = Repository.htmlResponse.html
+                        contentList.addAll(
+                            DataProcessor.getContentsFromElements(
+                                Jsoup.parse(_html!!).body().allElements
+                            )
+                        )
+                    } catch (e: Exception) {
+                    }
+                    updateUi()
+                }
             }
-            updateUi()
+        })
+
+        CoroutineScope(Dispatchers.IO).launch {
+            Repository.getHtml(DataProcessor.feedCreationUrl)
         }
 
     }
@@ -162,6 +174,7 @@ class SelectionFragment : Fragment(R.layout.fragment_selection), OnItemClick {
         _html = null
         _binding = null
         _selectionSet = null
+        NetEvents.htmlEvents.removeObservers(requireActivity())
     }
 
     override fun onItemClicked(position: Int, action: Int) {

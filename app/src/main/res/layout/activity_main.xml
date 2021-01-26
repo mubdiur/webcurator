@@ -6,7 +6,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="#F3F3F3"
-    android:visibility="invisible"
+    android:visibility="visible"
     tools:context="io.github.webcurate.activities.MainActivity">
 
     <androidx.constraintlayout.widget.ConstraintLayout
@@ -101,6 +101,7 @@
                 android:scaleX=".8"
                 android:src="@drawable/ic_menu"
                 android:textAllCaps="false"
+                android:tint="#2B2B2B"
                 android:visibility="visible"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"

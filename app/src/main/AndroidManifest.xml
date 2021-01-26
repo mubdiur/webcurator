@@ -15,16 +15,25 @@
         android:theme="@style/Theme.WebCurator.launcher"
         android:usesCleartextTraffic="true"
         tools:ignore="AllowBackup">
+        <activity android:name=".activities.manage.AboutActivity"></activity>
+        <activity android:name=".activities.manage.HelpActivity" />
+        <activity android:name=".activities.manage.DeleteFeedsActivity" />
+        <activity android:name=".activities.manage.FeedsNotificationActivity" />
+        <activity android:name=".activities.manage.DeleteAccountActivity" />
+        <activity android:name=".activities.manage.ChangePasswordActivity" />
+        <activity android:name=".activities.manage.ChangeNameActivity" />
 
         <meta-data
             android:name="com.google.firebase.messaging.default_notification_icon"
             android:resource="@drawable/ic_stat_notification" />
-
         <meta-data
             android:name="com.google.firebase.messaging.default_notification_color"
             android:resource="@color/colorOnPrimary" />
+        <meta-data
+            android:name="android.webkit.WebView.EnableSafeBrowsing"
+            android:value="false" />
 
-        <activity android:name=".activities.authentication.ReAuthActivity"/>
+        <activity android:name=".activities.authentication.ReAuthActivity" />
         <activity android:name=".activities.authentication.VerifyEmailActivity" />
         <activity android:name=".activities.authentication.ForgotPasswordActivity" />
         <activity android:name=".activities.authentication.RegisterActivity" />

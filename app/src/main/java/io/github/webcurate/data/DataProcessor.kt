@@ -14,7 +14,7 @@ object DataProcessor {
     var feedCreationTitle: String = ""
     var feedCreationDescription: String = ""
     var feedCreationUrl: String = ""
-    var html: String = ""
+
     var email: String = ""
     var contentURL: String = ""
 

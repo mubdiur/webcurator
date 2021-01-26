@@ -82,6 +82,11 @@ class HomeFragment : Fragment(R.layout.fragment_home), OnItemClick {
         NetEvents.feedEvents.observe(requireActivity(), {
             if (it == NetEvents.FEEDS_READY) {
                 println("Feeds are ready in Home")
+                if(DataProcessor.totalUpdateCount()>0) {
+                    binding!!.markRead.visibility = View.VISIBLE
+                } else {
+                    binding!!.markRead.visibility = View.INVISIBLE
+                }
                 binding!!.homeUpdateNo.text = DataProcessor.totalUpdateCount().toString()
                 CoroutineScope(Dispatchers.Main).launch {
                     NetEvents.feedEvents.value = NetEvents.DEFAULT

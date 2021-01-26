@@ -1,23 +1,18 @@
 package io.github.webcurate.clients
 
-import android.content.ContentValues.TAG
 import android.graphics.Bitmap
-import android.util.Log
 import android.webkit.WebView
 import android.webkit.WebViewClient
 import android.widget.EditText
 import android.widget.TextView
+import io.github.webcurate.interfaces.OnPageFinish
 
-class MainWebViewClient(private val urlEdit: EditText) : WebViewClient() {
-
+class MainWebViewClient(private val urlEdit: EditText, private val callback: OnPageFinish) :
+    WebViewClient() {
 
     override fun onPageFinished(view: WebView?, url: String?) {
         super.onPageFinished(view, url)
-        view?.loadUrl(
-            "javascript:window.WebJsClient.saveHtml" +
-                    "('<html>'+document.getElementsByTagName('body')[0].innerHTML+'</html>');"
-        )
-        Log.d(TAG, "onPageFinished: called.......from web view")
+        callback.onPageFinished()
     }
 
     override fun onPageStarted(view: WebView?, url: String?, favicon: Bitmap?) {

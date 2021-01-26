@@ -2,10 +2,7 @@ package io.github.webcurate.networking.apis
 
 import com.haroldadmin.cnradapter.NetworkResponse
 import io.github.webcurate.data.AuthManager
-import io.github.webcurate.networking.models.ContentResponse
-import io.github.webcurate.networking.models.ErrorResponse
-import io.github.webcurate.networking.models.FeedResponse
-import io.github.webcurate.networking.models.SiteResponse
+import io.github.webcurate.networking.models.*
 import retrofit2.http.Field
 import retrofit2.http.FormUrlEncoded
 import retrofit2.http.POST
@@ -14,6 +11,15 @@ import java.math.BigInteger
 interface NetworkInterface {
 
     // ------ 1. FETCH operations ---------- //
+    // network 0
+    @FormUrlEncoded
+    @POST("/")
+    suspend fun getHtml(
+        @Field("url") url: String,
+        @Field("token") token: String = AuthManager.idToken,
+        @Field("operation") operation: String = "getHtml"
+    ): NetworkResponse<HtmlResponse, ErrorResponse>
+
     // network 1
     @FormUrlEncoded
     @POST("/")

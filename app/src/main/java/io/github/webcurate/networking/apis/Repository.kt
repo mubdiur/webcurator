@@ -16,6 +16,55 @@ object Repository {
     var siteList = mutableSetOf<SiteResponse>()
     var contentList = mutableSetOf<ContentResponse>()
     var topic = ""
+    var htmlResponse = HtmlResponse("")
+
+
+    // network 0
+    suspend fun getHtml(url: String) {
+        htmlResponse = HtmlResponse("")
+        CoroutineScope(Dispatchers.Main).launch {
+            MainActivity.startLoadingAnimation()
+        }
+        CoroutineScope(Dispatchers.IO).launch {
+            when (val response =
+                NetworkService.service.getHtml(url)) {
+                is NetworkResponse.Success -> {
+                    // Handle successful response
+                    htmlResponse = response.body
+                    CoroutineScope(Dispatchers.Main).launch {
+                        NetEvents.htmlEvents.value = NetEvents.HTML_READY
+                    }
+                    CoroutineScope(Dispatchers.Main).launch {
+                        MainActivity.stopLoadingAnimation()
+                    }
+
+                }
+                is NetworkResponse.ServerError -> {
+                    // Handle server error
+                    println(response.body?.message)
+                    CoroutineScope(Dispatchers.Main).launch {
+                        MainActivity.stopLoadingAnimation()
+                    }
+                }
+                is NetworkResponse.NetworkError -> {
+                    // Handle network error
+                    println(response.error.message)
+                    CoroutineScope(Dispatchers.Main).launch {
+                        MainActivity.stopLoadingAnimation()
+                    }
+                }
+                is NetworkResponse.UnknownError -> {
+                    // Handle other errors
+                    println(response.error.message)
+                    CoroutineScope(Dispatchers.Main).launch {
+                        MainActivity.stopLoadingAnimation()
+                    }
+                }
+
+            } // when
+        } // coroutine
+
+    }
 
     // ------ 1. FETCH operations ---------- //
     // network 1

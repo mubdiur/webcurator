@@ -100,5 +100,6 @@
     <string name="add_valid_sites_from_top_right_corner">Add valid sites from top right corner!</string>
     <string name="no_sites">No Sites!</string>
     <string name="no_updates">No Updates!</string>
-    <string name="goto_next_tab_from_bottom_to_add_feeds">Goto next tab from bottom to add feeds!</string>
+    <string name="goto_next_tab_from_bottom_to_add_feeds">Go to next tab from bottom to add feeds!</string>
+    <string name="go_back_and_select_a_valid_site">Go back and select a valid site</string>
 </resources>

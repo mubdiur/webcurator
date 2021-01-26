@@ -22,13 +22,14 @@
             android:layout_height="wrap_content"
             android:padding="18dp">
 
-            <TextView android:textColor="@color/primaryFontColor"
+            <TextView
                 android:id="@+id/titleTextView"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:fontFamily="sans-serif-medium"
                 android:text="@string/textview"
-                android:textSize="16sp"
+                android:textColor="@color/primaryFontColor"
+                android:textSize="17sp"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintHorizontal_bias="0.0"

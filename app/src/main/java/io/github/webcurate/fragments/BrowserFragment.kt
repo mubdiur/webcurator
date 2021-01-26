@@ -10,7 +10,6 @@ import android.view.inputmethod.InputMethodManager
 import androidx.fragment.app.Fragment
 import io.github.webcurate.R
 import io.github.webcurate.clients.MainWebViewClient
-import io.github.webcurate.clients.WebJsClient
 import io.github.webcurate.data.DataProcessor
 import io.github.webcurate.data.NetEvents
 import io.github.webcurate.databinding.FragmentBrowserBinding
@@ -46,12 +45,11 @@ class BrowserFragment : Fragment(R.layout.fragment_browser) {
 
 
         binding.webFeedView.settings.javaScriptEnabled = true
-        binding.webFeedView.addJavascriptInterface(WebJsClient(object : OnPageFinish {
+        binding.webFeedView.webViewClient = MainWebViewClient(binding.urlTextFeedWeb, object : OnPageFinish {
             override fun onPageFinished() {
                 binding.urlProgress.visibility = View.INVISIBLE
             }
-        }), "WebJsClient")
-        binding.webFeedView.webViewClient = MainWebViewClient(binding.urlTextFeedWeb)
+        })
         binding.webFeedView.clearCache(true)
 
         binding.webFeedView.loadUrl("https://google.com")

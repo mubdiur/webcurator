@@ -1,17 +1,17 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <!-- Primary brand color. -->
-    <color name="colorPrimary">#327DB8</color>
+    <color name="colorPrimary">#2A75AF</color>
     <color name="colorPrimaryVariant">#EDF8E6</color>
     <color name="colorOnPrimary">#fff</color>
     <!-- Secondary brand color. -->
-    <color name="colorSecondary">#082540</color>
+    <color name="colorSecondary">#002D53</color>
     <color name="colorSecondaryVariant">#feeeed</color>
     <color name="colorOnSecondary">#fff</color>
     <!-- custom colors -->
     <color name="commonBg">#f5f5f3</color>
     <color name="ivory">#F4F4F4</color>
-    <color name="primaryFontColor">#3a3a3a</color>
-    <color name="secondaryFontColor">#686868</color>
-    <color name="dimmedFontColor">#808080</color>
+    <color name="primaryFontColor">#595959</color>
+    <color name="secondaryFontColor">#838383</color>
+    <color name="dimmedFontColor">#A5A5A5</color>
 </resources>
