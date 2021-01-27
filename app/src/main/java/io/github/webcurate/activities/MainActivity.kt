@@ -299,12 +299,12 @@ class MainActivity : AppCompatActivity() {
             OptionMenu.isVisible -> hideOptions()
             binding.viewPager.currentItem==2 -> {
                 when {
-                    BrowserFragment.nullBinding!!.webFeedView.canGoBack() -> {
-                        BrowserFragment.nullBinding!!.webFeedView.goBack()
-                    }
                     DataProcessor.backToFeed -> {
                         DataProcessor.backToFeed = false
                         binding.viewPager.currentItem = 1
+                    }
+                    BrowserFragment.nullBinding!!.webFeedView.canGoBack() -> {
+                        BrowserFragment.nullBinding!!.webFeedView.goBack()
                     }
                     else -> {
                         super.onBackPressed()
