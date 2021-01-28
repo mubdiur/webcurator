@@ -12,5 +12,8 @@ class DeleteAccountActivity : AppCompatActivity() {
         val binding = ActivityDeleteAccountBinding.inflate(layoutInflater)
         setContentView(binding.root)
         supportActionBar?.hide()
+        binding.backButton.setOnClickListener {
+            finish()
+        }
     }
 }

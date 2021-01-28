@@ -12,5 +12,11 @@ class FeedsNotificationActivity : AppCompatActivity() {
         val binding = ActivityFeedsNotificationBinding.inflate(layoutInflater)
         setContentView(binding.root)
         supportActionBar?.hide()
+
+        binding.backButton.setOnClickListener {
+            finish()
+        }
+
+        // fetch feeds
     }
 }

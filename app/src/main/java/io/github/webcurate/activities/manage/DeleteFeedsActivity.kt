@@ -12,5 +12,10 @@ class DeleteFeedsActivity : AppCompatActivity() {
         val binding = ActivityDeleteFeedsBinding.inflate(layoutInflater)
         setContentView(binding.root)
         supportActionBar?.hide()
+        binding.backButton.setOnClickListener {
+            finish()
+        }
+
+        // fetch feeds
     }
 }

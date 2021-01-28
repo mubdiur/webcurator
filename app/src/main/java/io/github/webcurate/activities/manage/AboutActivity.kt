@@ -16,5 +16,9 @@ class AboutActivity : AppCompatActivity() {
         setContentView(binding.root)
 
         supportActionBar?.hide()
+
+        binding.backButton.setOnClickListener {
+            finish()
+        }
     }
 }

@@ -21,6 +21,7 @@
     </style>
     
     <style name="Theme.WebCurator.launcher">
+        <item name="android:windowFullscreen">true</item>
         <item name="android:windowBackground">@drawable/splash_screen</item>
         <item name="android:windowLightStatusBar">false</item>
     </style>

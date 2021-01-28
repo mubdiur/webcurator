@@ -87,6 +87,20 @@ class ManageFragment : Fragment(R.layout.fragment_manage) {
             )
         }
 
+        NetEvents.authEvents.observe(requireActivity(), {
+            if(it==NetEvents.NAME_CHANGED) {
+                CoroutineScope(Dispatchers.Main).launch {
+                    NetEvents.authEvents.value = NetEvents.DEFAULT
+                }
+                val user = AuthManager.authInstance.currentUser!!
+                user.reload().addOnCompleteListener {
+                    CoroutineScope(Dispatchers.Main).launch {
+                        binding.displayName.text = user.displayName
+                    }
+                }
+            }
+        })
+
     }
 
     override fun onDestroyView() {

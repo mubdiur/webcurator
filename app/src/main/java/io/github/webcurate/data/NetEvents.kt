@@ -19,6 +19,7 @@ object NetEvents {
     const val CONTENTS_INVALID = 13
     const val LOAD_URL = 14
     const val HTML_READY = 15
+    const val NAME_CHANGED = 16
 
     // feedResponse
     val feedEvents = MutableLiveData<Int>()
