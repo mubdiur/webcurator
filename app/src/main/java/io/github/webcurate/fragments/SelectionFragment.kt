@@ -17,7 +17,6 @@ import io.github.webcurate.data.DataProcessor
 import io.github.webcurate.data.NetEvents
 import io.github.webcurate.data.models.FeedContent
 import io.github.webcurate.databinding.FragmentSelectionBinding
-import io.github.webcurate.interfaces.OnItemClick
 import io.github.webcurate.networking.apis.Repository
 import io.github.webcurate.networking.models.FeedRequest
 import io.github.webcurate.networking.models.SiteRequest
@@ -29,18 +28,16 @@ import org.jsoup.Jsoup
 import org.jsoup.select.Elements
 
 
-class SelectionFragment : Fragment(R.layout.fragment_selection), OnItemClick {
+class SelectionFragment : Fragment(R.layout.fragment_selection) {
 
     // All nullable
 
-    private var _selectionSet: MutableSet<Int>? = null
     private var _binding: FragmentSelectionBinding? = null
     private var _html: String? = null
     private var _contentList: MutableList<FeedContent>? = null
     private var _allElements: Elements? = null
 
     // Not null
-    private val selectionSet get() = _selectionSet!!
     private val binding get() = _binding!!
     private val contentList get() = _contentList!!
 
@@ -56,11 +53,10 @@ class SelectionFragment : Fragment(R.layout.fragment_selection), OnItemClick {
         // Initializations
         _binding = FragmentSelectionBinding.bind(view)
         _contentList = mutableListOf()
-        _selectionSet = mutableSetOf()
         _allElements = Elements()
         // RecyclerView for selection of texts
         binding.selectionView.layoutManager = LinearLayoutManager(requireContext())
-        binding.selectionView.adapter = SelectionAdapter(contentList, this)
+        binding.selectionView.adapter = SelectionAdapter(contentList)
 
         when {
             DataProcessor.siteModifyMode -> {
@@ -155,7 +151,7 @@ class SelectionFragment : Fragment(R.layout.fragment_selection), OnItemClick {
 
     private fun getSelected(): List<FeedContent> {
         val selectedContents = mutableListOf<FeedContent>()
-        selectionSet.sorted().forEach {
+        DataProcessor.selectionSet.sorted().forEach {
             selectedContents.add(contentList[it])
         }
         return selectedContents
@@ -173,28 +169,17 @@ class SelectionFragment : Fragment(R.layout.fragment_selection), OnItemClick {
         _contentList = null
         _html = null
         _binding = null
-        _selectionSet = null
+        DataProcessor.selectionSet.clear()
         NetEvents.htmlEvents.removeObservers(requireActivity())
     }
 
-    override fun onItemClicked(position: Int, action: Int) {
-        if (contentList.toList()[position].selected) {
-            contentList.toList()[position].selected = false
-            selectionSet.remove(position)
-        } else {
-            contentList.toList()[position].selected = true
-            selectionSet.add(position)
-        }
-        binding.selectionView.adapter?.notifyItemChanged(position)
-    }
 }
 
 
 // recyclerview adapter
 
 class SelectionAdapter(
-    private val contentList: List<FeedContent>,
-    private val onItemClick: OnItemClick
+    private val contentList: List<FeedContent>
 ) :
     RecyclerView.Adapter<SelectionAdapter.ViewHolder>() {
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
@@ -214,8 +199,17 @@ class SelectionAdapter(
         val shortPath = "Short Path: ${contentList.toList()[position].slimPath.joinToString(" > ")}"
         holder.slimPath.text = shortPath
         holder.checkBox.isChecked = contentList.toList()[position].selected
+        
+        
         holder.itemView.setOnClickListener {
-            onItemClick.onItemClicked(position)
+            if (contentList.toList()[position].selected) {
+                contentList.toList()[position].selected = false
+                DataProcessor.selectionSet.remove(position)
+            } else {
+                contentList.toList()[position].selected = true
+                DataProcessor.selectionSet.add(position)
+            }
+            notifyItemChanged(position)
         }
     }
 

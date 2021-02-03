@@ -14,15 +14,16 @@ object NetEvents {
     const val TOKEN_READY = 8
     const val UPDATE_CONTENTS = 9
     const val SITE_DELETED = 10
-    const val CURATE_CONTENTS = 11
-    const val CONTENTS_CURATED = 12
-    const val CONTENTS_INVALID = 13
-    const val LOAD_URL = 14
-    const val HTML_READY = 15
-    const val NAME_CHANGED = 16
+    const val CONTENTS_CURATED = 11
+    const val CONTENTS_INVALID = 12
+    const val LOAD_URL = 13
+    const val HTML_READY = 14
+    const val NAME_CHANGED = 15
 
     // feedResponse
     val feedEvents = MutableLiveData<Int>()
+    val feedDeleteEvents = MutableLiveData<Int>()
+    val feedNotifyEvents = MutableLiveData<Int>()
     // siteResponse
     val siteEvents = MutableLiveData<Int>()
     // contentResponse
@@ -37,4 +38,5 @@ object NetEvents {
     val browserEvents = MutableLiveData<Int>()
     // browser events
     val htmlEvents = MutableLiveData<Int>()
+
 }

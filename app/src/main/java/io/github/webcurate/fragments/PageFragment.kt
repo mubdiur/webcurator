@@ -17,9 +17,6 @@ import io.github.webcurate.data.DataProcessor
 import io.github.webcurate.databinding.FragmentPageBinding
 import io.github.webcurate.interfaces.OnBackPressed
 import io.github.webcurate.interfaces.OnPageFinish
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
 import java.net.URLEncoder
 
 
@@ -68,7 +65,6 @@ class PageFragment : Fragment(R.layout.fragment_page), OnBackPressed, OnPageFini
             ) {
                 v.clearFocus()
                 hideKeyboard()
-                binding.urlProgress.visibility = View.VISIBLE
                 var url = binding.urlTextFeedWeb.text.toString().trim()
                 if (Patterns.WEB_URL.matcher(url).matches()) {
                     if (!url.startsWith("http")) {
@@ -87,7 +83,6 @@ class PageFragment : Fragment(R.layout.fragment_page), OnBackPressed, OnPageFini
         binding.goBtn.setOnClickListener {
             binding.urlTextFeedWeb.clearFocus()
             hideKeyboard()
-            binding.urlProgress.visibility = View.VISIBLE
             var url = binding.urlTextFeedWeb.text.toString().trim()
             if (Patterns.WEB_URL.matcher(url).matches()) {
                 if (!url.startsWith("http")) {
@@ -122,9 +117,7 @@ class PageFragment : Fragment(R.layout.fragment_page), OnBackPressed, OnPageFini
     }
 
 
-    override fun onPageFinished() {
-        CoroutineScope(Dispatchers.Main).launch { binding.urlProgress.visibility = View.INVISIBLE }
-    }
+    override fun onPageFinished() {}
 
 
     private fun hideKeyboard() {

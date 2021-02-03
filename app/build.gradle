@@ -52,13 +52,7 @@ dependencies {
     implementation group: 'org.jetbrains.kotlinx', name: 'kotlinx-coroutines-core', version: '1.4.2'
     implementation "androidx.lifecycle:lifecycle-viewmodel-ktx:2.2.0"
     implementation group: 'androidx.lifecycle', name: 'lifecycle-extensions', version: '2.2.0'
-    implementation "androidx.room:room-runtime:2.2.6"
     implementation 'androidx.legacy:legacy-support-v4:1.0.0'
-    kapt "androidx.room:room-compiler:2.2.6"
-    // optional - Kotlin Extensions and Coroutines support for Room
-    implementation "androidx.room:room-ktx:2.2.6"
-    // optional - Test helpers
-    testImplementation "androidx.room:room-testing:2.2.6"
     implementation "androidx.lifecycle:lifecycle-runtime-ktx:2.2.0"
     // LiveData
     implementation "androidx.lifecycle:lifecycle-livedata-ktx:2.2.0"
@@ -70,10 +64,11 @@ dependencies {
     // firebase
     implementation platform('com.google.firebase:firebase-bom:26.3.0')
     implementation 'com.google.firebase:firebase-analytics-ktx'
-    // Declare the dependency for the Firebase Authentication library
-    // When using the BoM, you don't specify versions in Firebase library dependencies
     implementation 'com.google.firebase:firebase-auth-ktx'
     implementation 'com.google.firebase:firebase-messaging-ktx'
+
+
+    implementation group: 'com.squareup.okhttp3', name: 'okhttp', version: '4.9.0'
 
     // retrofit
     implementation "com.github.haroldadmin:NetworkResponseAdapter:4.1.0"

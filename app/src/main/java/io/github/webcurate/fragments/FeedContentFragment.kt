@@ -134,16 +134,7 @@ class FeedContentFragment : Fragment(R.layout.fragment_feed_content), OnPageFini
                     Repository.getContentsForFeed(DataProcessor.currentFeed!!.id)
                 }
             }
-            if (it == NetEvents.CURATE_CONTENTS) {
-                println("curate contents")
-                CoroutineScope(Dispatchers.Main).launch {
-                    NetEvents.contentEvents.value = NetEvents.DEFAULT
-                }
 
-                CoroutineScope(Dispatchers.IO).launch {
-                    Repository.curateContentsFeed(DataProcessor.currentFeed!!.id)
-                }
-            }
             if (it == NetEvents.CONTENTS_CURATED) {
                 println("contents are curated")
                 CoroutineScope(Dispatchers.Main).launch {
@@ -176,11 +167,13 @@ class FeedContentFragment : Fragment(R.layout.fragment_feed_content), OnPageFini
 
 
         CoroutineScope(Dispatchers.Main).launch {
-            NetEvents.contentEvents.value = NetEvents.CURATE_CONTENTS
+            NetEvents.contentEvents.value = NetEvents.UPDATE_CONTENTS
         }
 
         _binding!!.reloadButton.setOnClickListener {
-            NetEvents.contentEvents.value = NetEvents.CURATE_CONTENTS
+            CoroutineScope(Dispatchers.IO).launch {
+                Repository.curateContentsFeed(DataProcessor.currentFeed!!.id)
+            }
         }
 
     } // on create view

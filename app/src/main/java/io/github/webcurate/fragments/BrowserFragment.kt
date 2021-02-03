@@ -46,9 +46,7 @@ class BrowserFragment : Fragment(R.layout.fragment_browser) {
 
         binding.webFeedView.settings.javaScriptEnabled = true
         binding.webFeedView.webViewClient = MainWebViewClient(binding.urlTextFeedWeb, object : OnPageFinish {
-            override fun onPageFinished() {
-                binding.urlProgress.visibility = View.INVISIBLE
-            }
+            override fun onPageFinished() {}
         })
         binding.webFeedView.clearCache(true)
 
@@ -71,7 +69,6 @@ class BrowserFragment : Fragment(R.layout.fragment_browser) {
                     val searchUrl = "https://google.com/search?q=$searchTerm"
                     binding.webFeedView.loadUrl(searchUrl)
                 }
-                binding.urlProgress.visibility = View.VISIBLE
             }
             false
         }
@@ -79,7 +76,6 @@ class BrowserFragment : Fragment(R.layout.fragment_browser) {
         binding.goBtn.setOnClickListener {
             binding.urlTextFeedWeb.clearFocus()
             hideKeyboard()
-            binding.urlProgress.visibility = View.VISIBLE
             var url = binding.urlTextFeedWeb.text.toString().trim()
             if (Patterns.WEB_URL.matcher(url).matches()) {
                 if (!url.startsWith("http")) {
@@ -99,7 +95,6 @@ class BrowserFragment : Fragment(R.layout.fragment_browser) {
                 CoroutineScope(Dispatchers.Main).launch {
                     DataProcessor.backToFeed = true
                     NetEvents.browserEvents.value = NetEvents.DEFAULT
-                    binding.urlProgress.visibility = View.VISIBLE
                     binding.webFeedView.loadUrl(DataProcessor.contentURL)
                 }
             }

@@ -17,7 +17,6 @@ import io.github.webcurate.clients.CustomTitle
 import io.github.webcurate.data.DataProcessor
 import io.github.webcurate.data.NetEvents
 import io.github.webcurate.databinding.FragmentFeedsBinding
-import io.github.webcurate.interfaces.OnItemClick
 import io.github.webcurate.networking.apis.Repository
 import io.github.webcurate.options.OptionMenu
 import kotlinx.coroutines.CoroutineScope
@@ -25,7 +24,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
 
-class FeedsFragment : Fragment(R.layout.fragment_feeds), OnItemClick {
+class FeedsFragment : Fragment(R.layout.fragment_feeds){
 
     companion object {
         fun addFeed(fragmentManager: FragmentManager) {
@@ -56,7 +55,7 @@ class FeedsFragment : Fragment(R.layout.fragment_feeds), OnItemClick {
 
         // RecyclerView
         binding.feedList.layoutManager = LinearLayoutManager(requireContext())
-        val feedListAdapter = FeedListAdapter(this)
+        val feedListAdapter = FeedListAdapter(requireActivity().supportFragmentManager)
         binding.feedList.adapter = feedListAdapter
 
         NetEvents.feedEvents.observe(requireActivity(), {
@@ -101,22 +100,10 @@ class FeedsFragment : Fragment(R.layout.fragment_feeds), OnItemClick {
         NetEvents.feedEvents.removeObservers(requireActivity())
         NetEvents.authEvents.removeObservers(requireActivity())
     }
-
-    override fun onItemClicked(position: Int, action: Int) {
-        CustomTitle.setTitle(Repository.feedList.toList()[position].title)
-        OptionMenu.feedItemVisible = true
-        DataProcessor.currentFeed = Repository.feedList.toList()[position]
-        requireActivity().supportFragmentManager.commit {
-            replace<FeedContentFragment>(R.id.feedsFragment)
-            setReorderingAllowed(true)
-            addToBackStack(null)
-        }
-
-    }
 }
 
 
-class FeedListAdapter(private val callBack: OnItemClick) :
+class FeedListAdapter(private val fragmentManager: FragmentManager) :
     RecyclerView.Adapter<FeedListAdapter.ViewHolder>() {
 
     class ViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
@@ -142,7 +129,14 @@ class FeedListAdapter(private val callBack: OnItemClick) :
             holder.updates.visibility = View.GONE
         }
         holder.itemView.setOnClickListener {
-            callBack.onItemClicked(position)
+            CustomTitle.setTitle(Repository.feedList.toList()[position].title)
+            OptionMenu.feedItemVisible = true
+            DataProcessor.currentFeed = Repository.feedList.toList()[position]
+            fragmentManager.commit {
+                replace<FeedContentFragment>(R.id.feedsFragment)
+                setReorderingAllowed(true)
+                addToBackStack(null)
+            }
         }
     }
 

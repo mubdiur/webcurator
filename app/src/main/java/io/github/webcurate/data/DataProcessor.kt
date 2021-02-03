@@ -8,6 +8,9 @@ import io.github.webcurate.networking.models.SiteResponse
 import org.jsoup.select.Elements
 
 object DataProcessor {
+
+    val selectionSet = mutableSetOf<Int>()
+
     var currentFeed: FeedResponse? = null
     var currentSite: SiteResponse? = null
 

@@ -81,6 +81,8 @@ object Repository {
                     feedList.addAll(response.body)
                     CoroutineScope(Dispatchers.Main).launch {
                         NetEvents.feedEvents.value = NetEvents.FEEDS_READY
+                        NetEvents.feedDeleteEvents.value = NetEvents.FEEDS_READY
+                        NetEvents.feedNotifyEvents.value = NetEvents.FEEDS_READY
                     }
                     CoroutineScope(Dispatchers.Main).launch {
                         MainActivity.stopLoadingAnimation()
@@ -355,6 +357,7 @@ object Repository {
                     CoroutineScope(Dispatchers.Main).launch {
                         NetEvents.notificationEvents.value = NetEvents.NOTIFICATION_READY
                         NetEvents.feedEvents.value = NetEvents.UPDATE_FEEDS
+                        NetEvents.feedNotifyEvents.value = NetEvents.UPDATE_FEEDS // used in manage
                         MainActivity.stopLoadingAnimation()
                     }
 
@@ -613,6 +616,7 @@ object Repository {
                     // Handle successful response
                     CoroutineScope(Dispatchers.Main).launch {
                         NetEvents.feedEvents.value = NetEvents.UPDATE_FEEDS
+                        NetEvents.feedDeleteEvents.value = NetEvents.UPDATE_FEEDS
                         NetEvents.contentEvents.value = NetEvents.CONTENTS_INVALID
                         MainActivity.stopLoadingAnimation()
                     }

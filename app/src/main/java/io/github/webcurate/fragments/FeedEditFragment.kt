@@ -20,14 +20,13 @@ import io.github.webcurate.clients.CustomTitle
 import io.github.webcurate.data.DataProcessor
 import io.github.webcurate.data.NetEvents
 import io.github.webcurate.databinding.FragmentFeedEditBinding
-import io.github.webcurate.interfaces.OnItemClick
 import io.github.webcurate.networking.apis.Repository
 import io.github.webcurate.options.OptionMenu
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
-class FeedEditFragment : Fragment(R.layout.fragment_feed_edit), OnItemClick {
+class FeedEditFragment : Fragment(R.layout.fragment_feed_edit) {
 
     private var binding: FragmentFeedEditBinding? = null
 
@@ -88,7 +87,7 @@ class FeedEditFragment : Fragment(R.layout.fragment_feed_edit), OnItemClick {
         /**
          * Site List
          */
-        val siteListAdapter = SiteListAdapter(this@FeedEditFragment)
+        val siteListAdapter = SiteListAdapter(requireActivity().supportFragmentManager)
         binding!!.siteList.layoutManager = LinearLayoutManager(requireContext())
         binding!!.siteList.adapter = siteListAdapter
         NetEvents.siteEvents.observe(requireActivity(), {
@@ -97,7 +96,7 @@ class FeedEditFragment : Fragment(R.layout.fragment_feed_edit), OnItemClick {
                 CoroutineScope(Dispatchers.Main).launch {
                     NetEvents.siteEvents.value = NetEvents.DEFAULT
                     siteListAdapter.notifyDataSetChanged()
-                    if(Repository.siteList.isEmpty()) {
+                    if (Repository.siteList.isEmpty()) {
                         binding!!.listCover.visibility = View.VISIBLE
                     } else {
                         binding!!.listCover.visibility = View.GONE
@@ -122,9 +121,8 @@ class FeedEditFragment : Fragment(R.layout.fragment_feed_edit), OnItemClick {
                 CoroutineScope(Dispatchers.IO).launch {
                     Repository.getSitesForFeed(DataProcessor.currentFeed!!.id)
                     CoroutineScope(Dispatchers.Main).launch {
-                        NetEvents.contentEvents.value = NetEvents.CURATE_CONTENTS
+                        NetEvents.contentEvents.value = NetEvents.UPDATE_CONTENTS
                     }
-
                 }
             }
         })
@@ -151,31 +149,9 @@ class FeedEditFragment : Fragment(R.layout.fragment_feed_edit), OnItemClick {
         (requireActivity().getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager)
             .hideSoftInputFromWindow(requireView().windowToken, 0)
     }
-
-    override fun onItemClicked(position: Int, action: Int) {
-        when (action) {
-            1 -> { // delete
-                CoroutineScope(Dispatchers.IO).launch {
-                    Repository.deleteSite(Repository.siteList.toList()[position].id)
-                }
-            }
-            2 -> { // modify
-                DataProcessor.siteModifyMode = true
-                DataProcessor.currentSite = Repository.siteList.toList()[position]
-
-                requireActivity().supportFragmentManager.commit {
-                    replace<PageFragment>(R.id.feedEditFragment, tag = "pageFragment")
-                    setReorderingAllowed(true)
-                    addToBackStack(null)
-                }
-            }
-        }
-    }
-
-
 }
 
-class SiteListAdapter(private val callback: OnItemClick) :
+class SiteListAdapter(private val fragmentManager: FragmentManager) :
     RecyclerView.Adapter<SiteListAdapter.ViewHolder>() {
     class ViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
         val urlView: TextView = itemView.findViewById(R.id.urlView)
@@ -192,13 +168,26 @@ class SiteListAdapter(private val callback: OnItemClick) :
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
         holder.urlView.text = Repository.siteList.toList()[position].url
+
         holder.deleteButton.setOnClickListener {
-            callback.onItemClicked(position, 1)
+            CoroutineScope(Dispatchers.IO).launch {
+                Repository.deleteSite(Repository.siteList.toList()[position].id)
+            }
         }
+
         holder.modifyButton.setOnClickListener {
-            callback.onItemClicked(position, 2)
+            DataProcessor.siteModifyMode = true
+            DataProcessor.currentSite = Repository.siteList.toList()[position]
+            fragmentManager.commit {
+                replace<PageFragment>(R.id.feedEditFragment, tag = "pageFragment")
+                setReorderingAllowed(true)
+                addToBackStack(null)
+            }
         }
     }
 
     override fun getItemCount() = Repository.siteList.size
 }
+
+
+

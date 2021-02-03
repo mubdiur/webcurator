@@ -21,7 +21,6 @@ import io.github.webcurate.data.AuthManager
 import io.github.webcurate.data.DataProcessor
 import io.github.webcurate.data.NetEvents
 import io.github.webcurate.databinding.FragmentHomeBinding
-import io.github.webcurate.interfaces.OnItemClick
 import io.github.webcurate.networking.apis.Repository
 import io.github.webcurate.networking.models.FeedResponse
 import io.github.webcurate.options.OptionMenu
@@ -30,7 +29,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import java.util.*
 
-class HomeFragment : Fragment(R.layout.fragment_home), OnItemClick {
+class HomeFragment : Fragment(R.layout.fragment_home) {
 
     private var binding: FragmentHomeBinding? = null
 
@@ -49,11 +48,11 @@ class HomeFragment : Fragment(R.layout.fragment_home), OnItemClick {
         val month: Int = cal.get(Calendar.MONTH)
 
         binding!!.recentList.layoutManager = LinearLayoutManager(requireContext())
-        val listAdapter = RecentListAdapter(this@HomeFragment, binding!!)
+        val listAdapter = RecentListAdapter(requireActivity().supportFragmentManager, binding!!)
         binding!!.recentList.adapter = listAdapter
 
         NetEvents.topicEvents.observe(requireActivity(), {
-            if(it==NetEvents.TOPIC_READY) {
+            if (it == NetEvents.TOPIC_READY) {
                 CoroutineScope(Dispatchers.Main).launch {
                     NetEvents.topicEvents.value = NetEvents.DEFAULT
                 }
@@ -82,7 +81,7 @@ class HomeFragment : Fragment(R.layout.fragment_home), OnItemClick {
         NetEvents.feedEvents.observe(requireActivity(), {
             if (it == NetEvents.FEEDS_READY) {
                 println("Feeds are ready in Home")
-                if(DataProcessor.totalUpdateCount()>0) {
+                if (DataProcessor.totalUpdateCount() > 0) {
                     binding!!.markRead.visibility = View.VISIBLE
                 } else {
                     binding!!.markRead.visibility = View.INVISIBLE
@@ -96,9 +95,9 @@ class HomeFragment : Fragment(R.layout.fragment_home), OnItemClick {
         })
 
         binding!!.markRead.setOnClickListener {
-             CoroutineScope(Dispatchers.IO).launch {
-                 Repository.markAllRead()
-             }
+            CoroutineScope(Dispatchers.IO).launch {
+                Repository.markAllRead()
+            }
         }
     } // on view created
 
@@ -134,26 +133,13 @@ class HomeFragment : Fragment(R.layout.fragment_home), OnItemClick {
         binding = null
     }
 
-    override fun onItemClicked(position: Int, action: Int) {
-        MainActivity.nullBinding!!.viewPager.currentItem = 1
-        CustomTitle.setTitle(DataProcessor.updatedList.toList()[position].title)
-        requireActivity().supportFragmentManager
-            .popBackStack(
-                null,
-                FragmentManager.POP_BACK_STACK_INCLUSIVE
-            )
-        OptionMenu.feedItemVisible = true
-        DataProcessor.currentFeed = DataProcessor.updatedList.toList()[position]
-        requireActivity().supportFragmentManager.commit {
-            replace<FeedContentFragment>(R.id.feedsFragment)
-            setReorderingAllowed(true)
-            addToBackStack(null)
-        }
-    }
 }
 
 
-class RecentListAdapter(private val callBack: OnItemClick, private val binding: FragmentHomeBinding) :
+class RecentListAdapter(
+    private val fragmentManager: FragmentManager,
+    private val binding: FragmentHomeBinding
+) :
     RecyclerView.Adapter<RecentListAdapter.ViewHolder>() {
 
     class ViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
@@ -171,10 +157,23 @@ class RecentListAdapter(private val callBack: OnItemClick, private val binding: 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
         holder.titleText.text = DataProcessor.updatedList.toList()[position].title
         holder.descriptionText.text = DataProcessor.updatedList.toList()[position].description
-        val updateText = DataProcessor.updatedList.toList()[position].updates.toString() + " updates"
+        val updateText =
+            DataProcessor.updatedList.toList()[position].updates.toString() + " updates"
         holder.updateText.text = updateText
         holder.itemView.setOnClickListener {
-            callBack.onItemClicked(position)
+            MainActivity.nullBinding!!.viewPager.currentItem = 1
+            CustomTitle.setTitle(DataProcessor.updatedList.toList()[position].title)
+            fragmentManager.popBackStack(
+                null,
+                FragmentManager.POP_BACK_STACK_INCLUSIVE
+            )
+            OptionMenu.feedItemVisible = true
+            DataProcessor.currentFeed = DataProcessor.updatedList.toList()[position]
+            fragmentManager.commit {
+                replace<FeedContentFragment>(R.id.feedsFragment)
+                setReorderingAllowed(true)
+                addToBackStack(null)
+            }
         }
     }
 
@@ -187,7 +186,7 @@ class RecentListAdapter(private val callBack: OnItemClick, private val binding: 
                 DataProcessor.updatedList.add(feed)
             }
         }
-        if(DataProcessor.updatedList.isEmpty()) {
+        if (DataProcessor.updatedList.isEmpty()) {
             binding.listCover.visibility = View.VISIBLE
         } else {
             binding.listCover.visibility = View.GONE
