@@ -11,6 +11,8 @@ import com.google.android.material.tabs.TabLayoutMediator
 import io.github.webcurate.R
 import io.github.webcurate.activities.authentication.LoginActivity
 import io.github.webcurate.activities.authentication.VerifyEmailActivity
+import io.github.webcurate.activities.manage.AboutActivity
+import io.github.webcurate.activities.manage.HelpActivity
 import io.github.webcurate.adapters.PagerAdapter
 import io.github.webcurate.clients.CustomTitle
 import io.github.webcurate.data.AuthManager
@@ -261,9 +263,15 @@ class MainActivity : AppCompatActivity() {
 
         binding.helpButton.setOnClickListener {
             hideOptions()
+            startActivity(
+                Intent(this, HelpActivity::class.java)
+            )
         }
         binding.aboutButton.setOnClickListener {
             hideOptions()
+            startActivity(
+                Intent(this, AboutActivity::class.java)
+            )
         }
         binding.logoutButton.setOnClickListener {
             if (AuthManager.authInstance.currentUser != null) {
