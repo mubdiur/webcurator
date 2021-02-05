@@ -32,6 +32,7 @@ import kotlinx.coroutines.launch
 class MainActivity : AppCompatActivity() {
 
     companion object {
+        @SuppressLint("StaticFieldLeak")
         var nullBinding: ActivityMainBinding? = null
 
         fun startLoadingAnimation() {
@@ -259,8 +260,6 @@ class MainActivity : AppCompatActivity() {
                 FeedContentFragment.toggleNotification()
             }
         }
-
-
         binding.helpButton.setOnClickListener {
             hideOptions()
             startActivity(

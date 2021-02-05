@@ -7,5 +7,6 @@ data class FeedResponse(
     val title: String,
     val description: String,
     val updates: Int,
+    val notifyupdates: Int,
     val notification: Int
 )

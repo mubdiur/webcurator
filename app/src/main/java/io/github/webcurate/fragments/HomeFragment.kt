@@ -22,7 +22,6 @@ import io.github.webcurate.data.DataProcessor
 import io.github.webcurate.data.NetEvents
 import io.github.webcurate.databinding.FragmentHomeBinding
 import io.github.webcurate.networking.apis.Repository
-import io.github.webcurate.networking.models.FeedResponse
 import io.github.webcurate.options.OptionMenu
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -48,7 +47,7 @@ class HomeFragment : Fragment(R.layout.fragment_home) {
         val month: Int = cal.get(Calendar.MONTH)
 
         binding!!.recentList.layoutManager = LinearLayoutManager(requireContext())
-        val listAdapter = RecentListAdapter(requireActivity().supportFragmentManager, binding!!)
+        val listAdapter = RecentListAdapter(requireActivity().supportFragmentManager)
         binding!!.recentList.adapter = listAdapter
 
         NetEvents.topicEvents.observe(requireActivity(), {
@@ -81,15 +80,17 @@ class HomeFragment : Fragment(R.layout.fragment_home) {
         NetEvents.feedEvents.observe(requireActivity(), {
             if (it == NetEvents.FEEDS_READY) {
                 println("Feeds are ready in Home")
-                if (DataProcessor.totalUpdateCount() > 0) {
+                if (DataProcessor.updatedFeeds.isNotEmpty()) {
                     binding!!.markRead.visibility = View.VISIBLE
+                    binding!!.listCover.visibility = View.GONE
                 } else {
                     binding!!.markRead.visibility = View.INVISIBLE
+                    binding!!.listCover.visibility = View.VISIBLE
                 }
-                binding!!.homeUpdateNo.text = DataProcessor.totalUpdateCount().toString()
+                binding!!.homeUpdateNo.text = DataProcessor.totalUpdates()
                 CoroutineScope(Dispatchers.Main).launch {
                     NetEvents.feedEvents.value = NetEvents.DEFAULT
-                    listAdapter.updateItems(Repository.feedList)
+                    listAdapter.notifyDataSetChanged()
                 }
             }
         })
@@ -137,8 +138,7 @@ class HomeFragment : Fragment(R.layout.fragment_home) {
 
 
 class RecentListAdapter(
-    private val fragmentManager: FragmentManager,
-    private val binding: FragmentHomeBinding
+    private val fragmentManager: FragmentManager
 ) :
     RecyclerView.Adapter<RecentListAdapter.ViewHolder>() {
 
@@ -155,20 +155,20 @@ class RecentListAdapter(
     }
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
-        holder.titleText.text = DataProcessor.updatedList.toList()[position].title
-        holder.descriptionText.text = DataProcessor.updatedList.toList()[position].description
+        holder.titleText.text = DataProcessor.updatedFeeds.toList()[position].title
+        holder.descriptionText.text = DataProcessor.updatedFeeds.toList()[position].description
         val updateText =
-            DataProcessor.updatedList.toList()[position].updates.toString() + " updates"
+            DataProcessor.updatedFeeds.toList()[position].updates.toString() + " updates"
         holder.updateText.text = updateText
         holder.itemView.setOnClickListener {
             MainActivity.nullBinding!!.viewPager.currentItem = 1
-            CustomTitle.setTitle(DataProcessor.updatedList.toList()[position].title)
+            CustomTitle.setTitle(DataProcessor.updatedFeeds.toList()[position].title)
             fragmentManager.popBackStack(
                 null,
                 FragmentManager.POP_BACK_STACK_INCLUSIVE
             )
             OptionMenu.feedItemVisible = true
-            DataProcessor.currentFeed = DataProcessor.updatedList.toList()[position]
+            DataProcessor.currentFeed = DataProcessor.updatedFeeds.toList()[position]
             fragmentManager.commit {
                 replace<FeedContentFragment>(R.id.feedsFragment)
                 setReorderingAllowed(true)
@@ -177,20 +177,5 @@ class RecentListAdapter(
         }
     }
 
-    override fun getItemCount() = DataProcessor.updatedList.size
-
-    fun updateItems(newList: Set<FeedResponse>) {
-        DataProcessor.updatedList.clear()
-        for (feed in newList) {
-            if (feed.updates != 0) {
-                DataProcessor.updatedList.add(feed)
-            }
-        }
-        if (DataProcessor.updatedList.isEmpty()) {
-            binding.listCover.visibility = View.VISIBLE
-        } else {
-            binding.listCover.visibility = View.GONE
-        }
-        notifyDataSetChanged()
-    }
+    override fun getItemCount() = DataProcessor.updatedFeeds.size
 }

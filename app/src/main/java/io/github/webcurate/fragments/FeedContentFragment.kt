@@ -5,6 +5,7 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.ImageView
 import android.widget.TextView
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentManager
@@ -100,10 +101,13 @@ class FeedContentFragment : Fragment(R.layout.fragment_feed_content), OnPageFini
         NetEvents.contentEvents.observe(requireActivity(), {
             if (it == NetEvents.CONTENTS_READY) {
                 println("Contents ready")
+                CoroutineScope(Dispatchers.IO).launch {
+                    Repository.markFeedRead(DataProcessor.currentFeed!!.id)
+                }
                 CoroutineScope(Dispatchers.Main).launch {
                     NetEvents.contentEvents.value = NetEvents.DEFAULT
                     feedContentAdapter.notifyDataSetChanged()
-                    if(Repository.contentList.isEmpty()) {
+                    if (Repository.contentList.isEmpty()) {
                         _binding!!.listCover.visibility = View.VISIBLE
                     } else {
                         _binding!!.listCover.visibility = View.GONE
@@ -176,14 +180,12 @@ class FeedContentFragment : Fragment(R.layout.fragment_feed_content), OnPageFini
             }
         }
 
+
     } // on create view
 
     override fun onDestroyView() {
         super.onDestroyView()
         OptionMenu.feedItemVisible = false
-        CoroutineScope(Dispatchers.IO).launch {
-            Repository.markFeedRead(DataProcessor.currentFeed!!.id)
-        }
         _binding = null
         NetEvents.contentEvents.removeObservers(requireActivity())
         NetEvents.notificationEvents.removeObservers(requireActivity())
@@ -199,6 +201,7 @@ class FeedContentAdapter : RecyclerView.Adapter<FeedContentAdapter.ViewHolder>()
     class ViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
         val itemText: TextView = itemView.findViewById(R.id.titleTextView)
         val sourceText: TextView = itemView.findViewById(R.id.sourceText)
+        val newBadge: ImageView = itemView.findViewById(R.id.newBadge)
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
@@ -210,9 +213,19 @@ class FeedContentAdapter : RecyclerView.Adapter<FeedContentAdapter.ViewHolder>()
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
         holder.itemText.text = Repository.contentList.toList()[position].text.trim()
+        var suffixOfSource = ""
+        if (Repository.contentList.toList()[position].source.length > 35)
+            suffixOfSource = "..."
         val sourceText =
-            "Source: " + Repository.contentList.toList()[position].source.take(35) + "..."
+            "Source: " + Repository.contentList.toList()[position].source.take(35) + suffixOfSource
         holder.sourceText.text = sourceText
+
+        if (Repository.contentList.toList()[position].new == 1) {
+            holder.newBadge.visibility = View.VISIBLE
+        } else {
+            holder.newBadge.visibility = View.GONE
+        }
+
         holder.itemView.setOnClickListener {
             DataProcessor.contentURL = Repository.contentList.toList()[position].source
             MainActivity.nullBinding!!.viewPager.currentItem = 2

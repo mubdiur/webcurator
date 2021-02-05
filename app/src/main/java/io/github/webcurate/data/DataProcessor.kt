@@ -29,14 +29,24 @@ object DataProcessor {
     var siteAddMode = false
     var backToFeed = false
 
-    val updatedList = mutableSetOf<FeedResponse>()
+    val updatedFeeds = mutableSetOf<FeedResponse>()
 
-    fun totalUpdateCount(): Int {
+
+    fun totalUpdates(): String {
         var count = 0
         for (feed in Repository.feedList) {
             count += feed.updates
         }
-        return count
+        return count.toString()
+    }
+
+    fun processFeeds() {
+        updatedFeeds.clear()
+        for (feed in Repository.feedList) {
+            if (feed.updates > 0) {
+                updatedFeeds.add(feed)
+            }
+        }
     }
 
 
@@ -108,46 +118,23 @@ object DataProcessor {
         val queries = mutableSetOf<String>()
         for (currentIndex in contentList.indices) {
             for (nextIndex in currentIndex until contentList.size) {
-                // compare current one to the rest
-                val commonShortPath = mutableListOf<String>()
-                val commonLongPath = mutableListOf<String>()
-
-                var current = contentList[currentIndex].slimPath.size - 1
-                var next = contentList[nextIndex].slimPath.size - 1
-                var matchIndex = -1
-                while (current >= 0 && next >= 0) {
-                    if (contentList[currentIndex].slimPath[current] == contentList[nextIndex].slimPath[next]) {
-                        matchIndex = current
-                        current--
-                        next--
-                    } else break
+                val path1 = contentList[currentIndex].slimPath.asReversed()
+                val path2 = contentList[nextIndex].slimPath.asReversed()
+                val commonPath = mutableListOf<String>()
+                var i = 0
+                var continueLoop = true
+                while (i < path1.size && i < path2.size && continueLoop) {
+                    if (path1[i] == path2[i]) {
+                        commonPath.add(path1[i])
+                    } else continueLoop = false
+                    i++
                 }
-
-                if (matchIndex != -1) {
-                    for (i in matchIndex until contentList[currentIndex].slimPath.size) {
-                        commonShortPath.add(contentList[currentIndex].slimPath[i])
-                    }
+                if (commonPath.isNotEmpty() && commonPath.size != 1) {
+                    queries.add(commonPath.asReversed().joinToString(" > "))
+                } else {
+                    queries.add(path1.joinToString(" > "))
+                    queries.add(path2.joinToString(" > "))
                 }
-
-                current = contentList[currentIndex].classPath.size - 1
-                next = contentList[nextIndex].classPath.size - 1
-                matchIndex = -1
-                while (current >= 0 && next >= 0) {
-                    if (contentList[currentIndex].classPath[current] == contentList[nextIndex].classPath[next]) {
-                        matchIndex = current
-                        current--
-                        next--
-                    } else break
-                }
-
-                if (matchIndex != -1) {
-                    for (i in matchIndex until contentList[currentIndex].classPath.size) {
-                        commonLongPath.add(contentList[currentIndex].classPath[i])
-                    }
-                }
-
-                if (commonLongPath.isNotEmpty()) queries.add(commonLongPath.joinToString(" > "))
-                if (commonShortPath.isNotEmpty()) queries.add(commonShortPath.joinToString(" > "))
             }
         }
         return queries

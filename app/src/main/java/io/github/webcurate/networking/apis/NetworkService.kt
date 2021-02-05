@@ -15,6 +15,7 @@ object NetworkService {
 
     private val retrofit = Retrofit.Builder()
         .baseUrl("https://mubdiur.com:8321")
+//        .baseUrl("http://172.16.1.2:8321")
         .client(okHttpClient)
         .addConverterFactory(GsonConverterFactory.create())
         .addCallAdapterFactory(NetworkResponseAdapterFactory())

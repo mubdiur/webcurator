@@ -18,7 +18,6 @@ object Repository {
     var topic = ""
     var htmlResponse = HtmlResponse("")
 
-
     // network 0
     suspend fun getHtml(url: String) {
         htmlResponse = HtmlResponse("")
@@ -79,6 +78,7 @@ object Repository {
                     // Handle successful response
                     feedList.clear()
                     feedList.addAll(response.body)
+                    DataProcessor.processFeeds()
                     CoroutineScope(Dispatchers.Main).launch {
                         NetEvents.feedEvents.value = NetEvents.FEEDS_READY
                         NetEvents.feedDeleteEvents.value = NetEvents.FEEDS_READY
